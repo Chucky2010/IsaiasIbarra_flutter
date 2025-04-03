@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'login_screen.dart';
+import 'views/login_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,21 +14,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
+
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       home: const MyHomePage(title: 'Flutter Demo ISAIAS Home Page'),
@@ -85,6 +71,22 @@ Widget build(BuildContext context) {
             style: Theme.of(context).textTheme.headlineMedium,
           ),
           const SizedBox(height: 20), // Espaciado entre widgets
+          Text(
+            _counter > 0
+                ? 'Contador en positivo'
+                : _counter == 0
+                    ? 'Contador en cero'
+                    : 'Contador en negativo',
+            style: TextStyle(
+              fontSize: 18,
+              color: _counter > 0
+                  ? Colors.green
+                  : _counter == 0
+                      ? Colors.black
+                      : Colors.red,
+            ),
+          ),
+          const SizedBox(height: 20), // Espaciado entre widgets
           ElevatedButton(
             onPressed: () {
               showDialog(
@@ -106,8 +108,8 @@ Widget build(BuildContext context) {
               );
             },
             child: const Text('Mostrar Advertencia'),
-          
-          ),const SizedBox(height: 20), // Espaciado entre botones
+          ),
+          const SizedBox(height: 20), // Espaciado entre botones
           ElevatedButton(
             onPressed: () {
               Navigator.push(
@@ -120,11 +122,37 @@ Widget build(BuildContext context) {
         ],
       ),
     ),
-    floatingActionButton: FloatingActionButton(
-      onPressed: _incrementCounter,
-      tooltip: 'Increment',
-      child: const Icon(Icons.add),
+    floatingActionButton: Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        FloatingActionButton(
+          onPressed: _incrementCounter,
+          tooltip: 'Increment',
+          child: const Icon(Icons.add),
+        ),
+        const SizedBox(width: 10), // Espaciado entre los botones
+        FloatingActionButton(
+          onPressed: () {
+            setState(() {
+              _counter--; // Decrementa el contador
+            });
+          },
+          tooltip: 'Decrement',
+          child: const Icon(Icons.remove),
+        ),
+         const SizedBox(width: 10), // Espaciado entre los botones
+        FloatingActionButton(
+          onPressed: () {
+            setState(() {
+              _counter = 0; // Reinicia el contador a 0
+            });
+          },
+          tooltip: 'Reset',
+          child: const Icon(Icons.refresh),
+        ),
+      ],
     ),
   );
 }
+
 }
