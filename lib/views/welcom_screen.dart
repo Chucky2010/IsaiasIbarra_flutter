@@ -78,7 +78,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       case 1: // Añadir Tarea
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const TareasScreen()),
+          MaterialPageRoute(builder: (context) =>  TareasScreen()),
         );
 
         break;
