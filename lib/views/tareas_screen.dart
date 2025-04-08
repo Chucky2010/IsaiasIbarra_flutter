@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:mi_proyecto/views/login_screen.dart';
 import 'package:mi_proyecto/views/welcom_screen.dart';
 import 'package:mi_proyecto/api/service/tareas_service.dart';
+import 'package:mi_proyecto/data/task_repository.dart';
+import 'package:mi_proyecto/domain/task.dart';
+import 'package:mi_proyecto/constants.dart';
 
 
 class TareasScreen extends StatefulWidget {
@@ -12,8 +15,8 @@ class TareasScreen extends StatefulWidget {
  }
  
  class _TareasScreenState extends State<TareasScreen> {
-   final List<Map<String, dynamic>> _tareas = [];
- 
+   final List<Task> _tareas = [];
+  final TaskRepository taskRepository = TaskRepository(); // Instancia del repositorio
    final TareasService _tareasService = TareasService();
    final ScrollController _scrollController = ScrollController();
    bool _cargando = false;
@@ -90,8 +93,8 @@ class TareasScreen extends StatefulWidget {
      }
    }
  
-   Future<void> _agregarTarea(String titulo, String detalle, DateTime fecha) async {
-     final nuevaTarea = {'titulo': titulo, 'detalle': detalle, 'fecha': fecha};
+   Future<void> _agregarTarea(String titulo, String tipo, DateTime fecha) async {
+     final nuevaTarea = Task(title:titulo, type: tipo); // Crea una nueva tarea
      await _tareasService.agregarTarea(nuevaTarea);
      setState(() {
        _tareas.insert(0, nuevaTarea); // Agrega la nueva tarea al inicio
@@ -174,7 +177,7 @@ class TareasScreen extends StatefulWidget {
  
                  if (titulo.isEmpty || detalle.isEmpty || fechaSeleccionada == null) {
                    ScaffoldMessenger.of(context).showSnackBar(
-                     const SnackBar(content: Text('Todos los campos son obligatorios')),
+                     const SnackBar(content: Text('EMPTY_LIST')),
                    );
                    return;
                  }
@@ -193,7 +196,7 @@ class TareasScreen extends StatefulWidget {
    @override
    Widget build(BuildContext context) {
      return Scaffold(
-       appBar: AppBar(title: const Text('Tareas')),
+       appBar: AppBar(title: const Text(TITLE_APPBAR)),
        body: ListView.builder(
          controller: _scrollController,
          itemCount: _tareas.length + (_cargando ? 1 : 0),
@@ -209,7 +212,7 @@ class TareasScreen extends StatefulWidget {
  
            final tarea = _tareas[index];
            return Dismissible(
-             key: Key(tarea['titulo']),
+             key: Key(tarea.title),
              direction: DismissDirection.endToStart,
              background: Container(
                color: Colors.red,
@@ -221,7 +224,13 @@ class TareasScreen extends StatefulWidget {
                _eliminarTarea(index);
              },
              child: ListTile(
-               title: Text(tarea['titulo']),
+                leading: Icon(
+                 tarea.type == 'normal' ? Icons.task : Icons.warning,
+                 color: tarea.type == 'normal' ? Colors.blue : Colors.red,
+               ),
+               title: Text(tarea.title),
+               //subtitle: Text(tarea.type),
+               subtitle: Text('$TASK_TYPE_LABEL ${tarea.type}'),   
              
              ),
            );

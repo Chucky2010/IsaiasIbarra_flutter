@@ -2,11 +2,11 @@ import '../domain/task.dart';
 
 class TaskRepository {
   final List<Task> _tasks = [
-    Task('Tarea 1', type: 'normal'),
-    Task('Tarea 2', type: 'normal'),
-    Task('Tarea 3', type: 'normal'),
-    Task('Tarea 4', type: 'urgente'),
-    Task('Tarea 5', type: 'urgente'),
+    Task(title: 'Tarea 1', type: 'normal'),
+    Task(title:'Tarea 2', type: 'normal'),
+    Task(title:'Tarea 3', type: 'normal'),
+    Task(title:'Tarea 4', type: 'urgente'),
+    Task(title:'Tarea 5', type: 'urgente'),
   ];
 
   List<Task> getTasks() {

@@ -1,45 +1,49 @@
 import 'dart:async';
 
 import 'package:mi_proyecto/data/task_repository.dart';
+import 'package:mi_proyecto/domain/task.dart';
 
 class TareasService {
-  final List<Map<String, dynamic>> _tareas = [];
+  final TaskRepository _taskRepository = TaskRepository();
   //final TaskRepository _taskRepository = TaskRepository();
 
 
-  Future<List<Map<String, dynamic>>> obtenerTareas({int inicio = 0, int limite = 10}) async {
+  Future<List<Task>> obtenerTareas({int inicio = 0, int limite = 10}) async {
     // Simula un retraso para imitar una llamada a una API
     await Future.delayed(const Duration(seconds: 1));
 
     // Devuelve un subconjunto de tareas
-    return _tareas.skip(inicio).take(limite).toList();
+    final tareas = _taskRepository.getTasks();
+    return tareas.skip(inicio).take(limite).toList();
   }
 
-  Future<void> agregarTarea(Map<String, dynamic> tarea) async {
+  Future<void> agregarTarea(Task tarea) async {
     // Simula un retraso para imitar una llamada a una API
     await Future.delayed(const Duration(milliseconds: 500));
-    _tareas.add(tarea);
+    _taskRepository.addTask(tarea);
   }
 
   Future<void> eliminarTarea(int index) async {
     // Simula un retraso para imitar una llamada a una API
     await Future.delayed(const Duration(milliseconds: 500));
-    _tareas.removeAt(index);
+    _taskRepository.removeTask(index);
   }
 
-  Future<void> modificarTarea(int index, Map<String, dynamic> nuevaTarea) async {
+  Future<void> modificarTarea(int index, Task tareaModificada) async {
     // Simula un retraso para imitar una llamada a una API
     await Future.delayed(const Duration(milliseconds: 500));
-    if (index >= 0 && index < _tareas.length) {
-      _tareas[index] = nuevaTarea;
+    final tareas = _taskRepository.getTasks();
+    if (index >= 0 && index < tareas.length) {
+      tareas[index] = tareaModificada;
     } else {
       throw Exception('Índice fuera de rango');
     }
   }
 
-  Future<List<Map<String, dynamic>>> listarTareas() async {
-    // Simula un retraso para imitar una llamada a una API
-    await Future.delayed(const Duration(milliseconds: 500));
-    return _tareas;
-  }
+  // Future<List<Map<String, dynamic>>> listarTareas() async 
+  // {
+  //   // Simula un retraso para imitar una llamada a una API
+  //   await Future.delayed(const Duration(milliseconds: 500));
+  //   return tareas;
+  // }
 }
