@@ -56,6 +56,15 @@ class TareasService {
     }
   }
 
+List<String> obtenerPasos(String titulo) {
+    return [
+      'Paso 1: Planificar $titulo',
+      'Paso 2: Ejecutar $titulo',
+      'Paso 3: Revisar $titulo',
+    ];
+  }
+
+
   // Future<List<Map<String, dynamic>>> listarTareas() async
   // {
   //   // Simula un retraso para imitar una llamada a una API
