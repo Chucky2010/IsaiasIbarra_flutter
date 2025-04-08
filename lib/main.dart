@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'views/login_screen.dart';
+import 'views/tareas_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
 
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const MyHomePage(title: 'Flutter Demo ISAIAS Home Page'),
+      home: const MyHomePage(title: 'ISAIAS flutter app'),
     );
   }
 }
@@ -119,6 +120,15 @@ Widget build(BuildContext context) {
             },
             child: const Text('Ir a Inicio de Sesión'),
           ),
+             ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => TareasScreen()),
+                );
+              },
+              child: const Text('Ir a Lista de Tareas'),
+            ),
         ],
       ),
     ),
@@ -126,12 +136,14 @@ Widget build(BuildContext context) {
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         FloatingActionButton(
+          heroTag: 'increment',
           onPressed: _incrementCounter,
           tooltip: 'Increment',
           child: const Icon(Icons.add),
         ),
         const SizedBox(width: 10), // Espaciado entre los botones
         FloatingActionButton(
+          heroTag: 'decrement',
           onPressed: () {
             setState(() {
               _counter--; // Decrementa el contador
@@ -147,6 +159,7 @@ Widget build(BuildContext context) {
               _counter = 0; // Reinicia el contador a 0
             });
           },
+          heroTag: 'reset',
           tooltip: 'Reset',
           child: const Icon(Icons.refresh),
         ),

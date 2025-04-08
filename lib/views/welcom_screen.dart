@@ -78,7 +78,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       case 1: // Añadir Tarea
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const TareasScreen()),
+          MaterialPageRoute(builder: (context) =>  TareasScreen()),
         );
 
         break;
@@ -100,7 +100,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-              decoration: BoxDecoration(color: Colors.pinkAccent),
+              decoration: BoxDecoration(color: Colors.blueAccent),
               child: Text(
                 'Menú de Navegación',
                 style: TextStyle(color: Colors.white, fontSize: 24),
