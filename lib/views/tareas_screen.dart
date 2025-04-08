@@ -5,251 +5,366 @@ import 'package:mi_proyecto/api/service/tareas_service.dart';
 import 'package:mi_proyecto/data/task_repository.dart';
 import 'package:mi_proyecto/domain/task.dart';
 import 'package:mi_proyecto/constants.dart';
-
+import 'package:mi_proyecto/helpers/task_card_helper.dart';
 
 class TareasScreen extends StatefulWidget {
-   const TareasScreen({super.key});
- 
-   @override
-   _TareasScreenState createState() => _TareasScreenState();
- }
- 
- class _TareasScreenState extends State<TareasScreen> {
-   final List<Task> _tareas = [];
-  final TaskRepository taskRepository = TaskRepository(); // Instancia del repositorio
-   final TareasService _tareasService = TareasService();
-   final ScrollController _scrollController = ScrollController();
-   bool _cargando = false;
-   bool _hayMasTareas = true;
-   int _paginaActual = 0;
-   final int _limitePorPagina = 10;
-   int _selectedIndex = 0; // Índice del elemento seleccionado en el navbar
-   DateTime? fechaSeleccionada;
-   final TextEditingController fechaController = TextEditingController();
- 
-   void _onItemTapped(int index) {
-     setState(() {
-       _selectedIndex = index;
-     });
- 
-     // Lógica para manejar la navegación según el índice seleccionado
-     switch (index) {
-       case 0: // Inicio
-         Navigator.pushReplacement(
-           context,
-           MaterialPageRoute(builder: (context) => const WelcomeScreen()),
-         );
-         break;
-       case 1: // Añadir Tarea
-         // Ya estás en TareasScreen, no necesitas navegar
-         break;
-       case 2: // Salir
-         Navigator.pushReplacement(
-           context,
-           MaterialPageRoute(builder: (context) => LoginScreen()),
-         );
-         break;
-     }
-   }
+  const TareasScreen({super.key});
 
-   @override
-   void initState() {
-     super.initState();
-     _cargarTareas();
-     _scrollController.addListener(_detectarScrollFinal);
-   }
- 
-   @override
-   void dispose() {
-     _scrollController.dispose();
-     super.dispose();
-   }
- 
-   Future<void> _cargarTareas() async {
-     if (_cargando || !_hayMasTareas) return;
- 
-     setState(() {
-       _cargando = true;
-     });
-   
- 
-     final nuevasTareas = await _tareasService.obtenerTareas(
-       inicio: _paginaActual * _limitePorPagina,
-       limite: _limitePorPagina,
-     );
- 
-     setState(() {
-       _tareas.addAll(nuevasTareas);
-       _cargando = false;
-       _hayMasTareas = nuevasTareas.length == _limitePorPagina;
-       if (_hayMasTareas) _paginaActual++;
-     });
-   }
- 
-   void _detectarScrollFinal() {
-     if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent &&
-         !_cargando) {
-       _cargarTareas();
-     }
-   }
- 
-   Future<void> _agregarTarea(String titulo, String tipo, DateTime fecha) async {
-     final nuevaTarea = Task(title:titulo, type: tipo); // Crea una nueva tarea
-     await _tareasService.agregarTarea(nuevaTarea);
-     setState(() {
-       _tareas.insert(0, nuevaTarea); // Agrega la nueva tarea al inicio
-     });
-   }
- 
-   Future<void> _eliminarTarea(int index) async {
-     await _tareasService.eliminarTarea(index);
-     setState(() {
-       _tareas.removeAt(index);
-     });
-   }
- 
-   void _mostrarModalAgregarTarea() {
-     final TextEditingController tituloController = TextEditingController();
-     final TextEditingController detalleController = TextEditingController();
- 
-     showDialog(
-       context: context,
-       builder: (BuildContext context) {
-         return AlertDialog(
-           title: const Text('Agregar Tarea'),
-           content: Column(
-             mainAxisSize: MainAxisSize.min,
-             children: [
-               TextField(
-                 controller: tituloController,
-                 decoration: const InputDecoration(
-                   labelText: 'Título',
-                   border: OutlineInputBorder(),
-                 ),
-               ),
-               const SizedBox(height: 16),
-               TextField(
-                 controller: detalleController,
-                 decoration: const InputDecoration(
-                   labelText: 'Detalle',
-                   border: OutlineInputBorder(),
-                 ),
-               ),
-               const SizedBox(height: 16),
-               TextField(
-                 controller: fechaController,
-                 readOnly: true, // Hace que el campo no sea editable manualmente
-                 decoration: const InputDecoration(
-                   labelText: 'Fecha',
-                   border: OutlineInputBorder(),
-                   hintText: 'Seleccionar Fecha',
-                 ),
-                 onTap: () async {
-                   DateTime? nuevaFecha = await showDatePicker(
-                     context: context,
-                     initialDate: fechaSeleccionada ?? DateTime.now(),
-                     firstDate: DateTime(2000),
-                     lastDate: DateTime(2100),
-                   );
-                   if (nuevaFecha != null) {
-                     setState(() {
-                       fechaSeleccionada = nuevaFecha;
-                       fechaController.text = nuevaFecha.toLocal().toString().split(' ')[0];
-                     });
-                   }
-                 },
-               ),
-             ],
-           ),
-           actions: [
-             TextButton(
-               onPressed: () {
-                 Navigator.pop(context);
-               },
-               child: const Text('Cancelar'),
-             ),
+  @override
+  State<TareasScreen> createState() => _TareasScreenState();
+}
 
-             ElevatedButton(
-               onPressed: () {
-                 final titulo = tituloController.text.trim();
-                 final detalle = detalleController.text.trim();
-                 final fecha = fechaController.text.trim();
- 
-                 if (titulo.isEmpty || detalle.isEmpty || fechaSeleccionada == null) {
-                   ScaffoldMessenger.of(context).showSnackBar(
-                     const SnackBar(content: Text('EMPTY_LIST')),
-                   );
-                   return;
-                 }
+class _TareasScreenState extends State<TareasScreen> {
+  List<Task> _tareas = [];
+  final TaskRepository taskRepository =
+      TaskRepository(); // Instancia del repositorio
+  final TareasService _tareasService = TareasService();
+  final ScrollController _scrollController = ScrollController();
+  //  bool _cargando = false;
+  //  bool _hayMasTareas = true;
+  //  int _paginaActual = 0;
+  //  final int _limitePorPagina = 10;
+  int _selectedIndex = 0; // Índice del elemento seleccionado en el navbar
+  //  DateTime? fechaSeleccionada;
+  //  final TextEditingController fechaController = TextEditingController();
+  int _nextTaskId = 7;
+  bool _cargando = false;
 
-                 _agregarTarea(titulo, detalle, fechaSeleccionada!);
-                  Navigator.pop(context);
-               },
-               child: const Text('Guardar'),
-             ),
-           ],
-         );
-       },
-     );
-   }
- 
-   @override
-   Widget build(BuildContext context) {
-     return Scaffold(
-       appBar: AppBar(title: const Text(TITLE_APPBAR)),
-       body: ListView.builder(
-         controller: _scrollController,
-         itemCount: _tareas.length + (_cargando ? 1 : 0),
-         itemBuilder: (context, index) {
-           if (index == _tareas.length) {
-             return const Center(
-               child: Padding(
-                 padding: EdgeInsets.all(16.0),
-                 child: CircularProgressIndicator(),
-               ),
-             );
-           }
- 
-           final tarea = _tareas[index];
-           return Dismissible(
-             key: Key(tarea.title),
-             direction: DismissDirection.endToStart,
-             background: Container(
-               color: Colors.red,
-               alignment: Alignment.centerRight,
-               padding: const EdgeInsets.symmetric(horizontal: 20),
-               child: const Icon(Icons.delete, color: Colors.white),
-             ),
-             onDismissed: (direction) {
-               _eliminarTarea(index);
-             },
-             child: ListTile(
-                leading: Icon(
-                 tarea.type == 'normal' ? Icons.task : Icons.warning,
-                 color: tarea.type == 'normal' ? Colors.blue : Colors.red,
-               ),
-               title: Text(tarea.title),
-               //subtitle: Text(tarea.type),
-               subtitle: Text('$TASK_TYPE_LABEL ${tarea.type}'),   
-             
-             ),
-           );
-         },
-       ),
-       floatingActionButton: FloatingActionButton(
-         onPressed: _mostrarModalAgregarTarea,
-         tooltip: 'Agregar Tarea',
-         child: const Icon(Icons.add),
-       ),
-       bottomNavigationBar: BottomNavigationBar(
-         currentIndex: _selectedIndex, // Índice del elemento seleccionado
-         onTap: _onItemTapped, // Maneja el evento de selección
-         items: const [
-           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Inicio"),
-           BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Añadir Tarea'),
-           BottomNavigationBarItem(icon: Icon(Icons.close), label: "Salir"),
-         ],
-       ),
-     );
-   }
- }
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    // Lógica para manejar la navegación según el índice seleccionado
+    switch (index) {
+      case 0: // Inicio
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+        );
+        break;
+      case 1: // Añadir Tarea
+        // Ya estás en TareasScreen, no necesitas navegar
+        break;
+      case 2: // Salir
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginScreen()),
+        );
+        break;
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _obtenerTareas();
+    _scrollController.addListener(_detectarScrollFinal);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _mostrarError(String mensaje) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(mensaje)));
+  }
+
+  Future<void> _obtenerTareas() async {
+    try {
+      final tareas = await _tareasService.obtenerTareas();
+      setState(() {
+        _tareas = tareas;
+      });
+    } catch (e) {
+      _mostrarError('Error al cargar tareas: $e');
+    }
+  }
+
+  Future<void> _obtenerMasTareas() async {
+    if (_cargando) return;
+
+    setState(() {
+      _cargando = true;
+    });
+
+    // Simulamos carga de 5 tareas nuevas
+    await Future.delayed(const Duration(seconds: 1));
+
+    final nuevasTareas = List.generate(5, (index) {
+      return Task(
+        title: 'Tarea ${_nextTaskId + index}',
+        type: (index % 2) == 0 ? 'normal' : 'urgente',
+        descripcion: 'Descripción de tarea ${_nextTaskId + index}',
+        fecha: DateTime.now().add(Duration(days: index)),
+      );
+    });
+
+    setState(() {
+      _tareas.addAll(nuevasTareas);
+      _nextTaskId += 5;
+      _cargando = false;
+    });
+  }
+
+  void _detectarScrollFinal() {
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent &&
+        !_cargando) {
+      _obtenerMasTareas();
+    }
+  }
+
+  Future<void> _agregarTarea(Task tarea) async {
+    try {
+      await _tareasService.agregarTarea(tarea);
+      setState(() {
+        _tareas.add(tarea);
+      });
+    } catch (e) {
+      _mostrarError('Error al agregar tarea: $e');
+      await _obtenerTareas();
+    }
+  }
+
+  Future<void> _eliminarTarea(int index) async {
+    try {
+      await _tareasService.eliminarTarea(index);
+      setState(() {
+        _tareas.removeAt(index);
+      });
+    } catch (e) {
+      _mostrarError('Error al eliminar tarea: $e');
+      await _obtenerTareas();
+    }
+  }
+
+Future<void> _modificarTarea(int index, Task tarea) async {
+    try {
+      await _tareasService.modificarTarea(index,tarea);
+      setState(() {
+        _tareas[index] = tarea;
+      });
+    } catch (e) {
+      _mostrarError('Error al modificar tarea: $e');
+      await _obtenerTareas();
+    }
+  }
+
+
+   void _mostrarModalAgregarTarea({int? index}) async {
+    final task = index != null ? await _tareasService.getTaskById(index) : null;
+
+    final TextEditingController tituloController = TextEditingController(
+      text: task?.title ?? '',
+    );
+    final TextEditingController detalleController = TextEditingController(
+      text: task?.descripcion ?? '',
+    );
+    final TextEditingController fechaController = TextEditingController(
+      text: task?.fecha.toLocal().toString().split(' ')[0] ?? '',
+    );
+    DateTime? fechaSeleccionada = task?.fecha;
+
+    final TextEditingController tipoController = TextEditingController(
+      text: task?.type ?? 'normal',
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(index == null ? 'Agregar Tarea' : 'Editar Tarea'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: tituloController,
+                decoration: const InputDecoration(
+                  labelText: 'Título',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: detalleController,
+                decoration: const InputDecoration(
+                  labelText: 'Detalle',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: fechaController,
+                readOnly: true,
+                decoration: const InputDecoration(
+                  labelText: 'Fecha',
+                  border: OutlineInputBorder(),
+                  hintText: 'Seleccionar Fecha',
+                ),
+                onTap: () async {
+                  DateTime? nuevaFecha = await showDatePicker(
+                    context: context,
+                    initialDate: fechaSeleccionada ?? DateTime.now(),
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime(2100),
+                  );
+                  if (nuevaFecha != null) {
+                    setState(() {
+                      fechaSeleccionada = nuevaFecha;
+                      fechaController.text =
+                          nuevaFecha.toLocal().toString().split(' ')[0];
+                    });
+                  }
+                },
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                  value:
+                      tipoController.text.isEmpty ||
+                              tipoController.text.toLowerCase() == 'normal'
+                          ? 'normal'
+                          : 'urgente',
+
+                  decoration: const InputDecoration(
+                    labelText: 'Tipo de Tarea',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: const [
+                    DropdownMenuItem<String>(
+                      value: 'normal',
+                      child: Row(
+                        children: [
+                          Icon(Icons.check_circle_outline, color: Colors.blue),
+                          SizedBox(width: 8),
+                          Text('Normal'),
+                        ],
+                      ),
+                    ),
+                    DropdownMenuItem<String>(
+                      value: 'urgente',
+                      child: Row(
+                        children: [
+                          Icon(Icons.warning, color: Colors.red),
+                          SizedBox(width: 8),
+                          Text('Urgente'),
+                        ],
+                      ),
+                    ),
+                  ],
+                  onChanged: (String? newValue) {
+                    if (newValue != null) {
+                      setState(() {
+                        tipoController.text = newValue;
+                      });
+                    }
+                  },
+                ),
+            ]
+            
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Cierra el modal sin guardar
+              },
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final titulo = tituloController.text.trim();
+                final detalle = detalleController.text.trim();
+                final fecha = fechaController.text.trim();
+                final tipo = tipoController.text.toUpperCase();
+
+                if (titulo.isEmpty || detalle.isEmpty || fecha.isEmpty || tipo.isEmpty) {
+                  // Mostrar mensaje de error si algún campo está vacío
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Todos los campos son obligatorios'),
+                    ),
+                  );
+                  return;
+                }
+
+                final tarea = Task(
+                  title: titulo,
+                  type: tipo,
+                  fecha: fechaSeleccionada!,
+                  descripcion: detalle,
+                );
+
+                if (index == null) {
+                  await _agregarTarea(tarea);
+                } else {
+                  await _modificarTarea(index, tarea);
+                }
+
+                Navigator.pop(context);
+              },
+              child: const Text('Guardar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[200],
+      appBar: AppBar(title: const Text(TITLE_APPBAR), backgroundColor: Colors.blueAccent,),
+      body: 
+      _tareas.isEmpty
+              ? const Center(child: Text(EMPTY_LIST))
+              : ListView.builder(
+                controller: _scrollController,
+                itemCount: _tareas.length + 1, // +1 para el indicador de carga
+                itemBuilder: (context, index) {
+                  if (index == _tareas.length) {
+                    return _cargando
+                        ? const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: CircularProgressIndicator(),
+                          ),
+                        )
+                        : const SizedBox();
+                  }
+
+                  final task = _tareas[index];
+                  return TaskCardHelper.buildTaskCard(
+                    task,
+                    onEdit: () => _mostrarModalAgregarTarea(index: index),
+                    onDelete: () => _eliminarTarea(index),
+                  );
+                },
+              ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _mostrarModalAgregarTarea(),
+        child: const Icon(Icons.add),
+        backgroundColor: Colors.blueAccent,
+      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: _mostrarModalAgregarTarea,
+      //   tooltip: 'Agregar Tarea',
+      //   child: const Icon(Icons.add),
+      //),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex, // Índice del elemento seleccionado
+        onTap: _onItemTapped, // Maneja el evento de selección
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Inicio"),
+          BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Añadir Tarea'),
+          BottomNavigationBarItem(icon: Icon(Icons.close), label: "Salir"),
+        ],
+      ),
+    );
+  }
+}
