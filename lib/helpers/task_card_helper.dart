@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:mi_proyecto/constants.dart';
 import 'package:mi_proyecto/domain/task.dart';
 //import 'package:mi_proyecto/api/service/tareas_service.dart';
 
 class TaskCardHelper {
   static Widget buildTaskCard(
-    Task task, {
+    Task task,  {
     required VoidCallback onEdit,
     required VoidCallback onDelete,
+    
   }) {
     return Dismissible(
       key: Key(task.title),
@@ -60,10 +62,17 @@ class TaskCardHelper {
                 ],
               ),
               const SizedBox(height: 8),
+              if (task.pasos != null && task.pasos!.isNotEmpty)
+               Text(
+                 task.pasos!.first,
+                 style: const TextStyle(color: Colors.grey),
+               ),
+              const SizedBox(height: 8),
               Text(task.descripcion),
               const SizedBox(height: 8),
               Row(
                 children: [
+                  
                   Icon(
                     task.type == 'urgente' ? Icons.warning : Icons.task,
                     color: task.type == 'urgente' ? Colors.red : Colors.blue,
