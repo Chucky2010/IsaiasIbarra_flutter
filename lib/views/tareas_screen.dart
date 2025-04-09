@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mi_proyecto/views/login_screen.dart';
+import 'package:mi_proyecto/views/sports_card_screen.dart';
 import 'package:mi_proyecto/views/welcom_screen.dart';
 import 'package:mi_proyecto/api/service/tareas_service.dart';
 import 'package:mi_proyecto/data/task_repository.dart';
@@ -88,38 +89,7 @@ class _TareasScreenState extends State<TareasScreen> {
       }
     }
 
-    // Future<void> _obtenerMasTareas() async {
-    //   if (_cargando) return;
 
-    //   setState(() {
-    //     _cargando = true;
-    //   });
-
-    //   try {
-    //     // Simulamos carga de 5 tareas nuevas
-    //     await Future.delayed(const Duration(seconds: 1));
-
-    //     final nuevasTareas = List.generate(5, (index) {
-    //       return Task(
-    //         title: 'Tarea ${_nextTaskId + index}',
-    //         type: (index % 2) == 0 ? 'normal' : 'urgente',
-    //         descripcion: 'Descripción de tarea ${_nextTaskId + index}',
-    //         fecha: DateTime.now().add(Duration(days: index)),
-    //       );
-    //     });
-
-    //     setState(() {
-    //       _tareas.addAll(nuevasTareas);
-    //       _nextTaskId += 5;
-    //     });
-    //   } catch (e) {
-    //     _mostrarError('Error al cargar más tareas: $e');
-    //   } finally {
-    //     setState(() {
-    //       _cargando = false;
-    //     });
-    //   }
-    // }
     void _obtenerMasTareas() async {
       setState(() {
         _cargando = true;
@@ -399,13 +369,23 @@ class _TareasScreenState extends State<TareasScreen> {
                         onDelete: () => _eliminarTarea(index),
                       ),
                       // Botón para visualizar el buildSportsCard
-                      TextButton(
-                        onPressed: () => _mostrarTarjetaDeportiva(task, index),
+                     TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SportsCardScreen(
+                                task: task, // Pasa la tarea actual
+                                index: index, // Pasa el índice actual
+                              ),
+                            ),
+                          );
+                        },
                         child: const Text(
-                          'Ver Tarjeta Deportiva',
+                          'Ver Tarjeta',
                           style: TextStyle(color: Colors.blue),
                         ),
-                      ),
+                      ), 
                     ],
                   );
                 },
