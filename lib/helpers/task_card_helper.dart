@@ -98,4 +98,61 @@ class TaskCardHelper {
       ),
     );
   }
+static Widget buildSportsCard(Task task, int index) {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      elevation: 8,
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Imagen aleatoria
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(10.0)),
+            child: Image.network(
+              'https://picsum.photos/200/300?random=$index',
+              height: 150,
+              width: double.infinity,
+              fit: BoxFit.cover,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Título
+                Text(
+                  task.title,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                // Pasos (máximo 3 líneas)
+                if (task.pasos != null && task.pasos!.isNotEmpty)
+                  Text(
+                    task.pasos!.take(3).join('\n'),
+                    style: const TextStyle(color: Colors.grey),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                const SizedBox(height: 8),
+                // Fecha límite
+                Text(
+                  '$FECHA_LIMITE ${task.fechalimite.toLocal().toString().split(' ')[0]}',
+                  style: const TextStyle(color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
 }

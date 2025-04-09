@@ -346,6 +346,25 @@ class _TareasScreenState extends State<TareasScreen> {
       );
     }
 
+    void _mostrarTarjetaDeportiva(Task task, int index) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: TaskCardHelper.buildSportsCard(task, index), // Llama al método buildSportsCard
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Cierra el modal
+                },
+                child: const Text('Cerrar'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+
     @override
     Widget build(BuildContext context) {
       return Scaffold(
@@ -354,48 +373,49 @@ class _TareasScreenState extends State<TareasScreen> {
           title: const Text(TITLE_APPBAR),
           backgroundColor: Colors.blueAccent,
         ),
-        body:
-            _tareas.isEmpty
-                ? const Center(child: Text(EMPTY_LIST))
-                : ListView.builder(
-                  controller: _scrollController,
-                  itemCount:
-                      _tareas.length + 1, // +1 para el indicador de carga
-                  itemBuilder: (context, index) {
-                    if (index == _tareas.length) {
-                      return _cargando
-                          ? const Center(
+        body: _tareas.isEmpty
+            ? const Center(child: Text(EMPTY_LIST))
+            : ListView.builder(
+                controller: _scrollController,
+                itemCount: _tareas.length + 1, // +1 para el indicador de carga
+                itemBuilder: (context, index) {
+                  if (index == _tareas.length) {
+                    return _cargando
+                        ? const Center(
                             child: Padding(
                               padding: EdgeInsets.all(8.0),
                               child: CircularProgressIndicator(),
                             ),
                           )
-                          : const SizedBox();
-                    }
+                        : const SizedBox();
+                  }
 
-                    final task = _tareas[index];
-                    return TaskCardHelper.buildTaskCard(
-                      task,
-                      onEdit: () => _mostrarModalAgregarTarea(index: index),
-                      onDelete: () => _eliminarTarea(index),
-                      // subtitle:
-                      //     task.pasos.isNotEmpty
-                      //         ? task.pasos[0]
-                      //         : 'Sin pasos disponibles', // Muestra solo el primer paso
-                    );
-                  },
-                ),
+                  final task = _tareas[index];
+                  return Column(
+                    children: [
+                      TaskCardHelper.buildTaskCard(
+                        task,
+                        onEdit: () => _mostrarModalAgregarTarea(index: index),
+                        onDelete: () => _eliminarTarea(index),
+                      ),
+                      // Botón para visualizar el buildSportsCard
+                      TextButton(
+                        onPressed: () => _mostrarTarjetaDeportiva(task, index),
+                        child: const Text(
+                          'Ver Tarjeta Deportiva',
+                          style: TextStyle(color: Colors.blue),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
         floatingActionButton: FloatingActionButton(
           heroTag: 'agregar_tarea',
           onPressed: () => _mostrarModalAgregarTarea(),
           child: const Icon(Icons.add),
           backgroundColor: Colors.blueAccent,
         ),
-        // floatingActionButton: FloatingActionButton(
-        //   onPressed: _mostrarModalAgregarTarea,
-        //   tooltip: 'Agregar Tarea',
-        //   child: const Icon(Icons.add),
-        //),
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _selectedIndex, // Índice del elemento seleccionado
           onTap: _onItemTapped, // Maneja el evento de selección
