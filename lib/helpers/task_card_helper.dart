@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:mi_proyecto/api/service/tareas_service.dart';
 import 'package:mi_proyecto/constants.dart';
 import 'package:mi_proyecto/domain/task.dart';
 //import 'package:mi_proyecto/api/service/tareas_service.dart';
 
 class TaskCardHelper {
   static Widget buildTaskCard(
+    
     Task task,  {
     required VoidCallback onEdit,
     required VoidCallback onDelete,
@@ -89,6 +91,7 @@ class TaskCardHelper {
                   Text(
                     task.fecha.toLocal().toString().split(' ')[0],
                     style: const TextStyle(color: Colors.grey),
+
                   ),
                 ],
               ),
@@ -99,6 +102,8 @@ class TaskCardHelper {
     );
   }
 static Widget buildSportsCard(Task task, int index) {
+
+  final pasos = TareasService().obtenerPasos(task.title, task.fechalimite);
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
@@ -108,14 +113,16 @@ static Widget buildSportsCard(Task task, int index) {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Imagen aleatoria
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(10.0)),
-            child: Image.network(
-              'https://picsum.photos/200/300?random=$index',
-              height: 150,
-              width: double.infinity,
-              fit: BoxFit.cover,
+          Padding(
+            padding: EdgeInsets.all(20),// Imagen aleatoria
+            child:ClipRRect(
+              borderRadius: const BorderRadius.all( Radius.circular(15)),
+              child: Image.network(
+                'https://picsum.photos/200/300?random=$index',
+                height: 150,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           Padding(
@@ -133,18 +140,22 @@ static Widget buildSportsCard(Task task, int index) {
                 ),
                 const SizedBox(height: 8),
                 // Pasos (máximo 3 líneas)
-                if (task.pasos != null && task.pasos!.isNotEmpty)
+                if (pasos.isNotEmpty)
                   Text(
-                    task.pasos!.take(3).join('\n'),
+                    pasos.take(6).join('\n'),
                     style: const TextStyle(color: Colors.grey),
-                    maxLines: 3,
+                    maxLines: 6,
                     overflow: TextOverflow.ellipsis,
                   ),
                 const SizedBox(height: 8),
                 // Fecha límite
                 Text(
                   '$FECHA_LIMITE ${task.fechalimite.toLocal().toString().split(' ')[0]}',
-                  style: const TextStyle(color: Colors.grey),
+                  
+                  style: const TextStyle(
+                    color: Colors.grey, 
+                    fontWeight: FontWeight.bold,),
+                  
                 ),
               ],
             ),
