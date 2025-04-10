@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'views/login_screen.dart';
 import 'views/tareas_screen.dart';
+import 'package:mi_proyecto/constants.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,7 +19,8 @@ class MyApp extends StatelessWidget {
 
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const MyHomePage(title: 'ISAIAS flutter app'),
+       home: const MyHomePage(title: 'ISAIAS flutter app'),
+      //home: const LoginScreen(),
     );
   }
 }
@@ -110,7 +112,7 @@ Widget build(BuildContext context) {
             },
             child: const Text('Mostrar Advertencia'),
           ),
-          const SizedBox(height: 20), // Espaciado entre botones
+          const SizedBox(height: 40), // Espaciado entre botones
           ElevatedButton(
             onPressed: () {
               Navigator.push(
@@ -118,17 +120,17 @@ Widget build(BuildContext context) {
                 MaterialPageRoute(builder: (context) => const LoginScreen()),
               );
             },
-            child: const Text('Ir a Inicio de Sesión'),
+            child: const Text('INICIO DE SESION'),
           ),
-             ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => TareasScreen()),
-                );
-              },
-              child: const Text('Ir a Lista de Tareas'),
-            ),
+            //  ElevatedButton(
+            //   onPressed: () {
+            //     Navigator.push(
+            //       context,
+            //       MaterialPageRoute(builder: (context) => TareasScreen()),
+            //     );
+            //   },
+            //   child: const Text('Ir a Lista de Tareas'),
+            // ),
         ],
       ),
     ),

@@ -179,7 +179,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               'Has iniciado sesión exitosamente.',
               style: TextStyle(fontSize: 18),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
                 // Acción para listar cotizaciones
@@ -202,7 +202,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               onPressed: _mostrarCotizaciones,
               child: Text("Cotizaciones"),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
                 // Aquí puedes agregar la lógica para listar cotizaciones
@@ -212,6 +212,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               },
               child: const Text('Listar Cotizaciones'),
             ),
+            const SizedBox(height: 40),
+            ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const TareasScreen()),
+              );
+            },
+            child: const Text('LISTA DE TAREAS'),
+          ),
           ],
         ),
       ),

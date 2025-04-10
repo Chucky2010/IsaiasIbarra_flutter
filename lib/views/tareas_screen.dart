@@ -72,22 +72,22 @@ class _TareasScreenState extends State<TareasScreen> {
       super.dispose();
     }
 
-    void _mostrarError(String mensaje) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(mensaje)));
-    }
+    // void _mostrarError(String mensaje) {
+    //   ScaffoldMessenger.of(
+    //     context,
+    //   ).showSnackBar(SnackBar(content: Text(mensaje)));
+    // }
 
-    Future<void> _obtenerTareas() async {
-      try {
-        final tareas = await _tareasService.obtenerTareas();
-        setState(() {
-          _tareas = tareas;
-        });
-      } catch (e) {
-        _mostrarError('Error al cargar tareas: $e');
-      }
-    }
+    // Future<void> _obtenerTareas() async {
+    //   try {
+    //     final tareas = await _tareasService.obtenerTareas();
+    //     setState(() {
+    //       _tareas = tareas;
+    //     });
+    //   } catch (e) {
+    //     _mostrarError('Error al cargar tareas: $e');
+    //   }
+    // }
 
 
     void _obtenerMasTareas() async {
@@ -115,41 +115,16 @@ class _TareasScreenState extends State<TareasScreen> {
       }
     }
 
-    // Future<void> _agregarTarea(Task tarea) async {
-    //   try {
-    //     await _tareasService.agregarTarea(tarea);
-    //     setState(() {
-    //       _tareas.add(tarea);
-    //     });
-    //   } catch (e) {
-    //     _mostrarError('Error al agregar tarea: $e');
-    //     await _obtenerTareas();
-    //   }
-    // }
 
     void _eliminarTarea(int index) async {
-      // try {
-      //   await _tareasService.eliminarTarea(index);
+     
       setState(() {
         _tareas.removeAt(index);
       });
-      // } catch (e) {
-      //   _mostrarError('Error al eliminar tarea: $e');
-      //   await _obtenerTareas();
-      // }
+     
     }
 
-    // Future<void> _modificarTarea(int index, Task tarea) async {
-    //   try {
-    //     await _tareasService.modificarTarea(index, tarea);
-    //     setState(() {
-    //       _tareas[index] = tarea;
-    //     });
-    //   } catch (e) {
-    //     _mostrarError('Error al modificar tarea: $e');
-    //     await _obtenerTareas();
-    //   }
-    // }
+   
 
     void _mostrarModalAgregarTarea({int? index}) async {
       final task = index != null ? _tareas[index] : null;
@@ -316,24 +291,24 @@ class _TareasScreenState extends State<TareasScreen> {
       );
     }
 
-    void _mostrarTarjetaDeportiva(Task task, int index) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            content: TaskCardHelper.buildSportsCard(task, index), // Llama al método buildSportsCard
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Cierra el modal
-                },
-                child: const Text('Cerrar'),
-              ),
-            ],
-          );
-        },
-      );
-    }
+    // void _mostrarTarjetaDeportiva(Task task, int index) {
+    //   showDialog(
+    //     context: context,
+    //     builder: (BuildContext context) {
+    //       return AlertDialog(
+    //         content: TaskCardHelper.buildSportsCard(task, index), // Llama al método buildSportsCard
+    //         actions: [
+    //           TextButton(
+    //             onPressed: () {
+    //               Navigator.of(context).pop(); // Cierra el modal
+    //             },
+    //             child: const Text('Cerrar'),
+    //           ),
+    //         ],
+    //       );
+    //     },
+    //   );
+    // }
 
     @override
     Widget build(BuildContext context) {
@@ -364,7 +339,10 @@ class _TareasScreenState extends State<TareasScreen> {
                   return Column(
                     children: [
                       TaskCardHelper.buildTaskCard(
-                        task,
+                        _tareas,
+                        _tareas[index],
+                        context,
+                        index,
                         onEdit: () => _mostrarModalAgregarTarea(index: index),
                         onDelete: () => _eliminarTarea(index),
                       ),
@@ -375,8 +353,8 @@ class _TareasScreenState extends State<TareasScreen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => SportsCardScreen(
-                                task: task, // Pasa la tarea actual
-                                index: index, // Pasa el índice actual
+                              tasks: _tareas, // Lista de tareas
+                              initialIndex: index, // Índice de la tarea seleccionada
                               ),
                             ),
                           );

@@ -4,4 +4,5 @@ const String TASK_TYPE_LABEL = 'Tipo de tarea:';
 const String TASK_TYPE_NORMAL = 'Normal';
 const String PASOS_TITULO = 'Pasos para completar:';
 const String FECHA_LIMITE = 'Fecha límite:';
-
+const String TASK_TYPE_URGENT = 'Urgente';
+const String TASK_DESCRIPTION = 'Descripción:';
