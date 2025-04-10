@@ -1,8 +1,9 @@
-const String TITLE_APPBAR = 'Lista de Tareas';
-const String EMPTY_LIST = 'No hay tareas.';
+const String TITLE_APPBAR = 'Mis Tareas';
+const String LISTA_VACIA = 'No hay tareas.';
 const String TASK_TYPE_LABEL = 'Tipo de tarea:';
 const String TASK_TYPE_NORMAL = 'Normal';
 const String PASOS_TITULO = 'Pasos para completar:';
 const String FECHA_LIMITE = 'Fecha límite:';
 const String TASK_TYPE_URGENT = 'Urgente';
 const String TASK_DESCRIPTION = 'Descripción:';
+const String TAREA_ELIMINADA = 'Tarea eliminada.';

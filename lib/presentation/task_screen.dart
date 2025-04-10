@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mi_proyecto/views/login_screen.dart';
 import 'package:mi_proyecto/views/sports_card_screen.dart';
 import 'package:mi_proyecto/views/welcom_screen.dart';
-import 'package:mi_proyecto/api/service/tareas_service.dart';
+import 'package:mi_proyecto/api/services/task_service.dart';
 import 'package:mi_proyecto/data/task_repository.dart';
 import 'package:mi_proyecto/domain/task.dart';
 import 'package:mi_proyecto/constants.dart';
@@ -19,7 +19,7 @@ class _TareasScreenState extends State<TareasScreen> {
   late List<Task> _tareas = [];
   final TaskRepository taskRepository =
       TaskRepository(); // Instancia del repositorio
-  final TareasService _tareasService = TareasService();
+  final TaskService _tareasService = TaskService();
   final ScrollController _scrollController = ScrollController();
   //  bool _cargando = false;
   //  bool _hayMasTareas = true;
@@ -59,10 +59,10 @@ class _TareasScreenState extends State<TareasScreen> {
     @override
     void initState() {
       super.initState();
-      _tareas = _tareasService.obtenerTareas();
+      _tareas = _tareasService.getTasksWithSteps();
       _scrollController.addListener(_detectarScrollFinal);
       _nextTaskId =
-          _tareasService.obtenerTareas().length +
+          _tareasService.getTasksWithSteps().length +
           1; // Inicializa el ID de la siguiente tarea
     }
 
@@ -71,23 +71,6 @@ class _TareasScreenState extends State<TareasScreen> {
       _scrollController.dispose();
       super.dispose();
     }
-
-    // void _mostrarError(String mensaje) {
-    //   ScaffoldMessenger.of(
-    //     context,
-    //   ).showSnackBar(SnackBar(content: Text(mensaje)));
-    // }
-
-    // Future<void> _obtenerTareas() async {
-    //   try {
-    //     final tareas = await _tareasService.obtenerTareas();
-    //     setState(() {
-    //       _tareas = tareas;
-    //     });
-    //   } catch (e) {
-    //     _mostrarError('Error al cargar tareas: $e');
-    //   }
-    // }
 
 
     void _obtenerMasTareas() async {
@@ -268,7 +251,7 @@ class _TareasScreenState extends State<TareasScreen> {
                     type: tipo,
                     fecha: fechaSeleccionada!,
                     descripcion: detalle,
-                    fechalimite: DateTime.now().add(const Duration(days: 1)),
+                    deadline: DateTime.now().add(const Duration(days: 1)),
                   );
 
                   if (index == null) {
@@ -279,7 +262,7 @@ class _TareasScreenState extends State<TareasScreen> {
                   setState(() {
                     _tareas =
                         _tareasService
-                            .obtenerTareas(); // Actualiza la lista de tareas
+                            .getTasksWithSteps(); // Actualiza la lista de tareas
                   });
                   Navigator.of(context).pop();
                 },
@@ -319,7 +302,7 @@ class _TareasScreenState extends State<TareasScreen> {
           backgroundColor: Colors.blueAccent,
         ),
         body: _tareas.isEmpty
-            ? const Center(child: Text(EMPTY_LIST))
+            ? const Center(child: Text(LISTA_VACIA))
             : ListView.builder(
                 controller: _scrollController,
                 itemCount: _tareas.length + 1, // +1 para el indicador de carga

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mi_proyecto/api/service/tareas_service.dart';
+import 'package:mi_proyecto/api/services/task_service.dart';
 import 'package:mi_proyecto/constants.dart';
 import 'package:mi_proyecto/domain/task.dart';
 //import 'package:mi_proyecto/api/service/tareas_service.dart';
@@ -66,9 +66,9 @@ class TaskCardHelper {
                 ],
               ),
               const SizedBox(height: 8),
-              if (task.pasos != null && task.pasos!.isNotEmpty)
+              if (task.steps != null && task.steps!.isNotEmpty)
                Text(
-                 task.pasos!.first,
+                 task.steps!.first,
                  style: const TextStyle(color: Colors.grey),
                ),
               const SizedBox(height: 8),

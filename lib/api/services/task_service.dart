@@ -5,12 +5,12 @@ import 'package:mi_proyecto/domain/task.dart';
 import 'package:mi_proyecto/data/assistant_repository.dart';
 import 'package:mi_proyecto/constants.dart';
 
-class TareasService {
+class TaskService {
   final TaskRepository _taskRepository = TaskRepository();
   final AssistantRepository _assistantRepository = AssistantRepository();
 
 // Obtener todas las tareas
-  List<Task> obtenerTareas() {
+  List<Task> getTasksWithSteps() {
     try {
       List<Task> tasks = _taskRepository.getTasks();
       inicializarPasos(tasks);
@@ -18,6 +18,18 @@ class TareasService {
     } catch (e) {
       throw Exception('Error al obtener tareas: $e');
     }
+  }
+
+   void inicializarPasos(List<Task> tasks) {
+    for (Task task in tasks) {
+       if (task.getPasos == null || task.getPasos!.isEmpty) {
+        //for (String paso in _assistantRepository.getListaPasos()
+         for (String paso in _assistantRepository.getListaPasos().take(2)) {
+           task.getPasos!.add('$paso${task.getTitle} antes de ${task.fechaLimiteToString()}');
+         }
+       }
+     }
+
   }
 
   //crear nueva tarea
@@ -75,8 +87,8 @@ class TareasService {
          type: (index % 2) == 0 ? TASK_TYPE_NORMAL : TASK_TYPE_URGENT,
          descripcion: 'Descripción de tarea ${nextTaskId + index}',
          fecha: DateTime.now().add(Duration(days: index)),
-         fechalimite: DateTime.now().add(Duration(days: index + 1)), 
-         pasos: TareasService().obtenerPasos('Tarea ${nextTaskId + index}', DateTime.now().add(Duration(days: index + 1))),
+         deadline: DateTime.now().add(Duration(days: index + 1)), 
+         steps: TaskService().obtenerPasos('Tarea ${nextTaskId + index}', DateTime.now().add(Duration(days: index + 1))),
        ),
      );
     } catch (e) {
@@ -84,14 +96,5 @@ class TareasService {
     }
   }
   
-  void inicializarPasos(List<Task> tasks) {
-    for (Task task in tasks) {
-       if (task.getPasos == null || task.getPasos!.isEmpty) {
-         for (String paso in _assistantRepository.getListaPasos()) {
-           task.getPasos!.add('$paso${task.getTitle} antes de ${task.fechaLimiteToString()}');
-         }
-       }
-     }
-
-  }
+ 
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'views/login_screen.dart';
-import 'views/tareas_screen.dart';
+import 'presentation/task_screen.dart';
 import 'package:mi_proyecto/constants.dart';
 
 void main() {

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mi_proyecto/views/login_screen.dart';
 //import 'package:mi_proyecto/views/base_screen.dart';
 
-import 'package:mi_proyecto/views/tareas_screen.dart';
+import 'package:mi_proyecto/presentation/task_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
