@@ -16,4 +16,22 @@ class Task {
     required this.fechalimite,
     this.pasos = const []
   });
+
+  String get getTitle => title;
+   String get getType => type;
+   String get getDescription => descripcion;
+   DateTime get getDate => fecha;
+   DateTime get getFechalimite => fechalimite;
+   List<String>? get getPasos => pasos;
+
+   String fechaLimiteToString() {
+     return '${fechalimite.day}/${fechalimite.month}/${fechalimite.year}';
+   }
+
+   String fechaToString() {
+     return '${fecha.day}/${fecha.month}/${fecha.year}';
+   }
+
+
+
 }
