@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mi_proyecto/api/service/tareas_service.dart';
 import 'package:mi_proyecto/constants.dart';
 import 'package:mi_proyecto/domain/task.dart';
 //import 'package:mi_proyecto/api/service/tareas_service.dart';
@@ -24,9 +23,9 @@ class TaskCardHelper {
       direction: DismissDirection.startToEnd,
       onDismissed: (rigth) {
         onDelete();
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   SnackBar(content: Text("${task.title} eliminada")),
-        // );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(TAREA_ELIMINADA)),
+        );
       },
       child: Card(
         shape: RoundedRectangleBorder(
@@ -34,6 +33,7 @@ class TaskCardHelper {
         ),
         elevation: 4,
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: Center( //centra el contenido horizontalmente
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -66,9 +66,9 @@ class TaskCardHelper {
                 ],
               ),
               const SizedBox(height: 8),
-              if (task.pasos != null && task.pasos!.isNotEmpty)
+              if (task.steps != null && task.steps!.isNotEmpty)
                Text(
-                 task.pasos!.first,
+                 task.getPasos![0],
                  style: const TextStyle(color: Colors.grey),
                ),
               const SizedBox(height: 8),
@@ -78,20 +78,20 @@ class TaskCardHelper {
                 children: [
                   
                   Icon(
-                    task.type == 'urgente' ? Icons.warning : Icons.task,
-                    color: task.type == 'urgente' ? Colors.red : Colors.blue,
+                    task.type == TASK_TYPE_URGENT ? Icons.warning : Icons.task,
+                    color: task.type == TASK_TYPE_URGENT ? Colors.red : Colors.blue,
                     size: 16,
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    'Tipo: ${task.type}',
+                    '$TIPO_TAREA ${task.type}',
                     style: TextStyle(
-                      color: task.type == 'urgente' ? Colors.red : Colors.blue,
+                    color: task.type == TASK_TYPE_URGENT ? Colors.red : Colors.blue,
                     ),
                   ),
                   const SizedBox(width: 16),
                   Text(
-                    task.fecha.toLocal().toString().split(' ')[0],
+                    task.fechaToString(),
                     style: const TextStyle(color: Colors.grey),
 
                   ),
@@ -99,6 +99,7 @@ class TaskCardHelper {
               ),
             ],
           ),
+        ),
         ),
       ),
     );

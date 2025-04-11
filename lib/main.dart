@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'views/login_screen.dart';
-import 'views/tareas_screen.dart';
-import 'package:mi_proyecto/constants.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -19,8 +18,8 @@ class MyApp extends StatelessWidget {
 
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-       home: const MyHomePage(title: 'ISAIAS flutter app'),
-      //home: const LoginScreen(),
+       //home: const MyHomePage(title: 'ISAIAS flutter app'),
+      home: const LoginScreen(),
     );
   }
 }

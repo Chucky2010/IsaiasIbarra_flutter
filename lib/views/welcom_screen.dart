@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 
 //import 'package:kgaona/views/tareasscreen.dart';
 import 'package:mi_proyecto/views/login_screen.dart';
-//import 'package:mi_proyecto/views/base_screen.dart';
+import 'package:mi_proyecto/main.dart';
 
-import 'package:mi_proyecto/views/tareas_screen.dart';
+import 'package:mi_proyecto/presentation/task_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
 
   @override
-  _WelcomeScreenState createState() => _WelcomeScreenState();
+  WelcomeScreenState createState() => WelcomeScreenState();
 }
 
-class _WelcomeScreenState extends State<WelcomeScreen> {
+class WelcomeScreenState extends State<WelcomeScreen> {
   List<String> quotes = [];
   bool isLoading = false;
 
@@ -78,14 +78,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       case 1: // Añadir Tarea
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) =>  TareasScreen()),
+          MaterialPageRoute(builder: (context) => const TareasScreen()),
         );
 
         break;
       case 2: // Salir
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => LoginScreen()),
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
         );
         break;
     }
@@ -95,11 +95,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Bienvenido')),
-      drawer: Drawer(
-        child: ListView(
+      drawer:  Drawer(
+        child:  ListView(
           padding: EdgeInsets.zero,
           children: [
-            DrawerHeader(
+            const DrawerHeader(
               decoration: BoxDecoration(color: Colors.blueAccent),
               child: Text(
                 'Menú de Navegación',
@@ -107,54 +107,66 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.task),
-              title: Text('Inicio'),
+              leading: const Icon(Icons.task),
+              title: const Text('Inicio'),
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => WelcomeScreen()),
+                  MaterialPageRoute(builder: (context) => const WelcomeScreen()),
                 );
               },
             ),
             ListTile(
-              leading: Icon(Icons.task),
-              title: Text('Tareas'),
+              leading: const Icon(Icons.task),
+              title: const Text('Tareas'),
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => TareasScreen()),
+                  MaterialPageRoute(builder: (context) => const TareasScreen()),
                 );
               },
             ),
             ListTile(
-              leading: Icon(Icons.exit_to_app),
-              title: Text('Salir'),
+              leading: const Icon(Icons.task),
+              title: const Text('Contador'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MyHomePage(title: '',)),
+                );
+              },
+              
+            ),
+            ListTile(
+              leading: const Icon(Icons.exit_to_app),
+              title: const Text('Salir'),
               onTap: () {
                 // Cierra la aplicación
                 showDialog(
                   context: context,
                   builder: (context) {
                     return AlertDialog(
-                      title: Text('Confirmar'),
-                      content: Text('¿Estás seguro de que deseas salir?'),
+                      title: const Text('Confirmar'),
+                      content:const  Text('¿Estás seguro de que deseas salir?'),
                       actions: [
                         TextButton(
                           onPressed: () {
                             Navigator.of(context).pop(); // Cierra el diálogo
                           },
-                          child: Text('Cancelar'),
+                          child: const Text('Cancelar'),
                         ),
+               
                         ElevatedButton(
                           onPressed: () {
                             Navigator.of(context).pop(); // Cierra el diálogo
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => LoginScreen(),
+                                builder: (context) => const LoginScreen(),
                               ),
                             ); // Redirige al login
                           },
-                          child: Text('Salir'),
+                          child: const Text('Salir'),
                         ),
                       ],
                     );
@@ -166,62 +178,63 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         ),
       ),
 
-      body: Center(
+      body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
+             Text(
               '¡Bienvenido!',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 16),
-            const Text(
+             SizedBox(height: 16),
+             Text(
               'Has iniciado sesión exitosamente.',
               style: TextStyle(fontSize: 18),
             ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                // Acción para listar cotizaciones
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Listando cotizaciones...')),
-                );
-              },
-              child: const Text('Listar Cotizaciones PS'),
-            ),
-            ElevatedButton(
-              onPressed: fetchQuotes,
-              child: const Text('Listar Cotizaciones'),
-            ),
-            const SizedBox(height: 16),
-            if (isLoading)
-              const CircularProgressIndicator()
-            else
-              ...quotes.map((quote) => Text(quote)).toList(),
-            ElevatedButton(
-              onPressed: _mostrarCotizaciones,
-              child: Text("Cotizaciones"),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                // Aquí puedes agregar la lógica para listar cotizaciones
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Listando cotizaciones...')),
-                );
-              },
-              child: const Text('Listar Cotizaciones'),
-            ),
-            const SizedBox(height: 40),
-            ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const TareasScreen()),
-              );
-            },
-            child: const Text('LISTA DE TAREAS'),
-          ),
+             SizedBox(height: 16),
+            //ElevatedButton(
+              // onPressed: () {
+              //   // Acción para listar cotizaciones
+              //   ScaffoldMessenger.of(context).showSnackBar(
+              //     const SnackBar(content: Text('Listando cotizaciones...')),
+              //   );
+              // },
+            //   child: const Text('Listar Cotizaciones PS'),
+        
+            // ),
+            // ElevatedButton(
+            //   onPressed: fetchQuotes,
+            //   child: const Text('Listar Cotizaciones'),
+            // ),
+            // const SizedBox(height: 16),
+            // if (isLoading)
+            //   const CircularProgressIndicator()
+            // else
+            //   ...quotes.map((quote) => Text(quote)),
+            // ElevatedButton(
+            //   onPressed: _mostrarCotizaciones,
+            //   child: const Text("Cotizaciones"),
+            // ),
+            // const SizedBox(height: 16),
+            // ElevatedButton(
+            //   onPressed: () {
+            //     // Aquí puedes agregar la lógica para listar cotizaciones
+            //     ScaffoldMessenger.of(context).showSnackBar(
+            //       const SnackBar(content: Text('Listando cotizaciones...')),
+            //     );
+            //   },
+            //   child: const Text('Listar Cotizaciones'),
+            // ),
+            // const SizedBox(height: 40),
+          //   ElevatedButton(
+          //   onPressed: () {
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(builder: (context) => const TareasScreen()),
+          //     );
+          //   },
+          //   child: const Text('LISTA DE TAREAS'),
+          // ),
           ],
         ),
       ),

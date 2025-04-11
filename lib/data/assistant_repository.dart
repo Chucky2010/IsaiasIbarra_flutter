@@ -1,4 +1,4 @@
-import 'package:mi_proyecto/constants.dart';
+
 
 class AssistantRepository {
    final List<String> _pasosSimulados = [
@@ -14,7 +14,7 @@ class AssistantRepository {
    // Obtener pasos simulados para una tarea según su título
    List<String> obtenerPasos(String titulo, String fechaLimite) {
      return [
-       for (String paso in AssistantRepository().getListaPasos())
+       for (String paso in _pasosSimulados)
          '$paso$titulo antes de $fechaLimite',
      ];
    }
