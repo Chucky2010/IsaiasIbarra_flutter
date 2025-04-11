@@ -1,4 +1,3 @@
-
 import '../domain/task.dart';
 
 class TaskRepository {
@@ -12,7 +11,7 @@ class TaskRepository {
         descripcion: 'Descripción de la tarea 1',
         fecha: DateTime(2025, 4, 7),
         //deadline: DateTime.now().add(const Duration(days: 4)),
-        deadline:DateTime(2025, 4, 10),
+        deadline: DateTime(2025, 4, 10),
         steps: [],
       ),
 
@@ -66,7 +65,7 @@ class TaskRepository {
     return tareas;
   }
 
-// agregar tarea
+  // agregar tarea
   void addTask(Task tarea) async {
     tareas.add(tarea);
     print('Tarea añadida: ${tarea.title}');
@@ -75,16 +74,19 @@ class TaskRepository {
   Task? getTaskById(int index) {
     if (index >= 0 && index < tareas.length) {
       return tareas[index];
-    } else
+    } else {
       throw Exception('Índice fuera de rango: $index');
+    }
   }
-// elimina tarea
+
+  // elimina tarea
   void deleteTask(int index) {
     if (index < 0 || index >= tareas.length) {
       tareas.removeAt(index);
     }
   }
-// actualiza tarea
+
+  // actualiza tarea
   void updateTask(int index, Task task) async {
     if (index >= 0 && index < tareas.length) {
       // Actualiza los pasos personalizados al modificar la tarea
@@ -94,12 +96,12 @@ class TaskRepository {
   }
 
   void setListaPasos(List<String> pasos) {
-     for (Task task in tareas) {
-       if (task.getPasos == null || task.getPasos!.isEmpty) {
-         task.setPasos(pasos);
-       }
-     }
-   }
+    for (Task task in tareas) {
+      if (task.getPasos == null || task.getPasos!.isEmpty) {
+        task.setPasos(pasos);
+      }
+    }
+  }
 
   // List<Task> loadMoreTasks(int nextTaskId, int count) {
   //   return List.generate(
@@ -118,15 +120,15 @@ class TaskRepository {
   //   );
   // }
 
-  
   // Obtener pasos simulados para una tarea según su título
-   List<String> getPasos(String titulo, DateTime fechalimite) {
-    String fechaString = '${fechalimite.day}/${fechalimite.month}/${fechalimite.year}';
-    
+  List<String> getPasos(String titulo, DateTime fechalimite) {
+    String fechaString =
+        '${fechalimite.day}/${fechalimite.month}/${fechalimite.year}';
+
     return [
-        'Paso 1: Planificar $titulo antes de $fechaString',
-        'Paso 2: Ejecutar $titulo antes de $fechaString',
-        'Paso 3: Revisar $titulo antes de $fechaString',
+      'Paso 1: Planificar $titulo antes de $fechaString',
+      'Paso 2: Ejecutar $titulo antes de $fechaString',
+      'Paso 3: Revisar $titulo antes de $fechaString',
     ];
   }
 }

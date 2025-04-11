@@ -32,8 +32,8 @@ class Task {
    }
 
 void setPasos(List<String> pasos) {
-     if (this.steps == null || this.steps!.isEmpty) {
-       this.steps = pasos;
+     if (steps == null || steps!.isEmpty) {
+       steps = pasos;
      }
    }
 

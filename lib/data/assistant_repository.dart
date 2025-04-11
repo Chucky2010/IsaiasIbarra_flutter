@@ -1,4 +1,4 @@
-import 'package:mi_proyecto/constants.dart';
+
 
 class AssistantRepository {
    final List<String> _pasosSimulados = [

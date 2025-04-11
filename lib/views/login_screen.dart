@@ -61,6 +61,9 @@ class LoginScreen extends StatelessWidget {
                     // Llama al servicio de autenticación
                     await authService.login(username, password);
 
+                        // Verifica si el widget sigue montado antes de usar el contexto
+                    if (!context.mounted) return;
+
                     // Muestra un mensaje de éxito
                     Navigator.push(
                       context,

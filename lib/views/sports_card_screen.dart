@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:mi_proyecto/helpers/task_card_helper.dart';
+import 'package:mi_proyecto/helpers/common_widgets_helper.dart';
 import 'package:mi_proyecto/domain/task.dart';
 import 'package:mi_proyecto/constants.dart';
+
 
 class SportsCardScreen extends StatelessWidget {
   final List<Task> tasks;
@@ -16,6 +17,10 @@ class SportsCardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Tareas'),
+        backgroundColor: Colors.pinkAccent,
+      ),
       body: PageView.builder(
         controller: PageController(initialPage: initialIndex),
         itemCount: tasks.length,
@@ -32,14 +37,14 @@ class SportsCardScreen extends StatelessWidget {
   Widget buildSportsCard(Task task, BuildContext context) {
     //final pasos = TareasService().obtenerPasos(task.title, task.fechalimite);
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+      shape: CommonWidgetsHelper.buildRoundedBorder(),//borde redondeado
       elevation: 8,
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.all(20), // Imagen aleatoria
+            padding: const EdgeInsets.all(16), // Imagen aleatoria
             child: ClipRRect(
               borderRadius: const BorderRadius.all(Radius.circular(15)),
               child: Image.network(
@@ -56,13 +61,9 @@ class SportsCardScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Título
-                Text(
-                  task.title,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                 // Título
+                CommonWidgetsHelper.buildBoldTitle(task.title),
+                CommonWidgetsHelper.buildSpacing(), // Espaciado
                 const SizedBox(height: 8),
                 // Pasos (máximo 3 líneas)
                 // if (pasos.isNotEmpty)
@@ -72,39 +73,22 @@ class SportsCardScreen extends StatelessWidget {
                 //     maxLines: 6,
                 //     overflow: TextOverflow.ellipsis,
                 //   ),
-                for (String paso in task.getPasos!) // Itera sobre los pasos
-                   Text(
-                     paso,
-                     style: const TextStyle(
-                       fontSize: 15,
-                     ),
-                   ),
-                const SizedBox(height: 8),
+                if (task.getPasos != null && task.getPasos!.isNotEmpty)
+                  CommonWidgetsHelper.buildInfoLines(
+                    firstLine: task.getPasos![0], // Primer paso obligatorio
+                    secondLine: task.getPasos!.length > 1 ? task.getPasos![1] : null, // Segundo paso opcional
+                    thirdLine: task.getPasos!.length > 2 ? task.getPasos![2] : null, // Tercer paso opcional
+                  ),
+                  CommonWidgetsHelper.buildSpacing(),
+          
                 // Fecha límite
-                // Text(
-                //   '$FECHA_LIMITE ${task.fechalimite.toLocal().toString().split(' ')[0]}',
-
-                //   style: const TextStyle(
-                //     color: Colors.grey,
-                //     fontWeight: FontWeight.bold,
-                //   ),
-                // ),
-                Text(
-                   FECHA_LIMITE + task.fechaLimiteToString(),
-                   style: const TextStyle(
-                     fontSize: 16,
-                     fontWeight: FontWeight.bold,
-                   ),
-                 ),
-                 const SizedBox(height: 8),
+                CommonWidgetsHelper.buildBoldFooter(
+                  '$FECHA_LIMITE ${task.fechaLimiteToString()}',
+                ),
+                CommonWidgetsHelper.buildSpacing(), // Espaciado
                  // Descripción
-                 Text(
-                   TASK_DESCRIPTION,
-                   style: const TextStyle(
-                     fontSize: 16,
-                     fontWeight: FontWeight.bold,
-                   ),
-                 ),
+                 CommonWidgetsHelper.buildBoldFooter(TASK_DESCRIPTION),
+                CommonWidgetsHelper.buildSpacing(), // Espaciado
                  const SizedBox(height: 8),
                  Text(task.getDescription),
 

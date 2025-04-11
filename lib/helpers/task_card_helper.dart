@@ -27,65 +27,13 @@ class TaskCardHelper {
           SnackBar(content: Text(TAREA_ELIMINADA)),
         );
       },
-
-
-//       child: ListTile(
-//           title: Text(
-//             task.title,
-//             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-//           ),
-//       subtitle: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           Row(
-//             children: [
-             
-//                 task.type == TASK_TYPE_URGENT ? 
-//                 const Icon(Icons.warning, color: Colors.red,)
-//                 :
-//                 task.type == TASK_TYPE_NORMAL ? 
-//                 const Icon(Icons.task, color: Colors.blue,)
-                
-//                 :
-                
-//               const SizedBox(width: 4),
-//               Text(
-//                 '$TIPO_TAREA ${task.type}',
-//                   style: TextStyle(
-//                   color: task.type == TASK_TYPE_URGENT ? Colors.red : Colors.blue,
-//                 ),
-//               ),
-//             const SizedBox(width: 16),
-//             Text(
-//               task.fechaToString(),
-//               style: const TextStyle(color: Colors.grey),
-//             ),
-//           ],
-//         ),
-//           if (task.steps != null && task.steps!.isNotEmpty)
-//           Text('$PASOS_TITULO ${task.getPasos![0]}'),
-//       ],//children
-//     ),  
-//   trailing: Row(
-//     mainAxisSize: MainAxisSize.min,
-//     children: [
-//       IconButton(
-//         icon: const Icon(Icons.edit),
-//         onPressed: onEdit,
-//       ),
-//       IconButton(
-//         icon: const Icon(Icons.delete),
-//         onPressed: onDelete,
-//       ),
-//     ],
-//   ),
-// ),
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
         ),
         elevation: 4,
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: Center( //centra el contenido horizontalmente
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -151,6 +99,7 @@ class TaskCardHelper {
               ),
             ],
           ),
+        ),
         ),
       ),
     );

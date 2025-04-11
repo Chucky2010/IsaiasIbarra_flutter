@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mi_proyecto/main.dart';
 import 'package:mi_proyecto/views/login_screen.dart';
 import 'package:mi_proyecto/views/sports_card_screen.dart';
 import 'package:mi_proyecto/views/welcom_screen.dart';
@@ -45,12 +46,15 @@ class _TareasScreenState extends State<TareasScreen> {
         );
         break;
       case 1: // Añadir Tarea
-        // Ya estás en TareasScreen, no necesitas navegar
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MyHomePage(title: '',)),
+        );
         break;
       case 2: // Salir
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => LoginScreen()),
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
         );
         break;
     }
@@ -278,7 +282,7 @@ class _TareasScreenState extends State<TareasScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
-        title: const Text(TITLE_APPBAR),
+        title:  Text('$TITLE_APPBAR - Total: ${_tareas.length}'),
         backgroundColor: Colors.blueAccent,
       ),
       body:
@@ -337,15 +341,16 @@ class _TareasScreenState extends State<TareasScreen> {
       floatingActionButton: FloatingActionButton(
         heroTag: 'agregar_tarea',
         onPressed: () => _mostrarModalAgregarTarea(),
-        child: const Icon(Icons.add),
         backgroundColor: Colors.blueAccent,
+        child: const Icon(Icons.add),
+        
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex, // Índice del elemento seleccionado
         onTap: _onItemTapped, // Maneja el evento de selección
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Inicio"),
-          BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Añadir Tarea'),
+          BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Contador'),
           BottomNavigationBarItem(icon: Icon(Icons.close), label: "Salir"),
         ],
       ),
