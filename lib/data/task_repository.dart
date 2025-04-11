@@ -1,6 +1,3 @@
-//import 'package:mi_proyecto/api/service/tareas_service.dart';
-import 'package:mi_proyecto/constants.dart';
-import 'package:mi_proyecto/api/services/task_service.dart';
 
 import '../domain/task.dart';
 
@@ -96,22 +93,30 @@ class TaskRepository {
     }
   }
 
-  List<Task> loadMoreTasks(int nextTaskId, int count) {
-    return List.generate(
-      count,
-      (index) => Task(
-        title: 'Tarea ${nextTaskId + index}',
-        type: (index % 2) == 0 ? TASK_TYPE_NORMAL : 'urgente',
-        descripcion: 'Descripción de tarea ${nextTaskId + index}',
-        fecha: DateTime.now().add(Duration(days: index)),
-        deadline: DateTime.now().add(Duration(days: index + 1)),
-        steps: TaskService().obtenerPasos(
-          'Tarea ${nextTaskId + index}',
-          DateTime.now().add(Duration(days: index + 1)),
-        ),
-      ),
-    );
-  }
+  void setListaPasos(List<String> pasos) {
+     for (Task task in tareas) {
+       if (task.getPasos == null || task.getPasos!.isEmpty) {
+         task.setPasos(pasos);
+       }
+     }
+   }
+
+  // List<Task> loadMoreTasks(int nextTaskId, int count) {
+  //   return List.generate(
+  //     count,
+  //     (index) => Task(
+  //       title: 'Tarea ${nextTaskId + index}',
+  //       type: (index % 2) == 0 ? TASK_TYPE_NORMAL : TASK_TYPE_URGENT,
+  //       descripcion: 'Descripción de tarea ${nextTaskId + index}',
+  //       fecha: DateTime.now().add(Duration(days: index)),
+  //       deadline: DateTime.now().add(Duration(days: index + 1)),
+  //       steps: TaskService().getTasksWithSteps(
+  //         'Tarea ${nextTaskId + index}',
+  //         DateTime.now().add(Duration(days: index + 1)),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   
   // Obtener pasos simulados para una tarea según su título

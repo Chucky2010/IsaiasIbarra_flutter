@@ -1,4 +1,3 @@
-import 'package:mi_proyecto/constants.dart';
 
 class Task {
   final String title;
@@ -6,7 +5,7 @@ class Task {
   final String descripcion;
   DateTime fecha;
   DateTime deadline;
-  List<String>? steps = [];
+  List<String>? steps;
 
   Task({
     required this.title,
@@ -14,7 +13,7 @@ class Task {
     required this.descripcion,
     required this.fecha,
     required this.deadline,
-    this.steps = const []
+    this.steps = const [],
   });
 
   String get getTitle => title;
@@ -32,6 +31,11 @@ class Task {
      return '${fecha.day}/${fecha.month}/${fecha.year}';
    }
 
+void setPasos(List<String> pasos) {
+     if (this.steps == null || this.steps!.isEmpty) {
+       this.steps = pasos;
+     }
+   }
 
 
 }

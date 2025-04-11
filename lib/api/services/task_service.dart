@@ -1,4 +1,4 @@
-import 'dart:async';
+//import 'dart:async';
 
 import 'package:mi_proyecto/data/task_repository.dart';
 import 'package:mi_proyecto/domain/task.dart';
@@ -9,27 +9,27 @@ class TaskService {
   final TaskRepository _taskRepository = TaskRepository();
   final AssistantRepository _assistantRepository = AssistantRepository();
 
-// Obtener todas las tareas
-  List<Task> getTasksWithSteps() {
-    try {
-      List<Task> tasks = _taskRepository.getTasks();
-      inicializarPasos(tasks);
-     return tasks;
-    } catch (e) {
-      throw Exception('Error al obtener tareas: $e');
-    }
-  }
 
-   void inicializarPasos(List<Task> tasks) {
+
+
+  // Obtener todas las tareas
+  // List<Task> getTasksWithSteps(String titulo, DateTime fechalimite) {
+  //   try {
+  //     List<String> pasosSimulados = _assistantRepository.obtenerPasos(titulo, fechaString).take(LIMITE_PASOS).toList(); // Limita los pasos simulados obtenidos
+  //    _taskRepository.setListaPasos(pasosSimulados); // Establece la lista de pasos en el repositorio
+  //    return pasosSimulados; 
+  //   } catch (e) {
+  //     throw Exception('Error al obtener tareas: $e');
+  //   }
+  // }
+
+  void _inicializarPasos(List<Task> tasks) {
     for (Task task in tasks) {
-       if (task.getPasos == null || task.getPasos!.isEmpty) {
+      if (task.getPasos == null || task.getPasos!.isEmpty) {
         //for (String paso in _assistantRepository.getListaPasos()
-         for (String paso in _assistantRepository.getListaPasos().take(2)) {
-           task.getPasos!.add('$paso${task.getTitle} antes de ${task.fechaLimiteToString()}');
-         }
-       }
-     }
-
+        getTasksWithSteps(task.getTitle, task.getFechalimite);
+      }
+    }
   }
 
   //crear nueva tarea
@@ -42,10 +42,18 @@ class TaskService {
     }
   }
 
+  List<Task> getTasks() {
+     print('Obteniendo tareas'); 
+     List<Task> tasks = _taskRepository.getTasks();
+     _inicializarPasos(tasks);
+     return tasks;
+   }
+
   // Eliminar una tarea
   void eliminarTarea(int index) {
     try {
       _taskRepository.deleteTask(index);
+      print('$TAREA_ELIMINADA $index');
     } catch (e) {
       throw Exception('Error al eliminar tarea: $e');
     }
@@ -68,33 +76,51 @@ class TaskService {
   }
 
   // Obtener pasos simulados para una tarea según su título
-  List<String> obtenerPasos(String titulo, DateTime fechalimite) {
+  List<String> getTasksWithSteps(String titulo, DateTime fechalimite) {
     try {
-      String fechaString = '${fechalimite.day}/${fechalimite.month}/${fechalimite.year}';
-      return _assistantRepository.obtenerPasos(titulo, fechaString);
+      String fechaString =
+          '${fechalimite.day}/${fechalimite.month}/${fechalimite.year}';
+      List<String> pasosSimulados = _assistantRepository.obtenerPasos(titulo, fechaString).take(2).toList(); // Limita los pasos simulados obtenidos
+     _taskRepository.setListaPasos(pasosSimulados); 
+     return pasosSimulados;
     } catch (e) {
       throw Exception('Error al obtener pasos: $e');
     }
   }
 
-  
-  List<Task> obtenerMasTareas(int nextTaskId, int count) {
+  // cargar mas tareas
+  List<Task> loadMoreTasks(int nextTaskId, int count) {
     try {
-      return List.generate(
-       count,
-       (index) => Task(
-         title: 'Tarea ${nextTaskId + index}',
-         type: (index % 2) == 0 ? TASK_TYPE_NORMAL : TASK_TYPE_URGENT,
-         descripcion: 'Descripción de tarea ${nextTaskId + index}',
-         fecha: DateTime.now().add(Duration(days: index)),
-         deadline: DateTime.now().add(Duration(days: index + 1)), 
-         steps: TaskService().obtenerPasos('Tarea ${nextTaskId + index}', DateTime.now().add(Duration(days: index + 1))),
-       ),
-     );
+      List<Task> newTask = List.generate(
+        count,
+        (index) => Task(
+          title: 'Tarea ${nextTaskId + index}',
+          type:
+              ( index % 2) == 0
+                  ? TASK_TYPE_NORMAL
+                  : TASK_TYPE_URGENT,
+          descripcion: 'Descripción de tarea ${nextTaskId + index}',
+          fecha: DateTime.now().add(Duration(days: index)),
+          //deadline: DateTime.now().add(Duration(days: index + 1)),
+          deadline: DateTime.now().add(Duration(days: 1)),
+          steps: TaskService().getTasksWithSteps(
+            'Tarea ${nextTaskId + index}',
+            DateTime.now().add(Duration(days: index + 1)),
+          ),
+        ),
+      );
+      _updateTaskList(newTask);
+      return newTask;
     } catch (e) {
       throw Exception('Error al obtener más tareas: $e');
     }
   }
-  
- 
+
+ void _updateTaskList (List<Task> tasks) {
+     for (Task task in tasks) {
+       _taskRepository.addTask(task);
+     } 
+   }
+
 }
+ 

@@ -19,8 +19,8 @@ class MyApp extends StatelessWidget {
 
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-       home: const MyHomePage(title: 'ISAIAS flutter app'),
-      //home: const LoginScreen(),
+       //home: const MyHomePage(title: 'ISAIAS flutter app'),
+      home: const LoginScreen(),
     );
   }
 }
