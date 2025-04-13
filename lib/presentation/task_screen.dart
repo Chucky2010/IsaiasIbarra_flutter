@@ -174,47 +174,7 @@ class _TareasScreenState extends State<TareasScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              // DropdownButtonFormField<String>(
-              //   value:
-              //       tipoController.text.isEmpty ||
-              //               tipoController.text.toLowerCase() == 'normal'
-              //           ? 'normal'
-              //           : 'urgente',
-
-              //   decoration: const InputDecoration(
-              //     labelText: 'Tipo de Tarea',
-              //     border: OutlineInputBorder(),
-              //   ),
-              //   items: const [
-              //     DropdownMenuItem<String>(
-              //       value: 'normal',
-              //       child: Row(
-              //         children: [
-              //           Icon(Icons.check_circle_outline, color: Colors.blue),
-              //           SizedBox(width: 8),
-              //           Text('Normal'),
-              //         ],
-              //       ),
-              //     ),
-              //     DropdownMenuItem<String>(
-              //       value: 'urgente',
-              //       child: Row(
-              //         children: [
-              //           Icon(Icons.warning, color: Colors.red),
-              //           SizedBox(width: 8),
-              //           Text('Urgente'),
-              //         ],
-              //       ),
-              //     ),
-              //   ],
-              //   onChanged: (String? newValue) {
-              //     if (newValue != null) {
-              //       setState(() {
-              //         tipoController.text = newValue;
-              //       });
-              //     }
-              //   },
-              // ),
+              
             ],
           ),
           actions: [
@@ -249,7 +209,7 @@ class _TareasScreenState extends State<TareasScreen> {
                   type:
                       tipoController.text.isNotEmpty
                           ? tipoController.text
-                          : TASK_TYPE_NORMAL,
+                          : task_type_nomal,
                   fecha: fechaSeleccionada ?? DateTime.now(),
                   descripcion: detalleController.text,
                   deadline: DateTime.now().add(const Duration(days: 1)),
@@ -282,12 +242,12 @@ class _TareasScreenState extends State<TareasScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
-        title:  Text('$TITLE_APPBAR - Total: ${_tareas.length}'),
+        title:  Text('$title_appbar - Total: ${_tareas.length}'),
         backgroundColor: Colors.blueAccent,
       ),
       body:
           _tareas.isEmpty
-              ? const Center(child: Text(LISTA_VACIA))
+              ? const Center(child: Text(lista_vacia))
               : ListView.builder(
                 controller: _scrollController,
                 itemCount:

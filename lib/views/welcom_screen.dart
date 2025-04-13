@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-
-//import 'package:kgaona/views/tareasscreen.dart';
 import 'package:mi_proyecto/views/login_screen.dart';
 import 'package:mi_proyecto/main.dart';
-
 import 'package:mi_proyecto/presentation/task_screen.dart';
+import 'package:mi_proyecto/presentation/start_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -95,8 +93,8 @@ class WelcomeScreenState extends State<WelcomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Bienvenido')),
-      drawer:  Drawer(
-        child:  ListView(
+      drawer: Drawer(
+        child: ListView(
           padding: EdgeInsets.zero,
           children: [
             const DrawerHeader(
@@ -112,7 +110,9 @@ class WelcomeScreenState extends State<WelcomeScreen> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => const WelcomeScreen(),
+                  ),
                 );
               },
             ),
@@ -132,10 +132,21 @@ class WelcomeScreenState extends State<WelcomeScreen> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const MyHomePage(title: '',)),
+                  MaterialPageRoute(
+                    builder: (context) => const MyHomePage(title: ''),
+                  ),
                 );
               },
-              
+            ),
+            ListTile(
+              leading: const Icon(Icons.task),
+              title: const Text('Jugar'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const StartScreen()),
+                );
+              },
             ),
             ListTile(
               leading: const Icon(Icons.exit_to_app),
@@ -147,7 +158,7 @@ class WelcomeScreenState extends State<WelcomeScreen> {
                   builder: (context) {
                     return AlertDialog(
                       title: const Text('Confirmar'),
-                      content:const  Text('¿Estás seguro de que deseas salir?'),
+                      content: const Text('¿Estás seguro de que deseas salir?'),
                       actions: [
                         TextButton(
                           onPressed: () {
@@ -155,7 +166,7 @@ class WelcomeScreenState extends State<WelcomeScreen> {
                           },
                           child: const Text('Cancelar'),
                         ),
-               
+
                         ElevatedButton(
                           onPressed: () {
                             Navigator.of(context).pop(); // Cierra el diálogo
@@ -182,25 +193,25 @@ class WelcomeScreenState extends State<WelcomeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-             Text(
+            Text(
               '¡Bienvenido!',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-             SizedBox(height: 16),
-             Text(
+            SizedBox(height: 16),
+            Text(
               'Has iniciado sesión exitosamente.',
               style: TextStyle(fontSize: 18),
             ),
-             SizedBox(height: 16),
+            SizedBox(height: 16),
             //ElevatedButton(
-              // onPressed: () {
-              //   // Acción para listar cotizaciones
-              //   ScaffoldMessenger.of(context).showSnackBar(
-              //     const SnackBar(content: Text('Listando cotizaciones...')),
-              //   );
-              // },
+            // onPressed: () {
+            //   // Acción para listar cotizaciones
+            //   ScaffoldMessenger.of(context).showSnackBar(
+            //     const SnackBar(content: Text('Listando cotizaciones...')),
+            //   );
+            // },
             //   child: const Text('Listar Cotizaciones PS'),
-        
+
             // ),
             // ElevatedButton(
             //   onPressed: fetchQuotes,
@@ -226,15 +237,15 @@ class WelcomeScreenState extends State<WelcomeScreen> {
             //   child: const Text('Listar Cotizaciones'),
             // ),
             // const SizedBox(height: 40),
-          //   ElevatedButton(
-          //   onPressed: () {
-          //     Navigator.push(
-          //       context,
-          //       MaterialPageRoute(builder: (context) => const TareasScreen()),
-          //     );
-          //   },
-          //   child: const Text('LISTA DE TAREAS'),
-          // ),
+            //   ElevatedButton(
+            //   onPressed: () {
+            //     Navigator.push(
+            //       context,
+            //       MaterialPageRoute(builder: (context) => const TareasScreen()),
+            //     );
+            //   },
+            //   child: const Text('LISTA DE TAREAS'),
+            // ),
           ],
         ),
       ),
