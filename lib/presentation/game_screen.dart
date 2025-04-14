@@ -34,6 +34,22 @@ class GameScreen extends StatefulWidget {
            questionsList[currentQuestionIndex].correctAnswerIndex == selectedIndex;
      });
  
+    // Mensaje del SnackBar
+    final String snackBarMessage = 
+    respCorrecta == true ? '¡Correcto!' : 'Incorrecto';
+
+    // Muestra el SnackBar
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          snackBarMessage,
+          style: const TextStyle(color: Colors.white),
+        ),
+        backgroundColor: respCorrecta == true ? Colors.green : Colors.red,
+        duration: const Duration(seconds: 1), // Duración del SnackBar
+      ),
+    );
+  
      loadNextQuestion(selectedIndex);
    }
  
@@ -45,6 +61,7 @@ class GameScreen extends StatefulWidget {
    }
  
    void loadNextQuestion(int selectedIndex) {
+
      Future.delayed(const Duration(seconds: 1), () {
        if (respCorrecta == true) {
          userScore++;
@@ -61,7 +78,10 @@ class GameScreen extends StatefulWidget {
        } else {
          Navigator.pushReplacement(
            context,
-           MaterialPageRoute(builder: (context) => const GameScreen()),
+           MaterialPageRoute(builder: (context) =>  ResultScreen(
+              finalScore: userScore,
+              totalQuestions: questionsList.length,
+           )),
          );
        }
      });
