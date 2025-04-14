@@ -24,7 +24,7 @@ class TaskCardHelper {
       onDismissed: (rigth) {
         onDelete();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(TAREA_ELIMINADA)),
+          const SnackBar(content:  Text(tarea_eliminada)),
         );
       },
       child: Card(
@@ -78,15 +78,15 @@ class TaskCardHelper {
                 children: [
                   
                   Icon(
-                    task.type == TASK_TYPE_URGENT ? Icons.warning : Icons.task,
-                    color: task.type == TASK_TYPE_URGENT ? Colors.red : Colors.blue,
+                    task.type == task_type_urgent ? Icons.warning : Icons.task,
+                    color: task.type == task_type_urgent ? Colors.red : Colors.blue,
                     size: 16,
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    '$TIPO_TAREA ${task.type}',
+                    '$tipo_tarea ${task.type}',
                     style: TextStyle(
-                    color: task.type == TASK_TYPE_URGENT ? Colors.red : Colors.blue,
+                    color: task.type == task_type_urgent ? Colors.red : Colors.blue,
                     ),
                   ),
                   const SizedBox(width: 16),

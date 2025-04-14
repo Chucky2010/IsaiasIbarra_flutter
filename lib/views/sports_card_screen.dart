@@ -83,11 +83,11 @@ class SportsCardScreen extends StatelessWidget {
           
                 // Fecha límite
                 CommonWidgetsHelper.buildBoldFooter(
-                  '$FECHA_LIMITE ${task.fechaLimiteToString()}',
+                  '$fecha_limite ${task.fechaLimiteToString()}',
                 ),
                 CommonWidgetsHelper.buildSpacing(), // Espaciado
                  // Descripción
-                 CommonWidgetsHelper.buildBoldFooter(TASK_DESCRIPTION),
+                 CommonWidgetsHelper.buildBoldFooter(task_description),
                 CommonWidgetsHelper.buildSpacing(), // Espaciado
                  const SizedBox(height: 8),
                  Text(task.getDescription),
