@@ -1,77 +1,153 @@
-// import 'package:flutter/material.dart';
-// import 'package:mi_proyecto/services/question_service.dart';
-// import 'package:mi_proyecto/domain/question.dart';
-// import 'package:mi_proyecto/presentation/result_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:mi_proyecto/services/question_service.dart';
+import 'package:mi_proyecto/domain/question.dart';
+import 'package:mi_proyecto/presentation/result_screen.dart';
+import 'package:mi_proyecto/constants.dart';
 
-// class GameScreen extends StatefulWidget {
-//   const GameScreen({super.key});
-
-//   @override
-//   State<GameScreen> createState() => _GameScreenState();
-// }
-
-// class _GameScreenState extends State<GameScreen> {
-//   final QuestionService _questionService = QuestionService();
-//   late List<Question> _questions;
-//   int _currentQuestionIndex = 0;
-//   int _score = 0;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _questions = _questionService.getQuestions(); // Obtiene las preguntas del servicio
-//   }
-
-//   void _answerQuestion(int selectedIndex) {
-//     // Verifica si la respuesta seleccionada es correcta
-//     if (_questions[_currentQuestionIndex].correctAnswerIndex == selectedIndex) {
-//       _score++;
-//     }
-
-//     // Avanza a la siguiente pregunta o muestra la pantalla de resultados
-//     if (_currentQuestionIndex < _questions.length - 1) {
-//       setState(() {
-//         _currentQuestionIndex++;
-//       });
-//     } else {
-//       Navigator.pushReplacement(
-//         context,
-//         MaterialPageRoute(
-//           builder: (context) => ResultScreen(score: _score, total: _questions.length),
-//         ),
-//       );
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final question = _questions[_currentQuestionIndex];
-
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('Juego de Preguntas'),
-//       ),
-//       body: Padding(
-//         padding: const EdgeInsets.all(16.0),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.stretch,
-//           children: [
-//             Text(
-//               question.questionText, // Muestra el texto de la pregunta
-//               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-//             ),
-//             const SizedBox(height: 16),
-//             ...question.answerOptions.asMap().entries.map((entry) {
-//               final index = entry.key;
-//               final option = entry.value;
-//               return ElevatedButton(
-//                 onPressed: () => _answerQuestion(index), // Maneja la respuesta seleccionada
-//                 child: Text(option),
-//               );
-//             }).toList(),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
+class GameScreen extends StatefulWidget {
+   const GameScreen({super.key});
+ 
+   @override
+   GameScreenState createState() => GameScreenState();
+ }
+ 
+ class GameScreenState extends State<GameScreen> {
+   final QuestionService _questionService = QuestionService();
+   late List<Question> questionsList;
+   int currentQuestionIndex = 0;
+   int userScore = 0;
+   String questionCounterText = '';
+   int? selectedAnswerIndex;
+   bool? respCorrecta;
+ 
+   @override
+   void initState() {
+     super.initState();
+     questionsList = _questionService.getQuestions();
+     loadQuestions();
+   }
+ 
+   void handleAnswer(int selectedIndex) {
+     setState(() {
+       selectedAnswerIndex = selectedIndex;
+       respCorrecta =
+           questionsList[currentQuestionIndex].correctAnswerIndex == selectedIndex;
+     });
+ 
+     loadNextQuestion(selectedIndex);
+   }
+ 
+   void loadQuestions() {
+     setState(() {
+       questionCounterText =
+           'Pregunta ${currentQuestionIndex + 1} de ${questionsList.length}';
+     });
+   }
+ 
+   void loadNextQuestion(int selectedIndex) {
+     Future.delayed(const Duration(seconds: 1), () {
+       if (respCorrecta == true) {
+         userScore++;
+       }
+ 
+       if (currentQuestionIndex < questionsList.length - 1) {
+         setState(() {
+           currentQuestionIndex++;
+           selectedAnswerIndex = null;
+           respCorrecta = null;
+           questionCounterText =
+               'Pregunta ${currentQuestionIndex + 1} de ${questionsList.length}';
+         });
+       } else {
+         Navigator.pushReplacement(
+           context,
+           MaterialPageRoute(builder: (context) => const GameScreen()),
+         );
+       }
+     });
+   }
+ 
+   @override
+   Widget build(BuildContext context) {
+     final Question currentQuestion = questionsList[currentQuestionIndex];
+     return Scaffold(
+       backgroundColor: Colors.white,
+       appBar: AppBar(
+         title: const Text(title_app),
+         backgroundColor: Colors.blue,
+         centerTitle: true,
+       ),
+       body: Center(
+         child: Padding(
+           padding: const EdgeInsets.all(16),
+           child: Column(
+             mainAxisAlignment: MainAxisAlignment.center,
+             crossAxisAlignment: CrossAxisAlignment.center,
+             children: [
+               Text(
+                 questionCounterText,
+                 style: const TextStyle(fontSize: 16, color: Colors.grey),
+               ),
+                const SizedBox(height: 16),
+               Text(
+                 currentQuestion.questionText,
+                 style: const TextStyle(
+                   fontSize: 20,
+                   fontWeight: FontWeight.bold,
+                   color: Colors.black,
+                 ),
+                 textAlign: TextAlign.center,
+               ),
+               const SizedBox(height: 24),
+               Column(
+                 
+                 children: List.generate(
+                   currentQuestion.answerOptions.length,
+                   (index) => Padding(
+                     padding: const EdgeInsets.symmetric(vertical: 16),
+                     child: ElevatedButton(
+                       onPressed:
+                           selectedAnswerIndex == null
+                               ? () => handleAnswer(index)
+                               : null,
+                       style: ButtonStyle(
+                         backgroundColor: WidgetStateProperty.resolveWith<Color>(
+                           (Set<WidgetState> states) {
+                             if (selectedAnswerIndex == index) {
+                               return respCorrecta == true
+                                   ? Colors.green
+                                   : Colors.red;
+                             }
+                             return Colors.blue;
+                           },
+                         ),
+                         padding: WidgetStateProperty.all(
+                           const EdgeInsets.symmetric(
+                             vertical: 16,
+                             horizontal: 24,
+                           ),
+                         ),
+                         shape: WidgetStateProperty.all(
+                           RoundedRectangleBorder(
+                             borderRadius: BorderRadius.circular(8),
+                           ),
+                         ),
+                       ),
+                       child: Text(
+                         currentQuestion.answerOptions[index],
+                         style: const TextStyle(
+                           fontSize: 16,
+                           color: Colors.white,
+                         ),
+                       ),
+                     ),
+                   ),
+                 ),
+               ),
+             ],
+           ),
+         ),
+       ),
+     );
+   }
+ }
