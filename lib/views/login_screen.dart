@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mi_proyecto/views/quote_screen.dart';
 import 'package:mi_proyecto/views/welcom_screen.dart';
 import 'package:mi_proyecto/api/services/auth_service.dart';
 
@@ -67,7 +68,7 @@ class LoginScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const WelcomeScreen(),
+                        builder: (context) => const QuoteScreen(),
                       ),
                     );
                   }
