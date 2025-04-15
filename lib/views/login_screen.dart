@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mi_proyecto/views/welcom_screen.dart';
-import '../api/services/auth_service.dart';
+import 'package:mi_proyecto/api/services/auth_service.dart';
+
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -13,9 +14,7 @@ class LoginScreen extends StatelessWidget {
     final AuthService authService = AuthService();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Inicio de Sesión'),
-      ),
+      appBar: AppBar(title: const Text('Inicio de Sesión')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -61,7 +60,7 @@ class LoginScreen extends StatelessWidget {
                     // Llama al servicio de autenticación
                     await authService.login(username, password);
 
-                        // Verifica si el widget sigue montado antes de usar el contexto
+                    // Verifica si el widget sigue montado antes de usar el contexto
                     if (!context.mounted) return;
 
                     // Muestra un mensaje de éxito

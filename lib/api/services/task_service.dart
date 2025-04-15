@@ -9,20 +9,6 @@ class TaskService {
   final TaskRepository _taskRepository = TaskRepository();
   final AssistantRepository _assistantRepository = AssistantRepository();
 
-
-
-
-  // Obtener todas las tareas
-  // List<Task> getTasksWithSteps(String titulo, DateTime fechalimite) {
-  //   try {
-  //     List<String> pasosSimulados = _assistantRepository.obtenerPasos(titulo, fechaString).take(LIMITE_PASOS).toList(); // Limita los pasos simulados obtenidos
-  //    _taskRepository.setListaPasos(pasosSimulados); // Establece la lista de pasos en el repositorio
-  //    return pasosSimulados; 
-  //   } catch (e) {
-  //     throw Exception('Error al obtener tareas: $e');
-  //   }
-  // }
-
   void _inicializarPasos(List<Task> tasks) {
     for (Task task in tasks) {
       if (task.getPasos == null || task.getPasos!.isEmpty) {
@@ -102,7 +88,7 @@ class TaskService {
           descripcion: 'Descripción de tarea ${nextTaskId + index}',
           fecha: DateTime.now().add(Duration(days: index)),
           //deadline: DateTime.now().add(Duration(days: index + 1)),
-          deadline: DateTime.now().add(Duration(days: 1)),
+          deadline: DateTime.now().add(const Duration(days: 1)),
           steps: TaskService().getTasksWithSteps(
             'Tarea ${nextTaskId + index}',
             DateTime.now().add(Duration(days: index + 1)),
