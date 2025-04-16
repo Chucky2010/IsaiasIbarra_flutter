@@ -215,7 +215,7 @@ class _TareasScreenState extends State<TareasScreen> {
                   type:
                       tipoController.text.isNotEmpty
                           ? tipoController.text
-                          : task_type_nomal,
+                          : Constants.taskTypeNormal,
                   fecha: fechaSeleccionada ?? DateTime.now(),
                   descripcion: detalleController.text,
                   deadline: DateTime.now().add(const Duration(days: 1)),
@@ -248,12 +248,12 @@ class _TareasScreenState extends State<TareasScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
-        title:  Text('$title_appbar - Total: ${_tareas.length}'),
+        title:  Text('$Constants.titleAppbar - Total: ${_tareas.length}'),
         backgroundColor: Colors.blueAccent,
       ),
       body:
           _tareas.isEmpty
-              ? const Center(child: Text(lista_vacia))
+              ? const Center(child: Text(Constants.listaVacia))
               : ListView.builder(
                 controller: _scrollController,
                 itemCount:

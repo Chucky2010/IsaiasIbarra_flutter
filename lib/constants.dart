@@ -1,23 +1,24 @@
-const String title_appbar = 'Mis Tareas';
-const String lista_vacia = 'No hay tareas.';
-//const String TASK_TYPE_LABEL = 'Tipo de tarea:';
-const String task_type_nomal = 'normal';
-const String pasos_titulo = 'Pasos para completar:';
-const String fecha_limite = 'Fecha límite:';
-const String task_type_urgent = 'urgente';
-const String task_description = 'Descripción:';
-const String tarea_eliminada = 'Tarea eliminada';
-const String tipo_tarea = 'Tipo: ';
+class Constants {
+  static const String titleAppbar = 'Mis Tareas';
+  static const String listaVacia = 'No hay tareas.';
+  static const String taskTypeNormal = 'normal';
+  static const String pasosTitulo = 'Pasos para completar:';
+  static const String fechaLimite = 'Fecha límite:';
+  static const String taskTypeUrgent = 'urgente';
+  static const String taskDescription = 'Descripción:';
+  static const String tareaEliminada = 'Tarea eliminada';
+  static const String tipoTarea = 'Tipo: ';
 
-const String title_app = 'Juego de Preguntas';
-const String welcome_message = '¡Bienvenido al Juego de Preguntas!';
-const String start_game = 'Iniciar Juego';
-const String final_score = 'Puntuación Final: ';
-const String play_again = 'Jugar de Nuevo';
+  static const String titleAppGame = 'Juego de Preguntas';
+  static const String welcomeMessage = '¡Bienvenido al Juego de Preguntas!';
+  static const String startGame = 'Iniciar Juego';
+  static const String finalScore = 'Puntuación Final: ';
+  static const String playAgain = 'Jugar de Nuevo';
 
-const String titleApp = 'Cotizaciones Financieras';
-const String loadingMessage = 'Cargando cotizaciones...';
-const String emptyList = 'No hay cotizaciones';
-const String errorMessage = 'Error al cargar las cotizaciones';
-const int pageSize = 10;
-const String dateFormat = 'dd/MM/yyyy HH:mm';
+  static const String titleApp = 'Cotizaciones Financieras';
+  static const String loadingMessage = 'Cargando cotizaciones...';
+  static const String emptyList = 'No hay cotizaciones';
+  static const String errorMessage = 'Error al cargar las cotizaciones';
+  static const int pageSize = 10;
+  static const String dateFormat = 'dd/MM/yyyy HH:mm';
+}

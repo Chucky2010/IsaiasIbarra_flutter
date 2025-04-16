@@ -94,7 +94,7 @@ class GameScreen extends StatefulWidget {
      return Scaffold(
        backgroundColor: Colors.white,
        appBar: AppBar(
-         title: const Text(title_app),
+         title: const Text(Constants.titleAppGame),
          backgroundColor: Colors.blue,
          centerTitle: true,
        ),
