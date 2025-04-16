@@ -253,7 +253,7 @@ class _TareasScreenState extends State<TareasScreen> {
       ),
       body:
           _tareas.isEmpty
-              ? const Center(child: Text(Constants.listaVacia))
+              ? const Center(child: Text(Constants.listaTareasVacia))
               : ListView.builder(
                 controller: _scrollController,
                 itemCount:
