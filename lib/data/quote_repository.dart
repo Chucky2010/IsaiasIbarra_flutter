@@ -1,8 +1,9 @@
 import 'dart:math'; // Importa para generar números aleatorios
 import 'package:mi_proyecto/domain/quote.dart';
+import 'package:mi_proyecto/constants.dart';
 
 class QuoteRepository {
-  static final List<Quote> quotes = [
+  static final List<Quote> _initialQuotes = [
     Quote(
       companyName: 'Apple',
       stockPrice: 150.25,
@@ -33,18 +34,56 @@ class QuoteRepository {
       changePercentage: -0.7,
       lastUpdated: DateTime.now().subtract(const Duration(hours: 5)), // Hace 5 horas
     ),
+
+  
   ];
 
-  // Método asíncrono para obtener todas las cotizaciones simulando una consulta REST
-  Future<List<Quote>> fetchAllQuotes() async {
-    await Future.delayed(const Duration(seconds: 2)); // Simula un retraso de carga
-    return List.from(quotes); // Devuelve una copia de la lista de cotizaciones
+// Lista de nombres de empresas conocidas
+  static final List<String> _companyNames = [
+    'Apple',
+    'Google',
+    'Amazon',
+    'Microsoft',
+    'Tesla',
+    'Meta',
+    'Netflix',
+    'Samsung',
+    'Intel',
+    'NVIDIA',
+    'Adobe',
+    'IBM',
+    'Oracle',
+    'Spotify',
+    'Twitter',
+    'Coca-Cola',
+    'Pepsi',
+    'Nike',
+    'Adidas',
+    'Starbucks',
+  ];
+
+  // Método para obtener las cotizaciones iniciales
+  List<Quote> getInitialQuotes() {
+    return List.unmodifiable(_initialQuotes); // Devuelve una copia inmutable
   }
 
-  // Método para obtener una cotización aleatoria
-  Future<Quote> fetchRandomQuote() async {
-    await Future.delayed(const Duration(milliseconds: 500)); // Simula un retraso
-    final randomIndex = Random().nextInt(quotes.length); // Genera un índice aleatorio
-    return quotes[randomIndex]; // Devuelve una cotización aleatoria
+  // Método para generar cotizaciones aleatorias
+  List<Quote> generateRandomQuotes(int count) {
+    final random = Random();
+    return List.generate(count, (index) {
+      final companyName = _companyNames[random.nextInt(_companyNames.length)];
+      final stockPrice = random.nextDouble() * 1000 + 50; // Precio entre 50 y 1050
+      final changePercentage = random.nextDouble() * 20 - 10; // Cambio entre -10% y 10%
+      return Quote(
+        companyName: companyName,
+        stockPrice: stockPrice,
+        changePercentage: changePercentage,
+        lastUpdated: DateTime.now(),
+      );
+    });
   }
+
+  
 }
+
+

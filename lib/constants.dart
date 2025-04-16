@@ -19,4 +19,5 @@ const String titleApp = 'Cotizaciones Financieras';
 const String loadingMessage = 'Cargando cotizaciones...';
 const String emptyList = 'No hay cotizaciones';
 const String errorMessage = 'Error al cargar las cotizaciones';
-const int pageSize = 5;
+const int pageSize = 10;
+const String dateFormat = 'dd/MM/yyyy HH:mm';
