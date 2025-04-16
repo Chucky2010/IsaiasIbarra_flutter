@@ -1,6 +1,6 @@
 class Constants {
   static const String titleAppbar = 'Mis Tareas';
-  static const String listaVacia = 'No hay tareas.';
+  static const String listaTareasVacia = 'No hay tareas.';
   static const String taskTypeNormal = 'normal';
   static const String pasosTitulo = 'Pasos para completar:';
   static const String fechaLimite = 'Fecha límite:';
@@ -21,4 +21,16 @@ class Constants {
   static const String errorMessage = 'Error al cargar las cotizaciones';
   static const int pageSize = 10;
   static const String dateFormat = 'dd/MM/yyyy HH:mm';
+
+  static const String tituloApp = 'Noticias Técnicas';
+  static const String mensajeCargando = 'Cargando noticias...';
+  static const String listaVacia = 'No hay noticias disponibles';
+  static const String mensajeError = 'Error al cargar noticias';
+  static const String formatoFecha = 'dd/MM/yyyy HH:mm';
+  static const int tamanoPaginaConst = 10;
+  static const double espaciadoAlto = 10;
+
+
+
+
 }
