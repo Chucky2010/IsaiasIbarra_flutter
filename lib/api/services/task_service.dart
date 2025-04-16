@@ -39,7 +39,7 @@ class TaskService {
   void eliminarTarea(int index) {
     try {
       _taskRepository.deleteTask(index);
-      print('$tarea_eliminada $index');
+      print('$Constants.tareaEliminada $index');
     } catch (e) {
       throw Exception('Error al eliminar tarea: $e');
     }
@@ -83,8 +83,8 @@ class TaskService {
           title: 'Tarea ${nextTaskId + index}',
           type:
               ( index % 2) == 0
-                  ? task_type_nomal
-                  : task_type_urgent,
+                  ? Constants.taskTypeNormal
+                  : Constants.taskTypeUrgent,
           descripcion: 'Descripción de tarea ${nextTaskId + index}',
           fecha: DateTime.now().add(Duration(days: index)),
           //deadline: DateTime.now().add(Duration(days: index + 1)),

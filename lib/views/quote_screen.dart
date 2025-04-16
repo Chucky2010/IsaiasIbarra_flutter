@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mi_proyecto/api/services/quote_service.dart';
 import 'package:mi_proyecto/domain/quote.dart';
 import 'package:mi_proyecto/constants.dart';
+import 'package:intl/intl.dart'; // Importa el paquete intl
 
 class QuoteScreen extends StatefulWidget {
   const QuoteScreen({super.key});
@@ -53,7 +54,7 @@ class _QuoteScreenState extends State<QuoteScreen> {
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text(errorMessage),
+        content: Text(Constants.errorMessage),
         backgroundColor: Colors.red,
       ),
     );
@@ -74,14 +75,14 @@ class _QuoteScreenState extends State<QuoteScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(titleApp),
+        title: const Text(Constants.titleApp),
       ),
       body: Container(
       color: Colors.grey[200], // Fondo gris claro
        child: _quotes.isEmpty && !_isLoading
           ? const Center(
               child: Text(
-                emptyList,
+                Constants.emptyList,
                 style: TextStyle(fontSize: 16),
               ),
             )
@@ -105,15 +106,29 @@ class _QuoteScreenState extends State<QuoteScreen> {
                     Card(
                       margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                       child: ListTile(
-                        title: Text(quote.companyName),
-                        subtitle: Text('Precio: \$${quote.stockPrice.toStringAsFixed(2)}'),
-                        trailing: Text(
-                          '${quote.changePercentage > 0 ? '+' : ''}${quote.changePercentage.toStringAsFixed(2)}%',
-                          style: TextStyle(
-                            color: quote.changePercentage > 0 ? Colors.green : Colors.red,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        title: Text(
+          quote.companyName,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Precio: \$${quote.stockPrice.toStringAsFixed(2)}'),
+            Text(
+              'Última actualización: ${DateFormat(Constants.dateFormat).format(quote.lastUpdated)}',
+            ),
+          ],
+        ),
+        trailing: Text(
+          '${quote.changePercentage > 0 ? '+' : ''}${quote.changePercentage.toStringAsFixed(2)}%',
+          style: TextStyle(
+            color: quote.changePercentage > 0 ? Colors.green : Colors.red,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
                       ),
                     ),
                     SizedBox(height: spacingHeight), // Espaciado entre Cards

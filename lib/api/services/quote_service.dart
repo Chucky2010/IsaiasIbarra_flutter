@@ -8,17 +8,17 @@ class QuoteService {
   // Método para obtener cotizaciones paginadas
   Future<List<Quote>> getPaginatedQuotes({
     required int pageNumber,
-    int pageSize = pageSize, // Tamaño de página predeterminado
+    int pageSize = Constants.pageSize, // Tamaño de página predeterminado
   }) async {
     // Validaciones de los parámetros
     if (pageNumber < 1) {
       throw Exception(
-        '$errorMessage: El número de página debe ser mayor o igual a 1.',
+        '$Constants.errorMessage: El número de página debe ser mayor o igual a 1.',
       );
     }
     if (pageSize <= 0) {
       throw Exception(
-        '$errorMessage: El tamaño de página debe ser mayor que 0.',
+        '$Constants.errorMessage: El tamaño de página debe ser mayor que 0.',
       );
     }
 
@@ -55,7 +55,7 @@ class QuoteService {
       for (final quote in filteredQuotes) {
         if (quote.changePercentage > 100 || quote.changePercentage < -100) {
           throw Exception(
-            '$errorMessage: El porcentaje de cambio debe estar entre -100 y 100. Cotización inválida: ${quote.companyName}',
+            '$Constants.errorMessage: El porcentaje de cambio debe estar entre -100 y 100. Cotización inválida: ${quote.companyName}',
           );
         }
       }
@@ -65,7 +65,7 @@ class QuoteService {
       
       return filteredQuotes;
     } catch (e) {
-      throw Exception('$errorMessage: $e');
+      throw Exception('$Constants.errorMessage: $e');
     }
   }
 }

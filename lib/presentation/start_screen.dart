@@ -10,14 +10,14 @@ class StartScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(title_app), // Título de la aplicación
+        title: const Text(Constants.titleAppGame), // Título de la aplicación
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
            const Text(
-              welcome_message, // Mensaje de bienvenida
+              Constants.welcomeMessage, // Mensaje de bienvenida
               style:  TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
@@ -33,7 +33,7 @@ class StartScreen extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue, // Cambia el color del botón a azul
               ),
-              child: const Text(start_game),
+              child: const Text(Constants.startGame),
                // Texto del botón
             ),
           ],
