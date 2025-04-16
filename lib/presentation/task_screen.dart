@@ -22,14 +22,10 @@ class _TareasScreenState extends State<TareasScreen> {
       TaskRepository(); // Instancia del repositorio
   final TaskService _taskService = TaskService();
   final ScrollController _scrollController = ScrollController();
-  //  bool _cargando = false;
-  //  bool _hayMasTareas = true;
-  //  int _paginaActual = 0;
-  //  final int _limitePorPagina = 10;
+
   int _selectedIndex = 0; // Índice del elemento seleccionado en el navbar
-  //  DateTime? fechaSeleccionada;
-  //  final TextEditingController fechaController = TextEditingController();
-  late int _nextTaskId;
+ 
+  late int _nextTaskId = 0;
   bool _cargando = false;
 
   void _onItemTapped(int index) {
@@ -86,11 +82,21 @@ class _TareasScreenState extends State<TareasScreen> {
 
     final nuevasTareas = _taskService.loadMoreTasks(_nextTaskId, 5);
 
-    setState(() {
-      _tareas.addAll(nuevasTareas);
-      _nextTaskId = nuevasTareas.length;
-      _cargando = false;
-    });
+  setState(() {
+    // Evita duplicados al agregar tareas
+    for (var tarea in nuevasTareas) {
+      if (!_tareas.any((t) => t.title == tarea.title)) {
+        _tareas.add(tarea);
+      }
+    }
+    _nextTaskId += nuevasTareas.length; // Incrementa el índice correctamente
+    _cargando = false;
+  });
+    // setState(() {
+    //   _tareas.addAll(nuevasTareas);
+    //   _nextTaskId += nuevasTareas.length;
+    //   _cargando = false;
+    // });
   }
 
   void _detectarScrollFinal() {

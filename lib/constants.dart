@@ -14,3 +14,10 @@ const String welcome_message = '¡Bienvenido al Juego de Preguntas!';
 const String start_game = 'Iniciar Juego';
 const String final_score = 'Puntuación Final: ';
 const String play_again = 'Jugar de Nuevo';
+
+const String titleApp = 'Cotizaciones Financieras';
+const String loadingMessage = 'Cargando cotizaciones...';
+const String emptyList = 'No hay cotizaciones';
+const String errorMessage = 'Error al cargar las cotizaciones';
+const int pageSize = 10;
+const String dateFormat = 'dd/MM/yyyy HH:mm';

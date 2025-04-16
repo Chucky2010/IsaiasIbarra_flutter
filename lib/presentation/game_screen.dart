@@ -76,6 +76,7 @@ class GameScreen extends StatefulWidget {
                'Pregunta ${currentQuestionIndex + 1} de ${questionsList.length}';
          });
        } else {
+        if (!mounted) return;
          Navigator.pushReplacement(
            context,
            MaterialPageRoute(builder: (context) =>  ResultScreen(
