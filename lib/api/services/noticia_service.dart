@@ -5,10 +5,11 @@ import 'package:mi_proyecto/constants.dart';
 class NoticiaService {
   final NoticiaRepository _repository = NoticiaRepository();
 
-  // Método para obtener noticias paginadas
+  // Método para obtener noticias paginadas desde la API
   Future<List<Noticia>> getPaginatedNoticias({
     required int pageNumber,
     int pageSize = Constants.tamanoPaginaConst, // Tamaño de página predeterminado
+     required bool ordenarPorFecha, // Nuevo parámetro para el criterio de ordenamiento
   }) async {
     // Validaciones de los parámetros
     if (pageNumber < 1) {
@@ -25,24 +26,8 @@ class NoticiaService {
     try {
       await Future.delayed(const Duration(seconds: 2)); // Simula un retraso
 
-      List<Noticia> noticias;
-
-      // Si es la primera página, devuelve las noticias iniciales
-      if (pageNumber == 1) {
-        final initialNoticias = _repository.getInitialNoticias();
-        if (initialNoticias.length >= pageSize) {
-          noticias = initialNoticias.sublist(0, pageSize);
-        } else {
-          // Genera noticias adicionales si no hay suficientes
-          final additionalNoticias = _repository.generateRandomNoticias(
-            pageSize - initialNoticias.length,
-          );
-          noticias = [...initialNoticias, ...additionalNoticias];
-        }
-      } else {
-        // Para páginas posteriores, genera nuevas noticias aleatorias
-        noticias = _repository.generateRandomNoticias(pageSize);
-      }
+      // Obtiene noticias desde la API
+      final noticias = await _repository.fetchNoticiasFromApi(pageNumber, pageSize);
 
       // Validaciones adicionales para cada noticia
       for (final noticia in noticias) {
@@ -60,9 +45,12 @@ class NoticiaService {
         }
       }
 
-      // Ordena las noticias por fecha de publicación (más recientes primero)
-      noticias.sort((a, b) => b.publicadaEl.compareTo(a.publicadaEl));
-
+      // Ordena las noticias según el criterio seleccionado
+    if (ordenarPorFecha) {
+      noticias.sort((a, b) => b.publicadaEl.compareTo(a.publicadaEl)); // Más recientes primero
+    } else {
+      noticias.sort((a, b) => a.fuente.compareTo(b.fuente)); // Orden alfabético por fuente
+    }
       return noticias;
     } catch (e) {
       throw Exception('${Constants.mensajeError}: $e');

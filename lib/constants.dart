@@ -27,10 +27,11 @@ class Constants {
   static const String listaVacia = 'No hay noticias disponibles';
   static const String mensajeError = 'Error al cargar noticias';
   static const String formatoFecha = 'dd/MM/yyyy HH:mm';
-  static const int tamanoPaginaConst = 10;
+  static const int tamanoPaginaConst = 20;
   static const double espaciadoAlto = 10;
 
+  static const String apiKey = '86af514f2d814d27b2ed25523d30fa05';
+  static const String newUrl = 'https://newsapi.org/v2/top-headlines';
 
-
-
+  static const String tooltipOrden = 'Cambiar orden';
 }
