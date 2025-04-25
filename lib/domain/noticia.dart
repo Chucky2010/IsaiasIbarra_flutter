@@ -31,11 +31,24 @@ class Noticia {
       categoriaId: json['categoriaId'] ?? Constants.defaultcategoriaId,
     );
   }
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is Noticia && runtimeType == other.runtimeType && id == other.id;
 
-  @override
-  int get hashCode => id.hashCode;
+Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'titulo': titulo,
+      'descripcion': descripcion,
+      'fuente': fuente,
+      'publicadaEl': publicadaEl.toIso8601String(),
+      'urlImagen': imageUrl,
+      'categoriaId': categoriaId,
+    };
+  }
+
+  // @override
+  // bool operator ==(Object other) =>
+  //     identical(this, other) ||
+  //     other is Noticia && runtimeType == other.runtimeType && id == other.id;
+
+  // @override
+  // int get hashCode => id.hashCode;
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mi_proyecto/api/services/categoria_service.dart';
+import 'package:mi_proyecto/data/categoria_repository.dart';
 import 'package:mi_proyecto/domain/categoria.dart';
 import 'package:mi_proyecto/exceptions/api_exception.dart';
 import 'package:mi_proyecto/helpers/error_helper.dart';
@@ -12,7 +12,7 @@ class CategoriaScreen extends StatefulWidget {
 }
 
 class _CategoriaScreenState extends State<CategoriaScreen> {
-  final CategoriaService _categoriaService = CategoriaService();
+  final CategoriaRepository _categoriaService = CategoriaRepository();
   List<Categoria> categorias = [];
   bool isLoading = false;
   bool hasError = false;

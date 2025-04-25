@@ -1,12 +1,12 @@
 
 
 import 'package:flutter/material.dart';
-import 'package:mi_proyecto/api/services/noticia_service.dart';
+import 'package:mi_proyecto/data/noticia_repository.dart';
 import 'package:mi_proyecto/domain/noticia.dart';
 import 'package:mi_proyecto/constants.dart';
 import 'package:intl/intl.dart';
 import 'package:mi_proyecto/exceptions/api_exception.dart';
-import 'package:mi_proyecto/api/services/categoria_service.dart';
+import 'package:mi_proyecto/data/categoria_repository.dart';
 import 'package:mi_proyecto/domain/categoria.dart';
 
 class NoticiaScreen extends StatefulWidget {
@@ -17,9 +17,9 @@ class NoticiaScreen extends StatefulWidget {
 }
 
 class _NoticiaScreenState extends State<NoticiaScreen> {
-  final NoticiaService _noticiaService = NoticiaService();
+  final NoticiaRepository _noticiaRepository = NoticiaRepository();
   final ScrollController _scrollController = ScrollController();
-  final CategoriaService _categoriaService = CategoriaService();
+  final CategoriaRepository _categoriaRepository = CategoriaRepository();
   List<Categoria> _categorias = [];
 
   final List<Noticia> _noticias = [];
@@ -57,7 +57,7 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
 
   Future<void> _loadCategorias() async {
   try {
-    final categorias = await _categoriaService.getCategorias();
+    final categorias = await _categoriaRepository.getCategorias();
     setState(() {
       _categorias = categorias;
     });
@@ -83,7 +83,7 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
 
     try {
       // Llama al servicio para obtener noticias paginadas
-      final noticias = await _noticiaService.getPaginatedNoticias(
+      final noticias = await _noticiaRepository.getPaginatedNoticias(
         pageNumber: _currentPage,
         pageSize: Constants.tamanoPaginaConst, // Tamaño de página definido
       );
@@ -231,9 +231,7 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
                     _categoriaSeleccionada = value;
                   },
                   validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'La categoría es obligatoria';
-                    }
+                    
                     return null;
                   },
                 ),
@@ -255,7 +253,7 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
     );
   }
 
-  void _agregarNoticia(String categoriaId) async {
+  void _agregarNoticia(String? categoriaId) async {
     if (_formKey.currentState!.validate()) {
       final nuevaNoticia = Noticia(
         id: DateTime.now().toString(), // Genera un ID único
@@ -267,11 +265,11 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
             _imageUrlController.text.isNotEmpty
                 ? _imageUrlController.text
                 : 'https://via.placeholder.com/150', // Imagen predeterminada
-        categoriaId: categoriaId,
+        categoriaId: categoriaId ?? Constants.defaultcategoriaId,
       );
 
       try {
-        await _noticiaService.createNoticia(
+        await _noticiaRepository.createNoticia(
           nuevaNoticia,
         ); // Llama al servicio para crear la noticia
         setState(() {
@@ -419,7 +417,7 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
                       );
 
                       try {
-                        await _noticiaService.updateNoticia(noticiaEditada);
+                        await _noticiaRepository.updateNoticia(noticiaEditada);
                         setState(() {
                           final index = _noticias.indexWhere(
                             (n) => n.id == noticia.id,
@@ -503,7 +501,6 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
                 _hasMore = true; // Permite cargar más noticias
               });
               _loadNoticias();
-              print('Noticias después de agregar: ${_noticias.length}');
               // Carga las noticias nuevamente
             },
           ),
@@ -593,6 +590,11 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
                             }
 
                             final noticia = _noticias[index];
+                            
+                            final categoria = _categorias.firstWhere(
+                              (cat) => cat.id == noticia.categoriaId,
+                              orElse: () => Categoria(id: Constants.defaultcategoriaId, nombre: 'Sin categoría', descripcion: '', imagenUrl: ''),
+                            );
                             return Column(
                               children: [
                                 Card(
@@ -651,6 +653,14 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
                                                       Constants.formatoFecha,
                                                     ).format(
                                                       noticia.publicadaEl,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 8),
+                                                  Text(
+                                                    categoria.nombre,
+                                                    style: const TextStyle(
+                                                      fontStyle:
+                                                          FontStyle.italic,
                                                     ),
                                                   ),
                                                 ],
@@ -802,7 +812,7 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
 
                                                       if (confirm == true) {
                                                         try {
-                                                          await _noticiaService
+                                                          await _noticiaRepository
                                                               .deleteNoticia(
                                                                 noticia.id,
                                                               );
