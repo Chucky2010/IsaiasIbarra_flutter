@@ -5,8 +5,6 @@ class AuthService {
     await Future.delayed(const Duration(seconds: 2));
 
     // Imprime las credenciales en la consola
-    print('Usuario: $username');
-    print('Contraseña: $password');
 
     // Aquí puedes agregar lógica adicional, como validar las credenciales
     // o devolver un token simulado.

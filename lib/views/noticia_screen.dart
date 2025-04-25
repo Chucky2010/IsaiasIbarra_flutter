@@ -1,10 +1,13 @@
-import 'dart:math';
+
 
 import 'package:flutter/material.dart';
 import 'package:mi_proyecto/api/services/noticia_service.dart';
 import 'package:mi_proyecto/domain/noticia.dart';
 import 'package:mi_proyecto/constants.dart';
 import 'package:intl/intl.dart';
+import 'package:mi_proyecto/exceptions/api_exception.dart';
+import 'package:mi_proyecto/api/services/categoria_service.dart';
+import 'package:mi_proyecto/domain/categoria.dart';
 
 class NoticiaScreen extends StatefulWidget {
   const NoticiaScreen({super.key});
@@ -16,6 +19,8 @@ class NoticiaScreen extends StatefulWidget {
 class _NoticiaScreenState extends State<NoticiaScreen> {
   final NoticiaService _noticiaService = NoticiaService();
   final ScrollController _scrollController = ScrollController();
+  final CategoriaService _categoriaService = CategoriaService();
+  List<Categoria> _categorias = [];
 
   final List<Noticia> _noticias = [];
   int _currentPage = 1;
@@ -39,6 +44,7 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
   void initState() {
     super.initState();
     _loadNoticias();
+    _loadCategorias(); // Carga las categorías al iniciar
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
               _scrollController.position.maxScrollExtent &&
@@ -48,6 +54,22 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
       }
     });
   }
+
+  Future<void> _loadCategorias() async {
+  try {
+    final categorias = await _categoriaService.getCategorias();
+    setState(() {
+      _categorias = categorias;
+    });
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Error al cargar las categorías: $e'),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+}
 
   //final Set<String> _noticiasIds = {}; // Almacena los IDs únicos de las noticias
 
@@ -60,38 +82,71 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
     });
 
     try {
-     print('Cargando noticias para pageNumber=$_currentPage, pageSize=${Constants.tamanoPaginaConst}');
       // Llama al servicio para obtener noticias paginadas
-    final noticias = await _noticiaService.getPaginatedNoticias(
-      pageNumber: _currentPage,
-      pageSize: Constants.tamanoPaginaConst, // Tamaño de página definido    
-    );
-    print('Noticias obtenidas: ${noticias.map((n) => n.id).toList()}');
-     //final noticias = await _noticiaService.getNoticias();
+      final noticias = await _noticiaService.getPaginatedNoticias(
+        pageNumber: _currentPage,
+        pageSize: Constants.tamanoPaginaConst, // Tamaño de página definido
+      );
+
+      //final noticias = await _noticiaService.getNoticias();
       setState(() {
         if (noticias.isEmpty || noticias.length < Constants.tamanoPaginaConst) {
           _hasMore = false; // No hay más noticias para cargar
-        
         } else {
-
-          final nuevasNoticias = noticias.where((noticia) => !_noticias.contains(noticia)).toList();
-        _noticias.addAll(nuevasNoticias); // Agrega solo las noticias únicas
-        _currentPage++; // Incrementa la página actual
-        
+          final nuevasNoticias =
+              noticias
+                  .where((noticia) => !_noticias.contains(noticia))
+                  .toList();
+          _noticias.addAll(nuevasNoticias); // Agrega solo las noticias únicas
+          _currentPage++; // Incrementa la página actual
         }
         _ultimaActualizacion =
             DateTime.now(); // Actualiza la fecha de la última actualización
       });
-      print('HasMore después de cargar: $_hasMore');
-      
     } catch (e) {
+    if (e is ApiException) {
+      // Determina el color del SnackBar según el código de estado
+      Color snackBarColor;
+      switch (e.statusCode) {
+        case 400:
+        case 500:
+          snackBarColor = Colors.red;
+          break;
+        case 401:
+          snackBarColor = Colors.orange;
+          break;
+        case 404:
+          snackBarColor = Colors.grey;
+          break;
+        default:
+          snackBarColor = Colors.blue; // Color predeterminado
+      }
+
+      // Muestra el SnackBar con el mensaje y el color correspondiente
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message),
+            backgroundColor: snackBarColor,
+          ),
+        );
+      }
+    } else {
+      // Manejo de errores desconocidos
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error desconocido: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
       setState(() {
         _hayError = true; // Activa el estado de error
         _mensajeError =
-            '${Constants.mensajeError}: $e'; // Guarda el mensaje de error
+            '${Constants.mensajeError}.'; // Guarda el mensaje de error
       });
-
-
     } finally {
       setState(() {
         _isLoading = false;
@@ -106,6 +161,8 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
   }
 
   void _mostrarFormulario() {
+    String? _categoriaSeleccionada; // Variable para almacenar la categoría seleccionada
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -159,11 +216,36 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
                       labelText: 'URL de la imagen',
                     ),
                   ),
+
+                                  const SizedBox(height: 16.0),
+                DropdownButtonFormField<String>(
+                  value: _categoriaSeleccionada,
+                  decoration: const InputDecoration(labelText: 'Categoría'),
+                  items: _categorias
+                      .map((categoria) => DropdownMenuItem(
+                            value: categoria.id,
+                            child: Text(categoria.nombre),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    _categoriaSeleccionada = value;
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'La categoría es obligatoria';
+                    }
+                    return null;
+                  },
+                ),
                   const SizedBox(height: 16.0),
                   ElevatedButton(
-                    onPressed: _agregarNoticia,
-                    child: const Text('Agregar Noticia'),
-                  ),
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      _agregarNoticia(_categoriaSeleccionada!);
+                    }
+                  },
+                  child: const Text('Agregar Noticia'),
+                ),
                 ],
               ),
             ),
@@ -173,7 +255,7 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
     );
   }
 
-  void _agregarNoticia() async {
+  void _agregarNoticia(String categoriaId) async {
     if (_formKey.currentState!.validate()) {
       final nuevaNoticia = Noticia(
         id: DateTime.now().toString(), // Genera un ID único
@@ -185,6 +267,7 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
             _imageUrlController.text.isNotEmpty
                 ? _imageUrlController.text
                 : 'https://via.placeholder.com/150', // Imagen predeterminada
+        categoriaId: categoriaId,
       );
 
       try {
@@ -201,118 +284,206 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
         _fuenteController.clear();
         _imageUrlController.clear();
 
-        Navigator.pop(context); // Cierra el modal
+        if (mounted) {
+          Navigator.pop(context);
+        } // Cierra el modal
       } catch (e) {
-        // Manejo de errores
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error al crear la noticia: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+      if (e is ApiException) {
+        Color snackBarColor;
+        switch (e.statusCode) {
+          case 400:
+          case 500:
+            snackBarColor = Colors.red;
+            break;
+          case 401:
+            snackBarColor = Colors.orange;
+            break;
+          case 404:
+            snackBarColor = Colors.grey;
+            break;
+          default:
+            snackBarColor = Colors.blue;
+        }
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(e.message),
+              backgroundColor: snackBarColor,
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error desconocido: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
+    }
     }
   }
 
   void _mostrarFormularioEditar(Noticia noticia) {
-  _tituloController.text = noticia.titulo;
-  _descripcionController.text = noticia.descripcion;
-  _fuenteController.text = noticia.fuente;
-  _imageUrlController.text = noticia.imageUrl;
+    _tituloController.text = noticia.titulo;
+    _descripcionController.text = noticia.descripcion;
+    _fuenteController.text = noticia.fuente;
+    _imageUrlController.text = noticia.imageUrl;
+    String? _categoriaSeleccionada = noticia.categoriaId; // Inicializa con la categoría actual
 
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    builder: (context) {
-      return Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-          left: 16.0,
-          right: 16.0,
-          top: 16.0,
-        ),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: _tituloController,
-                decoration: const InputDecoration(labelText: 'Título'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'El título no puede estar vacío';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _descripcionController,
-                decoration: const InputDecoration(labelText: 'Descripción'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'La descripción no puede estar vacía';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _fuenteController,
-                decoration: const InputDecoration(labelText: 'Fuente'),
-              ),
-              TextFormField(
-                controller: _imageUrlController,
-                decoration: const InputDecoration(labelText: 'URL de la imagen'),
-              ),
-              const SizedBox(height: 16.0),
-              ElevatedButton(
-                onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    final noticiaEditada = Noticia(
-                      id: noticia.id, // Mantiene el mismo ID
-                      titulo: _tituloController.text,
-                      descripcion: _descripcionController.text,
-                      fuente: _fuenteController.text,
-                      publicadaEl: noticia.publicadaEl, // Mantiene la misma fecha
-                      imageUrl: _imageUrlController.text.isNotEmpty
-                          ? _imageUrlController.text
-                          : 'https://via.placeholder.com/150',
-                    );
-
-                    try {
-                      await _noticiaService.updateNoticia(noticiaEditada);
-                      setState(() {
-                        final index = _noticias.indexWhere((n) => n.id == noticia.id);
-                        if (index != -1) {
-                          _noticias[index] = noticiaEditada; // Actualiza la lista local
-                        }
-                      });
-                      Navigator.pop(context); // Cierra el modal
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Noticia actualizada correctamente'),
-                          backgroundColor: Colors.green,
-                        ),
-                      );
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Error al actualizar la noticia: $e'),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                    }
-                  }
-                },
-                child: const Text('Guardar Cambios'),
-              ),
-            ],
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            left: 16.0,
+            right: 16.0,
+            top: 16.0,
           ),
-        ),
-      );
-    },
-  );
-}
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: _tituloController,
+                  decoration: const InputDecoration(labelText: 'Título'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'El título no puede estar vacío';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: _descripcionController,
+                  decoration: const InputDecoration(labelText: 'Descripción'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'La descripción no puede estar vacía';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: _fuenteController,
+                  decoration: const InputDecoration(labelText: 'Fuente'),
+                ),
+                TextFormField(
+                  controller: _imageUrlController,
+                  decoration: const InputDecoration(
+                    labelText: 'URL de la imagen',
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+                DropdownButtonFormField<String>(
+                  value: _categoriaSeleccionada,
+                  decoration: const InputDecoration(labelText: 'Categoría'),
+                  items: <String>['Tecnología', 'Ciencia', 'Deportes']
+                      .map((categoria) => DropdownMenuItem(
+                            value: categoria,
+                            child: Text(categoria),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    _categoriaSeleccionada = value;
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'La categoría es obligatoria';
+                    }
+                    return null;
+                  },
+                ),
+
+                ElevatedButton(
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      final noticiaEditada = Noticia(
+                        id: noticia.id, // Mantiene el mismo ID
+                        titulo: _tituloController.text,
+                        descripcion: _descripcionController.text,
+                        fuente: _fuenteController.text,
+                        publicadaEl:
+                            noticia.publicadaEl, // Mantiene la misma fecha
+                        imageUrl:
+                            _imageUrlController.text.isNotEmpty
+                                ? _imageUrlController.text
+                                : 'https://via.placeholder.com/150',
+                        categoriaId: _categoriaSeleccionada!,//categoria seleccionada
+                      );
+
+                      try {
+                        await _noticiaService.updateNoticia(noticiaEditada);
+                        setState(() {
+                          final index = _noticias.indexWhere(
+                            (n) => n.id == noticia.id,
+                          );
+                          if (index != -1) {
+                            _noticias[index] =
+                                noticiaEditada; // Actualiza la lista local
+                          }
+                        });
+                        Navigator.pop(context); // Cierra el modal
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Noticia actualizada correctamente'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      } catch (e) {
+      if (e is ApiException) {
+        Color snackBarColor;
+        switch (e.statusCode) {
+          case 400:
+          case 500:
+            snackBarColor = Colors.red;
+            break;
+          case 401:
+            snackBarColor = Colors.orange;
+            break;
+          case 404:
+            snackBarColor = Colors.grey;
+            break;
+          default:
+            snackBarColor = Colors.blue;
+        }
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(e.message),
+              backgroundColor: snackBarColor,
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error desconocido: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+                    }
+                  },
+                  child: const Text('Guardar Cambios'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -333,13 +504,12 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
               });
               _loadNoticias();
               print('Noticias después de agregar: ${_noticias.length}');
-               // Carga las noticias nuevamente
+              // Carga las noticias nuevamente
             },
           ),
         ],
       ),
       body: RefreshIndicator(
-        
         onRefresh: _refreshNoticias,
         child: Container(
           color: Colors.grey[200], // Fondo gris claro
@@ -352,24 +522,21 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(
-                        Icons.update,
-                        color: Colors.grey,
-                        size: 16,
-                      ),
+                      const Icon(Icons.update, color: Colors.grey, size: 16),
                       const SizedBox(width: 8),
                       Text(
                         'Última actualización: ${DateFormat(Constants.formatoFecha).format(_ultimaActualizacion!)}',
-                        style: const TextStyle(fontSize: 14, color: Colors.grey),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
                       ),
                     ],
                   ),
                 ),
-                
+
               Expanded(
-                
                 child:
-                
                     _isLoading && _noticias.isEmpty
                         ? const Center(
                           child:
@@ -403,7 +570,7 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
                           itemCount: _noticias.length + (_hasMore ? 1 : 0),
                           itemBuilder: (context, index) {
                             if (index == _noticias.length) {
-            // Si no hay más noticias, muestra un mensaje en lugar del círculo de progreso
+                              // Si no hay más noticias, muestra un mensaje en lugar del círculo de progreso
                               return _hasMore
                                   ? const Center(
                                     child: Padding(
@@ -547,9 +714,7 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
                                                       Icons.favorite_border,
                                                     ),
                                                     onPressed: () {
-                                                      print(
-                                                        'Favorito presionado',
-                                                      );
+                                                     
                                                     },
                                                   ),
                                                   IconButton(
@@ -557,9 +722,7 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
                                                       Icons.share,
                                                     ),
                                                     onPressed: () {
-                                                      print(
-                                                        'Compartir presionado',
-                                                      );
+                                                      
                                                     },
                                                   ),
                                                   IconButton(
@@ -567,82 +730,116 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
                                                       Icons.more_vert,
                                                     ),
                                                     onPressed: () {
-                                                      print(
-                                                        'Más opciones presionado',
-                                                      );
+                                                      
                                                     },
                                                   ),
                                                 ],
                                               ),
-                                          const SizedBox(height: 8), // Espaciado entre filas
-                                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    IconButton(
-                      icon: const Icon(
-                        Icons.edit,
-                        color: Colors.blue,
-                      ),
-                      onPressed: () {
-                        _mostrarFormularioEditar(noticia);
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.delete,
-                        color: Colors.red,
-                      ),
-                      onPressed: () async {
-                        final confirm = await showDialog<bool>(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              title: const Text('Confirmar eliminación'),
-                              content: const Text(
-                                  '¿Estás seguro de que deseas eliminar esta noticia?'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.pop(context, false),
-                                  child: const Text('Cancelar'),
-                                ),
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.pop(context, true),
-                                  child: const Text('Eliminar'),
-                                ),
-                              ],
-                            );
-                          },
-                        );
+                                              const SizedBox(
+                                                height: 8,
+                                              ), // Espaciado entre filas
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceAround,
+                                                children: [
+                                                  IconButton(
+                                                    icon: const Icon(
+                                                      Icons.edit,
+                                                      color: Colors.blue,
+                                                    ),
+                                                    onPressed: () {
+                                                      _mostrarFormularioEditar(
+                                                        noticia,
+                                                      );
+                                                    },
+                                                  ),
+                                                  IconButton(
+                                                    icon: const Icon(
+                                                      Icons.delete,
+                                                      color: Colors.red,
+                                                    ),
+                                                    onPressed: () async {
+                                                      final confirm = await showDialog<
+                                                        bool
+                                                      >(
+                                                        context: context,
+                                                        builder: (context) {
+                                                          return AlertDialog(
+                                                            title: const Text(
+                                                              'Confirmar eliminación',
+                                                            ),
+                                                            content: const Text(
+                                                              '¿Estás seguro de que deseas eliminar esta noticia?',
+                                                            ),
+                                                            actions: [
+                                                              TextButton(
+                                                                onPressed:
+                                                                    () => Navigator.pop(
+                                                                      context,
+                                                                      false,
+                                                                    ),
+                                                                child:
+                                                                    const Text(
+                                                                      'Cancelar',
+                                                                    ),
+                                                              ),
+                                                              TextButton(
+                                                                onPressed:
+                                                                    () => Navigator.pop(
+                                                                      context,
+                                                                      true,
+                                                                    ),
+                                                                child:
+                                                                    const Text(
+                                                                      'Eliminar',
+                                                                    ),
+                                                              ),
+                                                            ],
+                                                          );
+                                                        },
+                                                      );
 
-                        if (confirm == true) {
-                          try {
-                            await _noticiaService.deleteNoticia(noticia.id);
-                            setState(() {
-                              _noticias.remove(noticia);
-                            });
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Noticia eliminada correctamente'),
-                                backgroundColor: Colors.green,
-                              ),
-                            );
-                          } catch (e) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Error al eliminar la noticia: $e'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                        }
-                      },
-                    ),
-                  ],
-                ),
-
-
+                                                      if (confirm == true) {
+                                                        try {
+                                                          await _noticiaService
+                                                              .deleteNoticia(
+                                                                noticia.id,
+                                                              );
+                                                          setState(() {
+                                                            _noticias.remove(
+                                                              noticia,
+                                                            );
+                                                          });
+                                                          ScaffoldMessenger.of(
+                                                            context,
+                                                          ).showSnackBar(
+                                                            const SnackBar(
+                                                              content: Text(
+                                                                'Noticia eliminada correctamente',
+                                                              ),
+                                                              backgroundColor:
+                                                                  Colors.green,
+                                                            ),
+                                                          );
+                                                        } catch (e) {
+                                                          ScaffoldMessenger.of(
+                                                            context,
+                                                          ).showSnackBar(
+                                                            SnackBar(
+                                                              content: Text(
+                                                                'Error al eliminar la noticia: $e',
+                                                              ),
+                                                              backgroundColor:
+                                                                  Colors.red,
+                                                            ),
+                                                          );
+                                                        }
+                                                      }
+                                                    },
+                                                  ),
+                                                ],
+                                              ),
                                             ],
                                           ),
                                         ],

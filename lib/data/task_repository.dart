@@ -68,7 +68,7 @@ class TaskRepository {
   // agregar tarea
   void addTask(Task tarea) async {
     tareas.add(tarea);
-    print('Tarea añadida: ${tarea.title}');
+    
   }
 
   Task? getTaskById(int index) {

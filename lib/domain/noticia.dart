@@ -1,3 +1,5 @@
+import 'package:mi_proyecto/constants.dart';
+
 class Noticia {
   final String id;
   final String titulo;
@@ -5,6 +7,7 @@ class Noticia {
   final String fuente;
   final DateTime publicadaEl;
   final String imageUrl;
+  final String categoriaId;
 
   Noticia({
     required this.id,
@@ -13,6 +16,7 @@ class Noticia {
     required this.fuente,
     required this.publicadaEl,
     required this.imageUrl,
+    required this.categoriaId,
   });
 
   // Método para mapear datos JSON al modelo Noticia
@@ -24,16 +28,14 @@ class Noticia {
       fuente: json['fuente'] ?? 'Fuente desconocida',
       publicadaEl: DateTime.parse(json['publicadaEl']),
       imageUrl: json['urlImagen'] ?? 'https://via.placeholder.com/150',
+      categoriaId: json['categoriaId'] ?? Constants.defaultcategoriaId,
     );
   }
- @override
+  @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is Noticia &&
-          runtimeType == other.runtimeType &&
-          id == other.id;
+      other is Noticia && runtimeType == other.runtimeType && id == other.id;
 
   @override
   int get hashCode => id.hashCode;
-  
 }

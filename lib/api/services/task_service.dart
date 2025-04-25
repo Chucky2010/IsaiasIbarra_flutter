@@ -22,14 +22,14 @@ class TaskService {
   void agregarTarea(Task tarea) {
     try {
       _taskRepository.addTask(tarea);
-      print('crea tarea: ${tarea.title}');
+      
     } catch (e) {
       throw Exception('Error al agregar tarea: $e');
     }
   }
 
   List<Task> getTasks() {
-     print('Obteniendo tareas'); 
+     
      List<Task> tasks = _taskRepository.getTasks();
      _inicializarPasos(tasks);
      return tasks;
@@ -39,7 +39,7 @@ class TaskService {
   void eliminarTarea(int index) {
     try {
       _taskRepository.deleteTask(index);
-      print('$Constants.tareaEliminada $index');
+      
     } catch (e) {
       throw Exception('Error al eliminar tarea: $e');
     }

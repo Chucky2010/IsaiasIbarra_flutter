@@ -18,7 +18,7 @@ class TaskCardHelper {
       background: Container(
         alignment: Alignment.centerLeft,
         color: Colors.red,
-        child: Icon(Icons.delete),
+        child: const Icon(Icons.delete),
       ),
       direction: DismissDirection.startToEnd,
       onDismissed: (rigth) {
