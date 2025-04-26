@@ -1,38 +1,38 @@
-
 import 'package:mi_proyecto/domain/noticia.dart';
 import 'package:dio/dio.dart';
 import 'package:mi_proyecto/constants.dart';
 import 'package:mi_proyecto/exceptions/api_exception.dart';
 
-
 class NoticiaService {
   final Dio _dio;
-   
-   NoticiaService()
-   : _dio= Dio(
-    BaseOptions(
-    connectTimeout: const Duration(milliseconds: Constants.timeoutSeconds * 1000),//tiempo espera maximo para conexion
-    receiveTimeout: const Duration(milliseconds: Constants.timeoutSeconds * 1000),//tiempo espera maximo para recibir datos
-  ));// URL base de la API
-  
+
+  NoticiaService()
+    : _dio = Dio(
+        BaseOptions(
+          connectTimeout: const Duration(
+            milliseconds: Constants.timeoutSeconds * 1000,
+          ), //tiempo espera maximo para conexion
+          receiveTimeout: const Duration(
+            milliseconds: Constants.timeoutSeconds * 1000,
+          ), //tiempo espera maximo para recibir datos
+        ),
+      ); // URL base de la API
 
   Future<List<Noticia>> fetchNoticiasFromApi(
     int pageNumber,
     int pageSize,
   ) async {
-    
-
     try {
       final response = await _dio.get(Constants.urlNoticias);
 
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data;
-        
+
         if (data.isEmpty) {
           return []; // Si no hay datos, devuelve una lista vacía
         }
         final noticias = data.map((json) => Noticia.fromJson(json)).toList();
-        
+
         return noticias;
       } else if (response.statusCode != null &&
           response.statusCode! >= 400 &&
@@ -43,13 +43,11 @@ class NoticiaService {
           statusCode: response.statusCode,
         );
       } else {
-        throw ApiException(
-          'No se pudo obtener las noticias',
-        );
+        throw ApiException('No se pudo obtener las noticias');
       }
     } on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionTimeout
-      || e.type == DioExceptionType.receiveTimeout) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
         throw ApiException(
           Constants.errorTimeout, // Mensaje de timeout
           statusCode: e.response?.statusCode,
@@ -77,7 +75,7 @@ class NoticiaService {
           "categoriaId": noticia.categoriaId,
         },
       );
-    
+
       if (response.statusCode != 201) {
         throw ApiException(
           'Error al crear la noticia',
@@ -85,8 +83,8 @@ class NoticiaService {
         );
       }
     } on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionTimeout
-      || e.type == DioExceptionType.receiveTimeout) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
         throw ApiException(Constants.errorTimeout);
       }
       throw ApiException('Error al conectar con la API de noticias: $e');
@@ -96,7 +94,7 @@ class NoticiaService {
   Future<void> updateNoticia(Noticia noticia) async {
     try {
       final response = await _dio.put(
-        '$Constants.urlNoticias/${noticia.id}', // URL con el ID de la noticia
+        '${Constants.urlNoticias}/${noticia.id}', // URL con el ID de la noticia
         data: {
           "titulo": noticia.titulo,
           "descripcion": noticia.descripcion,
@@ -114,8 +112,8 @@ class NoticiaService {
         );
       }
     } on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionTimeout
-      || e.type == DioExceptionType.receiveTimeout) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
         throw ApiException(Constants.errorTimeout);
       }
       throw ApiException('Error al conectar con la API de noticias: $e');
@@ -123,21 +121,23 @@ class NoticiaService {
   }
 
   Future<void> deleteNoticia(String id) async {
-  try {
-    final response = await _dio.delete('$Constants.urlNoticias/$id'); // URL con el ID de la noticia
+    try {
+      final response = await _dio.delete(
+        '${Constants.urlNoticias}/$id',
+      ); // URL con el ID de la noticia
 
-    if (response.statusCode != 200 && response.statusCode != 204) {
-      throw ApiException(
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw ApiException(
           'Error al eliminar la noticia',
           statusCode: response.statusCode,
         );
-    }
-  } on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionTimeout
-      || e.type == DioExceptionType.receiveTimeout) {
+      }
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
         throw ApiException(Constants.errorTimeout);
       }
       throw ApiException('Error al conectar con la API de noticias: $e');
     }
-}
+  }
 }

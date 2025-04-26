@@ -4,13 +4,13 @@ import 'package:mi_proyecto/exceptions/api_exception.dart';
 
 
 class NoticiaRepository {
-  final NoticiaService _repository = NoticiaService();
+  final NoticiaService _service = NoticiaService();
 
 
   Future<void> createNoticia(Noticia noticia) async {
    
     try {
-       await _repository.createNoticia(noticia);
+       await _service.createNoticia(noticia);
     } catch (e) {
       if (e is ApiException) {
         // Propaga el mensaje contextual de ApiException
@@ -26,7 +26,7 @@ class NoticiaRepository {
   required int pageSize,
 }) async {
   try{
-      return await _repository.fetchNoticiasFromApi(pageNumber, pageSize);
+      return await _service.fetchNoticiasFromApi(pageNumber, pageSize);
     } catch (e) {
       if (e is ApiException) {
         // Propaga el mensaje contextual de ApiException
@@ -41,11 +41,11 @@ class NoticiaRepository {
 }
 
 Future<void> updateNoticia(Noticia noticia) async {
-    await _repository.updateNoticia(noticia);
+    await _service.updateNoticia(noticia);
   }
 
   Future<void> deleteNoticia(String id) async {
-    await _repository.deleteNoticia(id);
+    await _service.deleteNoticia(id);
   }
 
 }

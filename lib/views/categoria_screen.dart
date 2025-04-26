@@ -12,10 +12,15 @@ class CategoriaScreen extends StatefulWidget {
 }
 
 class _CategoriaScreenState extends State<CategoriaScreen> {
-  final CategoriaRepository _categoriaService = CategoriaRepository();
+  final CategoriaRepository _categoriaRepository = CategoriaRepository();
   List<Categoria> categorias = [];
   bool isLoading = false;
   bool hasError = false;
+  bool _hasMore = true;
+  final ScrollController _scrollController = ScrollController();
+   int currentPage = 1;
+
+  DateTime? _ultimaActualizacion;
 
   @override
   void initState() {
@@ -24,13 +29,15 @@ class _CategoriaScreenState extends State<CategoriaScreen> {
   }
 
   Future<void> _loadCategorias() async {
+    if (isLoading || !_hasMore) return;
+
     setState(() {
       isLoading = true;
       hasError = false;
     });
 
     try {
-      final fetchedCategorias = await _categoriaService.getCategorias();
+      final fetchedCategorias = await _categoriaRepository.getCategorias();
       setState(() {
         categorias = fetchedCategorias;
         isLoading = false;
@@ -68,7 +75,7 @@ class _CategoriaScreenState extends State<CategoriaScreen> {
           imagenUrl: '',
         );
 
-        await _categoriaService.crearCategoria(
+        await _categoriaRepository.crearCategoria(
           nuevaCategoria,
         ); // Llama al servicio
         _loadCategorias(); // Recarga las categorías
@@ -78,6 +85,75 @@ class _CategoriaScreenState extends State<CategoriaScreen> {
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error al agregar la categoría: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _editarCategoria(Categoria categoria) async {
+    final categoriaEditadaData = await _mostrarDialogCategoria(
+      context,
+      categoria: categoria,
+    );
+
+    if (categoriaEditadaData != null) {
+      try {
+        final categoriaEditada = Categoria(
+          id: categoria.id, // Mantiene el mismo ID
+          nombre: categoriaEditadaData['nombre'],
+          descripcion: categoria.descripcion,
+          imagenUrl: categoria.imagenUrl,
+        );
+
+        await _categoriaRepository.editarCategoria(
+          categoria.id,
+          categoriaEditada,
+        );
+        _loadCategorias(); // Recarga las categorías
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Categoría editada exitosamente')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al editar la categoría: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _eliminarCategoria(Categoria categoria) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Confirmar eliminación'),
+          content: Text(
+            '¿Estás seguro de que deseas eliminar la categoría "${categoria.nombre}"?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Eliminar'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm == true) {
+      try {
+        await _categoriaRepository.eliminarCategoria(categoria.id);
+        _loadCategorias(); // Recarga las categorías
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Categoría eliminada exitosamente')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al eliminar la categoría: $e')),
         );
       }
     }
@@ -129,6 +205,20 @@ class _CategoriaScreenState extends State<CategoriaScreen> {
     );
   }
 
+  Future<void> _refreshCategorias() async {
+    setState(() {
+      categorias.clear(); // Limpia la lista de noticias
+      _hasMore = true; // Permite cargar más noticias
+      hasError = false; // Reinicia el estado de error
+    });
+
+    await _loadCategorias(); // Recarga las noticias
+    setState(() {
+      _ultimaActualizacion =
+          DateTime.now(); // Actualiza la fecha de la última actualización
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -158,7 +248,19 @@ class _CategoriaScreenState extends State<CategoriaScreen> {
                     title: Text(categoria.nombre),
                     subtitle: Text('ID: ${categoria.id}'),
                     leading: const Icon(Icons.category),
-                    trailing: Row(mainAxisSize: MainAxisSize.min),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit, color: Colors.blue),
+                          onPressed: () => _editarCategoria(categoria),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () => _eliminarCategoria(categoria),
+                        ),
+                      ],
+                    ),
                   );
                 },
               ),

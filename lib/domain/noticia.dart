@@ -7,7 +7,7 @@ class Noticia {
   final String fuente;
   final DateTime publicadaEl;
   final String imageUrl;
-  final String categoriaId;
+  final String? categoriaId;
 
   Noticia({
     required this.id,

@@ -33,10 +33,6 @@ class Constants {
   static const double espaciadoAlto = 10;
   static const String tooltipOrden = 'Cambiar orden';
 
-  static const String apiKey = 'a8432d716d454b6ab80e8921f881be9f';
-  static const String newUrl = 'https://crudcrud.com/api';
-
-  //static const String baseUrl = 'https://crudcrud.com/api/a8432d716d454b6ab80e8921f881be9f/noticias';
   static String get baseUrl =>
       dotenv.env['BASE_URL'] ?? 'https://default-url.com';
 

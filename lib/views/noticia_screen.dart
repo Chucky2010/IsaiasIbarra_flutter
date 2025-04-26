@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:mi_proyecto/data/noticia_repository.dart';
 import 'package:mi_proyecto/domain/noticia.dart';
@@ -8,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:mi_proyecto/exceptions/api_exception.dart';
 import 'package:mi_proyecto/data/categoria_repository.dart';
 import 'package:mi_proyecto/domain/categoria.dart';
+import 'package:mi_proyecto/views/categoria_screen.dart';
 
 class NoticiaScreen extends StatefulWidget {
   const NoticiaScreen({super.key});
@@ -56,20 +55,28 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
   }
 
   Future<void> _loadCategorias() async {
-  try {
-    final categorias = await _categoriaRepository.getCategorias();
-    setState(() {
-      _categorias = categorias;
-    });
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Error al cargar las categorías: $e'),
-        backgroundColor: Colors.red,
-      ),
-    );
+    try {
+      final categorias = await _categoriaRepository.getCategorias();
+      setState(() {
+        _categorias = [
+          Categoria(
+            id: Constants.defaultcategoriaId,
+            nombre: 'Sin categoría',
+            descripcion: '',
+            imagenUrl: '',
+          ),
+          ...categorias,
+        ];
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error al cargar las categorías: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
-}
 
   //final Set<String> _noticiasIds = {}; // Almacena los IDs únicos de las noticias
 
@@ -104,44 +111,41 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
             DateTime.now(); // Actualiza la fecha de la última actualización
       });
     } catch (e) {
-    if (e is ApiException) {
-      // Determina el color del SnackBar según el código de estado
-      Color snackBarColor;
-      switch (e.statusCode) {
-        case 400:
-        case 500:
-          snackBarColor = Colors.red;
-          break;
-        case 401:
-          snackBarColor = Colors.orange;
-          break;
-        case 404:
-          snackBarColor = Colors.grey;
-          break;
-        default:
-          snackBarColor = Colors.blue; // Color predeterminado
-      }
+      if (e is ApiException) {
+        // Determina el color del SnackBar según el código de estado
+        Color snackBarColor;
+        switch (e.statusCode) {
+          case 400:
+          case 500:
+            snackBarColor = Colors.red;
+            break;
+          case 401:
+            snackBarColor = Colors.orange;
+            break;
+          case 404:
+            snackBarColor = Colors.grey;
+            break;
+          default:
+            snackBarColor = Colors.blue; // Color predeterminado
+        }
 
-      // Muestra el SnackBar con el mensaje y el color correspondiente
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.message),
-            backgroundColor: snackBarColor,
-          ),
-        );
+        // Muestra el SnackBar con el mensaje y el color correspondiente
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(e.message), backgroundColor: snackBarColor),
+          );
+        }
+      } else {
+        // Manejo de errores desconocidos
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error desconocido: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
-    } else {
-      // Manejo de errores desconocidos
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error desconocido: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
       setState(() {
         _hayError = true; // Activa el estado de error
         _mensajeError =
@@ -161,7 +165,8 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
   }
 
   void _mostrarFormulario() {
-    String? _categoriaSeleccionada; // Variable para almacenar la categoría seleccionada
+    String?
+    _categoriaSeleccionada; // Variable para almacenar la categoría seleccionada
 
     showModalBottomSheet(
       context: context,
@@ -215,35 +220,43 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
                     decoration: const InputDecoration(
                       labelText: 'URL de la imagen',
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'La URL es obligatoria';
+                      }
+                      return null;
+                    },
                   ),
 
-                                  const SizedBox(height: 16.0),
-                DropdownButtonFormField<String>(
-                  value: _categoriaSeleccionada,
-                  decoration: const InputDecoration(labelText: 'Categoría'),
-                  items: _categorias
-                      .map((categoria) => DropdownMenuItem(
-                            value: categoria.id,
-                            child: Text(categoria.nombre),
-                          ))
-                      .toList(),
-                  onChanged: (value) {
-                    _categoriaSeleccionada = value;
-                  },
-                  validator: (value) {
-                    
-                    return null;
-                  },
-                ),
+                  const SizedBox(height: 16.0),
+                  DropdownButtonFormField<String>(
+                    value: _categoriaSeleccionada,
+                    decoration: const InputDecoration(labelText: 'Categoría'),
+                    items:
+                        _categorias
+                            .map(
+                              (categoria) => DropdownMenuItem(
+                                value: categoria.id,
+                                child: Text(categoria.nombre),
+                              ),
+                            )
+                            .toList(),
+                    onChanged: (value) {
+                      _categoriaSeleccionada = value;
+                    },
+                    validator: (value) {
+                      return null;
+                    },
+                  ),
                   const SizedBox(height: 16.0),
                   ElevatedButton(
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      _agregarNoticia(_categoriaSeleccionada!);
-                    }
-                  },
-                  child: const Text('Agregar Noticia'),
-                ),
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        _agregarNoticia(_categoriaSeleccionada);
+                      }
+                    },
+                    child: const Text('Agregar Noticia'),
+                  ),
                 ],
               ),
             ),
@@ -286,51 +299,64 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
           Navigator.pop(context);
         } // Cierra el modal
       } catch (e) {
-      if (e is ApiException) {
-        Color snackBarColor;
-        switch (e.statusCode) {
-          case 400:
-          case 500:
-            snackBarColor = Colors.red;
-            break;
-          case 401:
-            snackBarColor = Colors.orange;
-            break;
-          case 404:
-            snackBarColor = Colors.grey;
-            break;
-          default:
-            snackBarColor = Colors.blue;
-        }
+        if (e is ApiException) {
+          Color snackBarColor;
+          switch (e.statusCode) {
+            case 400:
+            case 500:
+              snackBarColor = Colors.red;
+              break;
+            case 401:
+              snackBarColor = Colors.orange;
+              break;
+            case 404:
+              snackBarColor = Colors.grey;
+              break;
+            default:
+              snackBarColor = Colors.blue;
+          }
 
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(e.message),
-              backgroundColor: snackBarColor,
-            ),
-          );
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error desconocido: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(e.message),
+                backgroundColor: snackBarColor,
+              ),
+            );
+          }
+        } else {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Error desconocido: $e'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
         }
       }
     }
-    }
   }
 
-  void _mostrarFormularioEditar(Noticia noticia) {
+  void _mostrarFormularioEditar(Noticia noticia, int index) {
     _tituloController.text = noticia.titulo;
     _descripcionController.text = noticia.descripcion;
     _fuenteController.text = noticia.fuente;
     _imageUrlController.text = noticia.imageUrl;
-    String? _categoriaSeleccionada = noticia.categoriaId; // Inicializa con la categoría actual
+    // Busca la categoría correspondiente o asigna un valor predeterminado
+    String? categoriaSeleccionada =
+        _categorias
+            .firstWhere(
+              (cat) => cat.id == noticia.categoriaId,
+              orElse:
+                  () => Categoria(
+                    id: Constants.defaultcategoriaId,
+                    nombre: 'Sin categoría',
+                    descripcion: '',
+                    imagenUrl: '',
+                  ),
+            )
+            .id;
 
     showModalBottomSheet(
       context: context,
@@ -380,22 +406,27 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
                 ),
                 const SizedBox(height: 16.0),
                 DropdownButtonFormField<String>(
-                  value: _categoriaSeleccionada,
+                  value: categoriaSeleccionada,
                   decoration: const InputDecoration(labelText: 'Categoría'),
-                  items: <String>['Tecnología', 'Ciencia', 'Deportes']
-                      .map((categoria) => DropdownMenuItem(
-                            value: categoria,
-                            child: Text(categoria),
-                          ))
-                      .toList(),
+                  items: [
+                    // Agrega una categoría predeterminada si no existe
+                    if (!_categorias.any(
+                      (categoria) =>
+                          categoria.id == Constants.defaultcategoriaId,
+                    ))
+                      const DropdownMenuItem(
+                        value: Constants.defaultcategoriaId,
+                        child: Text('Sin categoría'),
+                      ),
+                    ..._categorias.map(
+                      (categoria) => DropdownMenuItem(
+                        value: categoria.id,
+                        child: Text(categoria.nombre),
+                      ),
+                    ),
+                  ],
                   onChanged: (value) {
-                    _categoriaSeleccionada = value;
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'La categoría es obligatoria';
-                    }
-                    return null;
+                    categoriaSeleccionada = value;
                   },
                 ),
 
@@ -413,19 +444,18 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
                             _imageUrlController.text.isNotEmpty
                                 ? _imageUrlController.text
                                 : 'https://via.placeholder.com/150',
-                        categoriaId: _categoriaSeleccionada!,//categoria seleccionada
+                        categoriaId:
+                            categoriaSeleccionada, //categoria seleccionada
                       );
 
                       try {
                         await _noticiaRepository.updateNoticia(noticiaEditada);
+
+                        if (!context.mounted) return;
+
                         setState(() {
-                          final index = _noticias.indexWhere(
-                            (n) => n.id == noticia.id,
-                          );
-                          if (index != -1) {
-                            _noticias[index] =
-                                noticiaEditada; // Actualiza la lista local
-                          }
+                          _noticias[index] =
+                              noticiaEditada; // Actualiza la lista local
                         });
                         Navigator.pop(context); // Cierra el modal
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -435,42 +465,42 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
                           ),
                         );
                       } catch (e) {
-      if (e is ApiException) {
-        Color snackBarColor;
-        switch (e.statusCode) {
-          case 400:
-          case 500:
-            snackBarColor = Colors.red;
-            break;
-          case 401:
-            snackBarColor = Colors.orange;
-            break;
-          case 404:
-            snackBarColor = Colors.grey;
-            break;
-          default:
-            snackBarColor = Colors.blue;
-        }
+                        if (e is ApiException) {
+                          Color snackBarColor;
+                          switch (e.statusCode) {
+                            case 400:
+                            case 500:
+                              snackBarColor = Colors.red;
+                              break;
+                            case 401:
+                              snackBarColor = Colors.orange;
+                              break;
+                            case 404:
+                              snackBarColor = Colors.grey;
+                              break;
+                            default:
+                              snackBarColor = Colors.blue;
+                          }
 
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(e.message),
-              backgroundColor: snackBarColor,
-            ),
-          );
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error desconocido: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
-    }
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(e.message),
+                                backgroundColor: snackBarColor,
+                              ),
+                            );
+                          }
+                        } else {
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Error desconocido: $e'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        }
+                      }
                     }
                   },
                   child: const Text('Guardar Cambios'),
@@ -489,6 +519,18 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
       appBar: AppBar(
         title: const Text(Constants.tituloApp),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.category), // Icono de categoría
+            tooltip: 'Ir a Categorías',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const CategoriaScreen(),
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.sort),
             tooltip: Constants.tooltipOrden,
@@ -590,10 +632,16 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
                             }
 
                             final noticia = _noticias[index];
-                            
+
                             final categoria = _categorias.firstWhere(
                               (cat) => cat.id == noticia.categoriaId,
-                              orElse: () => Categoria(id: Constants.defaultcategoriaId, nombre: 'Sin categoría', descripcion: '', imagenUrl: ''),
+                              orElse:
+                                  () => Categoria(
+                                    id: Constants.defaultcategoriaId,
+                                    nombre: 'Sin categoría',
+                                    descripcion: '',
+                                    imagenUrl: '',
+                                  ),
                             );
                             return Column(
                               children: [
@@ -723,25 +771,19 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
                                                     icon: const Icon(
                                                       Icons.favorite_border,
                                                     ),
-                                                    onPressed: () {
-                                                     
-                                                    },
+                                                    onPressed: () {},
                                                   ),
                                                   IconButton(
                                                     icon: const Icon(
                                                       Icons.share,
                                                     ),
-                                                    onPressed: () {
-                                                      
-                                                    },
+                                                    onPressed: () {},
                                                   ),
                                                   IconButton(
                                                     icon: const Icon(
                                                       Icons.more_vert,
                                                     ),
-                                                    onPressed: () {
-                                                      
-                                                    },
+                                                    onPressed: () {},
                                                   ),
                                                 ],
                                               ),
@@ -761,6 +803,7 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
                                                     onPressed: () {
                                                       _mostrarFormularioEditar(
                                                         noticia,
+                                                        index,
                                                       );
                                                     },
                                                   ),
@@ -821,17 +864,20 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
                                                               noticia,
                                                             );
                                                           });
-                                                          ScaffoldMessenger.of(
-                                                            context,
-                                                          ).showSnackBar(
-                                                            const SnackBar(
-                                                              content: Text(
-                                                                'Noticia eliminada correctamente',
+                                                          if (context.mounted) {
+                                                            ScaffoldMessenger.of(
+                                                              context,
+                                                            ).showSnackBar(
+                                                              const SnackBar(
+                                                                content: Text(
+                                                                  'Noticia eliminada correctamente',
+                                                                ),
+                                                                backgroundColor:
+                                                                    Colors
+                                                                        .green,
                                                               ),
-                                                              backgroundColor:
-                                                                  Colors.green,
-                                                            ),
-                                                          );
+                                                            );
+                                                          }
                                                         } catch (e) {
                                                           ScaffoldMessenger.of(
                                                             context,
