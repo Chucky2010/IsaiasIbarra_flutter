@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:mi_proyecto/views/categoria_screen.dart';
 import 'package:mi_proyecto/views/login_screen.dart';
 import 'package:mi_proyecto/main.dart';
 import 'package:mi_proyecto/presentation/task_screen.dart';
 import 'package:mi_proyecto/presentation/start_screen.dart';
+import 'package:mi_proyecto/views/noticia_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -33,30 +35,30 @@ class WelcomeScreenState extends State<WelcomeScreen> {
     });
   }
 
-  void _mostrarCotizaciones() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Cotizaciones'),
-          content: SingleChildScrollView(
-            child: Column(
-              children:
-                  quotes.map((quote) => ListTile(title: Text(quote))).toList(),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cerrar'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  // void _mostrarCotizaciones() {
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) {
+  //       return AlertDialog(
+  //         title: const Text('Cotizaciones'),
+  //         content: SingleChildScrollView(
+  //           child: Column(
+  //             children:
+  //                 quotes.map((quote) => ListTile(title: Text(quote))).toList(),
+  //           ),
+  //         ),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //             child: const Text('Cerrar'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   int _selectedIndex = 0;
 
@@ -145,6 +147,26 @@ class WelcomeScreenState extends State<WelcomeScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const StartScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.task),
+              title: const Text('Noticias'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const NoticiaScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.task),
+              title: const Text('Categorías'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const CategoriaScreen()),
                 );
               },
             ),
