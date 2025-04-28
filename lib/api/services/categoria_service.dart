@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:mi_proyecto/constants.dart';
+import 'package:mi_proyecto/constants/constants.dart';
 import 'package:mi_proyecto/domain/categoria.dart';
 import 'package:mi_proyecto/exceptions/api_exception.dart';
 

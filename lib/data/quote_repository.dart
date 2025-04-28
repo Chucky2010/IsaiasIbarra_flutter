@@ -1,6 +1,6 @@
 import 'dart:math'; // Importa para generar números aleatorios
 import 'package:mi_proyecto/domain/quote.dart';
-import 'package:mi_proyecto/constants.dart';
+import 'package:mi_proyecto/constants/constants.dart';
 
 class QuoteRepository {
   static final List<Quote> _initialQuotes = [

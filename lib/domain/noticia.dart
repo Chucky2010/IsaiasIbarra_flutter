@@ -1,4 +1,4 @@
-import 'package:mi_proyecto/constants.dart';
+import 'package:mi_proyecto/constants/constants.dart';
 
 class Noticia {
   final String id;

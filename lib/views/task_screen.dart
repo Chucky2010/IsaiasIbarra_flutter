@@ -6,7 +6,7 @@ import 'package:mi_proyecto/views/welcom_screen.dart';
 import 'package:mi_proyecto/api/services/task_service.dart';
 import 'package:mi_proyecto/data/task_repository.dart';
 import 'package:mi_proyecto/domain/task.dart';
-import 'package:mi_proyecto/constants.dart';
+import 'package:mi_proyecto/constants/constants.dart';
 import 'package:mi_proyecto/helpers/task_card_helper.dart';
 
 class TareasScreen extends StatefulWidget {

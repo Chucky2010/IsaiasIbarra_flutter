@@ -1,6 +1,6 @@
 import 'package:mi_proyecto/data/quote_repository.dart';
 import 'package:mi_proyecto/domain/quote.dart';
-import 'package:mi_proyecto/constants.dart';
+import 'package:mi_proyecto/constants/constants.dart';
 
 class QuoteService {
   final QuoteRepository _repository = QuoteRepository();

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mi_proyecto/views/categoria_screen.dart';
 import 'package:mi_proyecto/views/login_screen.dart';
 import 'package:mi_proyecto/main.dart';
-import 'package:mi_proyecto/presentation/task_screen.dart';
-import 'package:mi_proyecto/presentation/start_screen.dart';
+import 'package:mi_proyecto/views/task_screen.dart';
+import 'package:mi_proyecto/views/start_screen.dart';
 import 'package:mi_proyecto/views/noticia_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {

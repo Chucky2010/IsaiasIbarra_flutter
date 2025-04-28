@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mi_proyecto/data/noticia_repository.dart';
 import 'package:mi_proyecto/domain/noticia.dart';
-import 'package:mi_proyecto/constants.dart';
+import 'package:mi_proyecto/constants/constants.dart';
 import 'package:intl/intl.dart';
 import 'package:mi_proyecto/exceptions/api_exception.dart';
 import 'package:mi_proyecto/data/categoria_repository.dart';
