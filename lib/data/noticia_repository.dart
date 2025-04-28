@@ -14,7 +14,7 @@ class NoticiaRepository {
     } catch (e) {
       if (e is ApiException) {
         // Propaga el mensaje contextual de ApiException
-        throw Exception('Error en el servicio de categorías: ${e.message}');
+        throw Exception('Error en el servicio de noticias: ${e.message}');
       } else {
         throw Exception('Error desconocido: $e');
       }

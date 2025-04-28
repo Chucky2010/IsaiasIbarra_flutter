@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:mi_proyecto/exceptions/api_exception.dart';
 import 'package:mi_proyecto/data/categoria_repository.dart';
 import 'package:mi_proyecto/domain/categoria.dart';
+import 'package:mi_proyecto/helpers/error_helper.dart';
 import 'package:mi_proyecto/views/categoria_screen.dart';
 
 class NoticiaScreen extends StatefulWidget {
@@ -38,6 +39,7 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
   final TextEditingController _descripcionController = TextEditingController();
   final TextEditingController _fuenteController = TextEditingController();
   final TextEditingController _imageUrlController = TextEditingController();
+  final TextEditingController _fechaController = TextEditingController();
 
   @override
   void initState() {
@@ -78,8 +80,6 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
     }
   }
 
-  //final Set<String> _noticiasIds = {}; // Almacena los IDs únicos de las noticias
-
   Future<void> _loadNoticias() async {
     if (_isLoading || !_hasMore) return;
 
@@ -112,39 +112,8 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
       });
     } catch (e) {
       if (e is ApiException) {
-        // Determina el color del SnackBar según el código de estado
-        Color snackBarColor;
-        switch (e.statusCode) {
-          case 400:
-          case 500:
-            snackBarColor = Colors.red;
-            break;
-          case 401:
-            snackBarColor = Colors.orange;
-            break;
-          case 404:
-            snackBarColor = Colors.grey;
-            break;
-          default:
-            snackBarColor = Colors.blue; // Color predeterminado
-        }
-
-        // Muestra el SnackBar con el mensaje y el color correspondiente
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(e.message), backgroundColor: snackBarColor),
-          );
-        }
-      } else {
-        // Manejo de errores desconocidos
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error desconocido: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
+        final errorData = ErrorHelper.getErrorMessageAndColor(e.statusCode);
+        _mostrarError(errorData['message'], color: errorData['color']);
       }
       setState(() {
         _hayError = true; // Activa el estado de error
@@ -195,6 +164,7 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
                       return null;
                     },
                   ),
+                  const SizedBox(height: 16.0),
                   TextFormField(
                     controller: _descripcionController,
                     decoration: const InputDecoration(labelText: 'Descripción'),
@@ -205,6 +175,7 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
                       return null;
                     },
                   ),
+                  const SizedBox(height: 16.0),
                   TextFormField(
                     controller: _fuenteController,
                     decoration: const InputDecoration(labelText: 'Fuente'),
@@ -215,6 +186,7 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
                       return null;
                     },
                   ),
+                  const SizedBox(height: 16.0),
                   TextFormField(
                     controller: _imageUrlController,
                     decoration: const InputDecoration(
@@ -227,7 +199,33 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
                       return null;
                     },
                   ),
-
+                  const SizedBox(height: 16.0),
+                  TextFormField(
+                    controller: _fechaController,
+                    decoration: const InputDecoration(
+                      labelText: 'Fecha Publicada',
+                    ),
+                    readOnly: true,
+                    onTap: () async {
+                      final DateTime? pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime.now(),
+                      );
+                      if (pickedDate != null) {
+                        _fechaController.text = DateFormat(
+                          Constants.formatoFecha,
+                        ).format(pickedDate);
+                      }
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'La fecha es obligatoria';
+                      }
+                      return null;
+                    },
+                  ),
                   const SizedBox(height: 16.0),
                   DropdownButtonFormField<String>(
                     value: _categoriaSeleccionada,
@@ -273,7 +271,9 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
         titulo: _tituloController.text,
         descripcion: _descripcionController.text,
         fuente: _fuenteController.text,
-        publicadaEl: DateTime.now(),
+        publicadaEl: DateFormat(
+          Constants.formatoFecha,
+        ).parse(_fechaController.text),
         imageUrl:
             _imageUrlController.text.isNotEmpty
                 ? _imageUrlController.text
@@ -281,10 +281,15 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
         categoriaId: categoriaId ?? Constants.defaultcategoriaId,
       );
 
+      _actualizarEstado(isLoading: true);
+
       try {
         await _noticiaRepository.createNoticia(
           nuevaNoticia,
         ); // Llama al servicio para crear la noticia
+
+        if (!context.mounted) return;
+
         setState(() {
           _noticias.add(nuevaNoticia); // Agrega la noticia a la lista local
         });
@@ -294,46 +299,16 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
         _descripcionController.clear();
         _fuenteController.clear();
         _imageUrlController.clear();
+        _fechaController.clear();
 
         if (mounted) {
           Navigator.pop(context);
-        } // Cierra el modal
-      } catch (e) {
-        if (e is ApiException) {
-          Color snackBarColor;
-          switch (e.statusCode) {
-            case 400:
-            case 500:
-              snackBarColor = Colors.red;
-              break;
-            case 401:
-              snackBarColor = Colors.orange;
-              break;
-            case 404:
-              snackBarColor = Colors.grey;
-              break;
-            default:
-              snackBarColor = Colors.blue;
-          }
-
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(e.message),
-                backgroundColor: snackBarColor,
-              ),
-            );
-          }
-        } else {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Error desconocido: $e'),
-                backgroundColor: Colors.red,
-              ),
-            );
-          }
         }
+        _loadNoticias();
+        _mostrarError('Noticia agregada correctamente', color: Colors.green);
+        // Cierra el modal
+      } catch (e) {
+        _mostrarError('Error al cargar noticia: $e');
       }
     }
   }
@@ -343,6 +318,9 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
     _descripcionController.text = noticia.descripcion;
     _fuenteController.text = noticia.fuente;
     _imageUrlController.text = noticia.imageUrl;
+    _fechaController.text = DateFormat(
+      Constants.formatoFecha,
+    ).format(noticia.publicadaEl);
     // Busca la categoría correspondiente o asigna un valor predeterminado
     String? categoriaSeleccionada =
         _categorias
@@ -405,6 +383,28 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
                   ),
                 ),
                 const SizedBox(height: 16.0),
+                TextFormField(
+                  controller: _fechaController,
+                  decoration: const InputDecoration(
+                    labelText: 'Fecha Publicada',
+                  ),
+                  readOnly: true,
+                  onTap: () async {
+                    final DateTime? pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime.now(),
+                    );
+                    if (pickedDate != null) {
+                      _fechaController.text = DateFormat(
+                        Constants.formatoFecha,
+                      ).format(pickedDate);
+                    }
+                  },
+                ),
+
+                const SizedBox(height: 16.0),
                 DropdownButtonFormField<String>(
                   value: categoriaSeleccionada,
                   decoration: const InputDecoration(labelText: 'Categoría'),
@@ -438,8 +438,9 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
                         titulo: _tituloController.text,
                         descripcion: _descripcionController.text,
                         fuente: _fuenteController.text,
-                        publicadaEl:
-                            noticia.publicadaEl, // Mantiene la misma fecha
+                        publicadaEl: DateFormat(Constants.formatoFecha).parse(
+                          _fechaController.text,
+                        ), // Mantiene la misma fecha
                         imageUrl:
                             _imageUrlController.text.isNotEmpty
                                 ? _imageUrlController.text
@@ -457,49 +458,33 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
                           _noticias[index] =
                               noticiaEditada; // Actualiza la lista local
                         });
+
+                        // Limpia los campos del formulario
+                        _tituloController.clear();
+                        _descripcionController.clear();
+                        _fuenteController.clear();
+                        _imageUrlController.clear();
+                        _fechaController.clear();
+
                         Navigator.pop(context); // Cierra el modal
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Noticia actualizada correctamente'),
-                            backgroundColor: Colors.green,
-                          ),
+                        _mostrarError(
+                          'Noticia actualizada correctamente',
+                          color: Colors.green,
                         );
                       } catch (e) {
                         if (e is ApiException) {
-                          Color snackBarColor;
-                          switch (e.statusCode) {
-                            case 400:
-                            case 500:
-                              snackBarColor = Colors.red;
-                              break;
-                            case 401:
-                              snackBarColor = Colors.orange;
-                              break;
-                            case 404:
-                              snackBarColor = Colors.grey;
-                              break;
-                            default:
-                              snackBarColor = Colors.blue;
-                          }
-
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(e.message),
-                                backgroundColor: snackBarColor,
-                              ),
-                            );
-                          }
+                          final errorData = ErrorHelper.getErrorMessageAndColor(
+                            e.statusCode,
+                          );
+                          _mostrarError(
+                            errorData['message'],
+                            color: errorData['color'],
+                          );
                         } else {
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Error desconocido: $e'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
+                          _mostrarError('Error desconocido: $e');
                         }
+                      } finally {
+                        _actualizarEstado(isLoading: false);
                       }
                     }
                   },
@@ -865,30 +850,32 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
                                                             );
                                                           });
                                                           if (context.mounted) {
-                                                            ScaffoldMessenger.of(
-                                                              context,
-                                                            ).showSnackBar(
-                                                              const SnackBar(
-                                                                content: Text(
-                                                                  'Noticia eliminada correctamente',
-                                                                ),
-                                                                backgroundColor:
-                                                                    Colors
-                                                                        .green,
-                                                              ),
+                                                            _mostrarError(
+                                                              'Noticia eliminada correctamente',
+                                                              color:
+                                                                  Colors.green,
                                                             );
                                                           }
                                                         } catch (e) {
-                                                          ScaffoldMessenger.of(
-                                                            context,
-                                                          ).showSnackBar(
-                                                            SnackBar(
-                                                              content: Text(
-                                                                'Error al eliminar la noticia: $e',
-                                                              ),
-                                                              backgroundColor:
-                                                                  Colors.red,
-                                                            ),
+                                                          if (e
+                                                              is ApiException) {
+                                                            final errorData =
+                                                                ErrorHelper.getErrorMessageAndColor(
+                                                                  e.statusCode,
+                                                                );
+                                                            _mostrarError(
+                                                              errorData['message'],
+                                                              color:
+                                                                  errorData['color'],
+                                                            );
+                                                          } else {
+                                                            _mostrarError(
+                                                              'Error desconocido: $e',
+                                                            );
+                                                          }
+                                                        } finally {
+                                                          _actualizarEstado(
+                                                            isLoading: false,
                                                           );
                                                         }
                                                       }
@@ -932,6 +919,21 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
     setState(() {
       _ultimaActualizacion =
           DateTime.now(); // Actualiza la fecha de la última actualización
+    });
+  }
+
+  void _mostrarError(String mensaje, {Color color = Colors.red}) {
+    if (mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(mensaje), backgroundColor: color));
+    }
+  }
+
+  void _actualizarEstado({bool? isLoading, bool? hayError}) {
+    setState(() {
+      if (isLoading != null) _isLoading = isLoading;
+      if (hayError != null) _hayError = hayError;
     });
   }
 }

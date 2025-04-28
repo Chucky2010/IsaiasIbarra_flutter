@@ -34,12 +34,17 @@ class NoticiaService {
         final noticias = data.map((json) => Noticia.fromJson(json)).toList();
 
         return noticias;
-      } else if (response.statusCode != null &&
-          response.statusCode! >= 400 &&
-          response.statusCode! < 500) {
-        // Manejo específico para errores 4xx
+      } else if (response.statusCode == 400) {
+        throw ApiException(Constants.mensajeError, statusCode: 400);
+      } else if (response.statusCode == 401) {
+        throw ApiException(Constants.errorUnauthorized, statusCode: 401);
+      } else if (response.statusCode == 404) {
+        throw ApiException(Constants.errorNotFound, statusCode: 404);
+      } else if (response.statusCode == 500) {
+        throw ApiException(Constants.errorServer, statusCode: 500);
+      } else if (response.statusCode != 200) {
         throw ApiException(
-          'Error al obtener las noticias',
+          'Error desconocido al actualizar la noticia',
           statusCode: response.statusCode,
         );
       } else {
@@ -76,9 +81,21 @@ class NoticiaService {
         },
       );
 
-      if (response.statusCode != 201) {
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        // Noticia creada exitosamente
+        return;
+      }
+     else if (response.statusCode == 400) {
+        throw ApiException(Constants.mensajeError, statusCode: 400);
+      } else if (response.statusCode == 401) {
+        throw ApiException(Constants.errorUnauthorized, statusCode: 401);
+      } else if (response.statusCode == 404) {
+        throw ApiException(Constants.errorNotFound, statusCode: 404);
+      } else if (response.statusCode == 500) {
+        throw ApiException(Constants.errorServer, statusCode: 500);
+      } else {
         throw ApiException(
-          'Error al crear la noticia',
+          'Error desconocido al crear la noticia',
           statusCode: response.statusCode,
         );
       }
@@ -105,9 +122,17 @@ class NoticiaService {
         },
       );
 
-      if (response.statusCode != 200) {
+      if (response.statusCode == 400) {
+        throw ApiException(Constants.mensajeError, statusCode: 400);
+      } else if (response.statusCode == 401) {
+        throw ApiException(Constants.errorUnauthorized, statusCode: 401);
+      } else if (response.statusCode == 404) {
+        throw ApiException(Constants.errorNotFound, statusCode: 404);
+      } else if (response.statusCode == 500) {
+        throw ApiException(Constants.errorServer, statusCode: 500);
+      } else if (response.statusCode != 200) {
         throw ApiException(
-          'Error al aditar la noticia',
+          'Error desconocido al actualizar la noticia',
           statusCode: response.statusCode,
         );
       }
@@ -126,9 +151,17 @@ class NoticiaService {
         '${Constants.urlNoticias}/$id',
       ); // URL con el ID de la noticia
 
-      if (response.statusCode != 200 && response.statusCode != 204) {
+      if (response.statusCode == 400) {
+        throw ApiException(Constants.mensajeError, statusCode: 400);
+      } else if (response.statusCode == 401) {
+        throw ApiException(Constants.errorUnauthorized, statusCode: 401);
+      } else if (response.statusCode == 404) {
+        throw ApiException(Constants.errorNotFound, statusCode: 404);
+      } else if (response.statusCode == 500) {
+        throw ApiException(Constants.errorServer, statusCode: 500);
+      } else if (response.statusCode != 200) {
         throw ApiException(
-          'Error al eliminar la noticia',
+          'Error desconocido al actualizar la noticia',
           statusCode: response.statusCode,
         );
       }

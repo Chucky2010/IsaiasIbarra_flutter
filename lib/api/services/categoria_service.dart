@@ -5,14 +5,18 @@ import 'package:mi_proyecto/exceptions/api_exception.dart';
 
 class CategoriaService {
   final Dio _dio;
-   
-   CategoriaService()
-   : _dio= Dio(
-    BaseOptions(
-    connectTimeout: const Duration(milliseconds: Constants.timeoutSeconds * 1000),//tiempo espera maximo para conexion
-    receiveTimeout: const Duration(milliseconds: Constants.timeoutSeconds * 1000),//tiempo espera maximo para recibir datos
-  ));
 
+  CategoriaService()
+    : _dio = Dio(
+        BaseOptions(
+          connectTimeout: const Duration(
+            milliseconds: Constants.timeoutSeconds * 1000,
+          ), //tiempo espera maximo para conexion
+          receiveTimeout: const Duration(
+            milliseconds: Constants.timeoutSeconds * 1000,
+          ), //tiempo espera maximo para recibir datos
+        ),
+      );
 
   /// Obtiene todas las categorías desde la API
   Future<List<Categoria>> getCategorias() async {
@@ -29,8 +33,8 @@ class CategoriaService {
         );
       }
     } on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionTimeout
-      || e.type == DioExceptionType.receiveTimeout) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
         throw ApiException(
           Constants.errorTimeout, // Mensaje de timeout
           statusCode: e.response?.statusCode,
@@ -53,18 +57,30 @@ class CategoriaService {
         data: categoria,
       );
 
-      if (response.statusCode != 201) {
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        // Categoría creada exitosamente
+        return;
+      }
+      else if (response.statusCode == 400) {
+        throw ApiException(Constants.mensajeError, statusCode: 400);
+      } else if (response.statusCode == 401) {
+        throw ApiException(Constants.errorUnauthorized, statusCode: 401);
+      } else if (response.statusCode == 404) {
+        throw ApiException(Constants.errorNotFound, statusCode: 404);
+      } else if (response.statusCode == 500) {
+        throw ApiException(Constants.errorServer, statusCode: 500);
+      } else {
         throw ApiException(
-          'Error al crear la categoría',
+          'Error desconocido al crear la categoria',
           statusCode: response.statusCode,
         );
       }
     } on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionTimeout
-      || e.type == DioExceptionType.receiveTimeout) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
         throw ApiException(Constants.errorTimeout);
       }
-      throw ApiException('Error al conectar con la API de categorías: $e');
+      throw ApiException('Error al conectar con la API de categorias: $e');
     }
   }
 
@@ -77,18 +93,26 @@ class CategoriaService {
       final url = '${Constants.urlCategorias}/$id';
       final response = await _dio.put(url, data: categoria);
 
-      if (response.statusCode != 200) {
+      if (response.statusCode == 400) {
+        throw ApiException(Constants.mensajeError, statusCode: 400);
+      } else if (response.statusCode == 401) {
+        throw ApiException(Constants.errorUnauthorized, statusCode: 401);
+      } else if (response.statusCode == 404) {
+        throw ApiException(Constants.errorNotFound, statusCode: 404);
+      } else if (response.statusCode == 500) {
+        throw ApiException(Constants.errorServer, statusCode: 500);
+      } else if (response.statusCode != 200) {
         throw ApiException(
-          'Error al editar la categoría',
+          'Error desconocido al crear la noticia',
           statusCode: response.statusCode,
         );
       }
     } on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionTimeout
-      || e.type == DioExceptionType.receiveTimeout) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
         throw ApiException(Constants.errorTimeout);
       }
-      throw ApiException('Error al conectar con la API de categorías: $e');
+      throw ApiException('Error al conectar con la API de categorias: $e');
     }
   }
 
@@ -98,18 +122,26 @@ class CategoriaService {
       final url = '${Constants.urlCategorias}/$id';
       final response = await _dio.delete(url);
 
-      if (response.statusCode != 200 && response.statusCode != 204) {
+      if (response.statusCode == 400) {
+        throw ApiException(Constants.mensajeError, statusCode: 400);
+      } else if (response.statusCode == 401) {
+        throw ApiException(Constants.errorUnauthorized, statusCode: 401);
+      } else if (response.statusCode == 404) {
+        throw ApiException(Constants.errorNotFound, statusCode: 404);
+      } else if (response.statusCode == 500) {
+        throw ApiException(Constants.errorServer, statusCode: 500);
+      } else if (response.statusCode != 200) {
         throw ApiException(
-          'Error al eliminar la categoría',
+          'Error desconocido al crear la noticia',
           statusCode: response.statusCode,
         );
       }
     } on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionTimeout
-      || e.type == DioExceptionType.receiveTimeout) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
         throw ApiException(Constants.errorTimeout);
       }
-      throw ApiException('Error al conectar con la API de categorías: $e');
+      throw ApiException('Error al conectar con la API de categorias: $e');
     }
   }
 }
