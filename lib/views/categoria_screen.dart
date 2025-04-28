@@ -76,8 +76,9 @@ class _CategoriaScreenState extends State<CategoriaScreen> {
         );
 
         await _categoriaRepository.crearCategoria(
-          nuevaCategoria,
-        ); // Llama al servicio
+          nuevaCategoria,// Llama al servicio
+        ); 
+        
         _loadCategorias(); // Recarga las categorías
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Categoría agregada exitosamente')),
@@ -233,7 +234,13 @@ class _CategoriaScreenState extends State<CategoriaScreen> {
                   style: TextStyle(color: Colors.red, fontSize: 16),
                 ),
               )
-              : categorias.isEmpty
+            : RefreshIndicator(
+              onRefresh:() => _refreshCategorias(),
+              child: Column(
+                children: [
+                  _buildUltimaActualizacion(), // Muestra la última actualización
+                  Expanded(
+              child: categorias.isEmpty
               ? const Center(
                 child: Text(
                   'No hay categorías disponibles.',
@@ -264,6 +271,10 @@ class _CategoriaScreenState extends State<CategoriaScreen> {
                   );
                 },
               ),
+            ),
+          ],
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _agregarCategoria,
         tooltip: 'Agregar Categoría',
@@ -271,4 +282,23 @@ class _CategoriaScreenState extends State<CategoriaScreen> {
       ),
     );
   }
+
+  Widget _buildUltimaActualizacion() {
+  return Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Icon(Icons.update, color: Colors.grey, size: 16),
+        const SizedBox(width: 8),
+        Text(
+          _ultimaActualizacion != null
+              ? 'Última actualización: ${_ultimaActualizacion!.toLocal()}'
+              : 'No se ha actualizado recientemente.',
+          style: const TextStyle(fontSize: 14, color: Colors.grey),
+        ),
+      ],
+    ),
+  );
+}
 }

@@ -3,7 +3,7 @@
 import 'package:mi_proyecto/data/task_repository.dart';
 import 'package:mi_proyecto/domain/task.dart';
 import 'package:mi_proyecto/data/assistant_repository.dart';
-import 'package:mi_proyecto/constants.dart';
+import 'package:mi_proyecto/constants/constants.dart';
 
 class TaskService {
   final TaskRepository _taskRepository = TaskRepository();

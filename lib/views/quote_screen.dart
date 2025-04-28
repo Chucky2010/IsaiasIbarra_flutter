@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mi_proyecto/api/services/quote_service.dart';
 import 'package:mi_proyecto/domain/quote.dart';
-import 'package:mi_proyecto/constants.dart';
+import 'package:mi_proyecto/constants/constants.dart';
 import 'package:intl/intl.dart'; // Importa el paquete intl
 
 class QuoteScreen extends StatefulWidget {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mi_proyecto/helpers/common_widgets_helper.dart';
 import 'package:mi_proyecto/domain/task.dart';
-import 'package:mi_proyecto/constants.dart';
+import 'package:mi_proyecto/constants/constants.dart';
 
 
 class SportsCardScreen extends StatelessWidget {

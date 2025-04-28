@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mi_proyecto/constants.dart';
-import 'package:mi_proyecto/presentation/start_screen.dart';
+import 'package:mi_proyecto/constants/constants.dart';
+import 'package:mi_proyecto/views/start_screen.dart';
 
 class ResultScreen extends StatelessWidget {
   final int finalScore; // Puntaje final

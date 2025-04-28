@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:mi_proyecto/services/question_service.dart';
+import 'package:mi_proyecto/api/services/question_service.dart';
 import 'package:mi_proyecto/domain/question.dart';
-import 'package:mi_proyecto/presentation/result_screen.dart';
-import 'package:mi_proyecto/constants.dart';
+import 'package:mi_proyecto/views/result_screen.dart';
+import 'package:mi_proyecto/constants/constants.dart';
 
 class GameScreen extends StatefulWidget {
    const GameScreen({super.key});
