@@ -1,180 +1,187 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mi_proyecto/bloc/categoria/categoria_bloc.dart';
+import 'package:mi_proyecto/bloc/categoria/categoria_event.dart';
+import 'package:mi_proyecto/bloc/categoria/categoria_state.dart';
 import 'package:mi_proyecto/data/categoria_repository.dart';
 import 'package:mi_proyecto/domain/categoria.dart';
-import 'package:mi_proyecto/exceptions/api_exception.dart';
 import 'package:mi_proyecto/helpers/error_helper.dart';
+import 'package:mi_proyecto/exceptions/api_exception.dart';
 
-class CategoriaScreen extends StatefulWidget {
+class CategoriaScreen extends StatelessWidget {
   const CategoriaScreen({Key? key}) : super(key: key);
 
   @override
-  _CategoriaScreenState createState() => _CategoriaScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => CategoriaBloc(
+        categoriaRepository: CategoriaRepository(),
+      )..add(LoadCategoriasEvent()),
+      child: const CategoriaView(),
+    );
+  }
 }
 
-class _CategoriaScreenState extends State<CategoriaScreen> {
-  final CategoriaRepository _categoriaRepository = CategoriaRepository();
-  List<Categoria> categorias = [];
-  bool isLoading = false;
-  bool hasError = false;
-  bool _hasMore = true;
-  final ScrollController _scrollController = ScrollController();
-   int currentPage = 1;
-
-  DateTime? _ultimaActualizacion;
+class CategoriaView extends StatefulWidget {
+  const CategoriaView({Key? key}) : super(key: key);
 
   @override
-  void initState() {
-    super.initState();
-    _loadCategorias();
-  }
+  _CategoriaViewState createState() => _CategoriaViewState();
+}
 
-  Future<void> _loadCategorias() async {
-    if (isLoading || !_hasMore) return;
+class _CategoriaViewState extends State<CategoriaView> {
+  final ScrollController _scrollController = ScrollController();
 
-    setState(() {
-      isLoading = true;
-      hasError = false;
-    });
-
-    try {
-      final fetchedCategorias = await _categoriaRepository.getCategorias();
-      setState(() {
-        categorias = fetchedCategorias;
-        isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-        hasError = true;
-      });
-
-      String errorMessage = 'Error desconocido';
-      Color errorColor = Colors.grey;
-
-      if (e is ApiException) {
-        final errorData = ErrorHelper.getErrorMessageAndColor(e.statusCode);
-        errorMessage = errorData['message'];
-        errorColor = errorData['color'];
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage), backgroundColor: errorColor),
-      );
-    }
-  }
-
-  Future<void> _agregarCategoria() async {
-    final nuevaCategoriaData = await _mostrarDialogCategoria(context);
-    if (nuevaCategoriaData != null) {
-      try {
-        // Crear un objeto Categoria a partir de los datos del diálogo
-        final nuevaCategoria = Categoria(
-          id: '', // El ID será generado por la API
-          nombre: nuevaCategoriaData['nombre'],
-          descripcion: '',
-          imagenUrl: '',
-        );
-
-        await _categoriaRepository.crearCategoria(
-          nuevaCategoria,// Llama al servicio
-        ); 
-        
-        _loadCategorias(); // Recarga las categorías
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Categoría agregada exitosamente')),
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al agregar la categoría: $e')),
-        );
-      }
-    }
-  }
-
-  Future<void> _editarCategoria(Categoria categoria) async {
-    final categoriaEditadaData = await _mostrarDialogCategoria(
-      context,
-      categoria: categoria,
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Categorías')),
+      body: BlocConsumer<CategoriaBloc, CategoriaState>(
+        listener: (context, state) {
+          if (state is CategoriaErrorState) {
+            // Usamos ErrorHelper para obtener el mensaje y color apropiados
+            // Asumimos que el mensaje de error podría contener un código de estado
+            final errorData = _parseErrorMessage(state.message);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(errorData['message']),
+                backgroundColor: errorData['color'],
+              ),
+            );
+          } else if (state is CategoriaActionSuccess) {
+            // Mostramos un SnackBar para las acciones exitosas
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        },
+        builder: (context, state) {
+          if (state is CategoriaLoadingState) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (state is CategoriaErrorState) {
+            final errorData = _parseErrorMessage(state.message);
+            return Center(
+              child: Text(
+                errorData['message'],
+                style: TextStyle(color: errorData['color'], fontSize: 16),
+              ),
+            );
+          } else if (state is CategoriaLoadedState) {
+            return RefreshIndicator(
+              onRefresh: () async {
+                context.read<CategoriaBloc>().add(RefreshCategoriasEvent());
+              },
+              child: Column(
+                children: [
+                  _buildUltimaActualizacion(state.ultimaActualizacion),
+                  Expanded(
+                    child: state.categorias.isEmpty
+                        ? const Center(
+                            child: Text(
+                              'No hay categorías disponibles.',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          )
+                        : ListView.builder(
+                            controller: _scrollController,
+                            itemCount: state.categorias.length,
+                            itemBuilder: (context, index) {
+                              final categoria = state.categorias[index];
+                              return ListTile(
+                                title: Text(categoria.nombre),
+                                subtitle: Text('ID: ${categoria.id}'),
+                                leading: const Icon(Icons.category),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.edit, color: Colors.blue),
+                                      onPressed: () => _mostrarDialogoEditar(context, categoria),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete, color: Colors.red),
+                                      onPressed: () => _mostrarDialogoEliminar(context, categoria),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                  ),
+                ],
+              ),
+            );
+          }
+          return const Center(child: Text('No hay categorías disponibles.'));
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _mostrarDialogoAgregar(context),
+        tooltip: 'Agregar Categoría',
+        child: const Icon(Icons.add),
+      ),
     );
-
-    if (categoriaEditadaData != null) {
-      try {
-        final categoriaEditada = Categoria(
-          id: categoria.id, // Mantiene el mismo ID
-          nombre: categoriaEditadaData['nombre'],
-          descripcion: categoria.descripcion,
-          imagenUrl: categoria.imagenUrl,
-        );
-
-        await _categoriaRepository.editarCategoria(
-          categoria.id,
-          categoriaEditada,
-        );
-        _loadCategorias(); // Recarga las categorías
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Categoría editada exitosamente')),
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al editar la categoría: $e')),
-        );
-      }
-    }
   }
 
-  Future<void> _eliminarCategoria(Categoria categoria) async {
-    final confirm = await showDialog<bool>(
+  // Método para interpretar el mensaje de error y obtener un código de estado si existe
+  Map<String, dynamic> _parseErrorMessage(String errorMessage) {
+    // Intentamos encontrar un código de estado en el mensaje
+    final RegExp regExp = RegExp(r'(\d{3})');
+    final match = regExp.firstMatch(errorMessage);
+    
+    if (match != null) {
+      final statusCode = int.tryParse(match.group(1) ?? '');
+      if (statusCode != null) {
+        return ErrorHelper.getErrorMessageAndColor(statusCode);
+      }
+    }
+    
+    // Si no encontramos un código de estado, usamos el mensaje original
+    return {
+      'message': errorMessage,
+      'color': Colors.red,
+    };
+  }
+
+  Widget _buildUltimaActualizacion(DateTime? ultimaActualizacion) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.update, color: Colors.grey, size: 16),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              ultimaActualizacion != null
+                  ? 'Última actualización: ${_formatDateTime(ultimaActualizacion)}'
+                  : 'No se ha actualizado recientemente.',
+              style: const TextStyle(fontSize: 14, color: Colors.grey),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Método auxiliar para formatear la fecha y hora de manera más compacta
+  String _formatDateTime(DateTime dateTime) {
+    final local = dateTime.toLocal();
+    return '${local.day}/${local.month}/${local.year} ${local.hour}:${local.minute.toString().padLeft(2, '0')}';
+  }
+
+  void _mostrarDialogoAgregar(BuildContext context) async {
+    final TextEditingController nombreController = TextEditingController();
+
+    final result = await showDialog<Map<String, dynamic>>(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Confirmar eliminación'),
-          content: Text(
-            '¿Estás seguro de que deseas eliminar la categoría "${categoria.nombre}"?',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Eliminar'),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (confirm == true) {
-      try {
-        await _categoriaRepository.eliminarCategoria(categoria.id);
-        _loadCategorias(); // Recarga las categorías
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Categoría eliminada exitosamente')),
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al eliminar la categoría: $e')),
-        );
-      }
-    }
-  }
-
-  Future<Map<String, dynamic>?> _mostrarDialogCategoria(
-    BuildContext context, {
-    Categoria? categoria,
-  }) async {
-    final TextEditingController nombreController = TextEditingController(
-      text: categoria?.nombre ?? '',
-    );
-
-    return showDialog<Map<String, dynamic>>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(
-            categoria == null ? 'Agregar Categoría' : 'Editar Categoría',
-          ),
+          title: const Text('Agregar Categoría'),
           content: TextField(
             controller: nombreController,
             decoration: const InputDecoration(
@@ -204,101 +211,96 @@ class _CategoriaScreenState extends State<CategoriaScreen> {
         );
       },
     );
+
+    if (result != null) {
+      final nuevaCategoria = Categoria(
+        id: '', // El ID será generado por la API
+        nombre: result['nombre'],
+        descripcion: '',
+        imagenUrl: '',
+      );
+      
+      context.read<CategoriaBloc>().add(AddCategoriaEvent(nuevaCategoria));
+    }
   }
 
-  Future<void> _refreshCategorias() async {
-    setState(() {
-      categorias.clear(); // Limpia la lista de noticias
-      _hasMore = true; // Permite cargar más noticias
-      hasError = false; // Reinicia el estado de error
-    });
+  void _mostrarDialogoEditar(BuildContext context, Categoria categoria) async {
+    final TextEditingController nombreController = TextEditingController(
+      text: categoria.nombre,
+    );
 
-    await _loadCategorias(); // Recarga las noticias
-    setState(() {
-      _ultimaActualizacion =
-          DateTime.now(); // Actualiza la fecha de la última actualización
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Categorías')),
-      body:
-          isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : hasError
-              ? const Center(
-                child: Text(
-                  'Ocurrió un error al cargar las categorías.',
-                  style: TextStyle(color: Colors.red, fontSize: 16),
-                ),
-              )
-            : RefreshIndicator(
-              onRefresh:() => _refreshCategorias(),
-              child: Column(
-                children: [
-                  _buildUltimaActualizacion(), // Muestra la última actualización
-                  Expanded(
-              child: categorias.isEmpty
-              ? const Center(
-                child: Text(
-                  'No hay categorías disponibles.',
-                  style: TextStyle(fontSize: 16),
-                ),
-              )
-              : ListView.builder(
-                itemCount: categorias.length,
-                itemBuilder: (context, index) {
-                  final categoria = categorias[index];
-                  return ListTile(
-                    title: Text(categoria.nombre),
-                    subtitle: Text('ID: ${categoria.id}'),
-                    leading: const Icon(Icons.category),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit, color: Colors.blue),
-                          onPressed: () => _editarCategoria(categoria),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => _eliminarCategoria(categoria),
-                        ),
-                      ],
+    final result = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Editar Categoría'),
+          content: TextField(
+            controller: nombreController,
+            decoration: const InputDecoration(
+              labelText: 'Nombre de la Categoría',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (nombreController.text.isNotEmpty) {
+                  Navigator.pop(context, {'nombre': nombreController.text});
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('El nombre no puede estar vacío'),
                     ),
                   );
-                },
-              ),
+                }
+              },
+              child: const Text('Guardar'),
             ),
           ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _agregarCategoria,
-        tooltip: 'Agregar Categoría',
-        child: const Icon(Icons.add),
-      ),
+        );
+      },
     );
+
+    if (result != null) {
+      final categoriaEditada = Categoria(
+        id: categoria.id,
+        nombre: result['nombre'],
+        descripcion: categoria.descripcion,
+        imagenUrl: categoria.imagenUrl,
+      );
+      
+      context.read<CategoriaBloc>().add(UpdateCategoriaEvent(categoria.id, categoriaEditada));
+    }
   }
 
-  Widget _buildUltimaActualizacion() {
-  return Padding(
-    padding: const EdgeInsets.all(8.0),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Icon(Icons.update, color: Colors.grey, size: 16),
-        const SizedBox(width: 8),
-        Text(
-          _ultimaActualizacion != null
-              ? 'Última actualización: ${_ultimaActualizacion!.toLocal()}'
-              : 'No se ha actualizado recientemente.',
-          style: const TextStyle(fontSize: 14, color: Colors.grey),
-        ),
-      ],
-    ),
-  );
-}
+  void _mostrarDialogoEliminar(BuildContext context, Categoria categoria) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Confirmar eliminación'),
+          content: Text(
+            '¿Estás seguro de que deseas eliminar la categoría "${categoria.nombre}"?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Eliminar'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm == true) {
+      (context).read<CategoriaBloc>().add(DeleteCategoriaEvent(categoria.id));
+    }
+  }
 }

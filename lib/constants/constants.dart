@@ -36,7 +36,7 @@ class Constants {
   static String get baseUrl =>
       dotenv.env['BASE_URL'] ?? 'https://default-url.com';
 
-  static String get urlNoticias => '$baseUrl/noticias';
+  static String get urlNoticias => '$baseUrl/hola/noticias';
   static String get urlCategorias => '$baseUrl/categorias';
 
   static const String noticiasEndpoint= '/noticias';
