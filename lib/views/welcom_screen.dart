@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:mi_proyecto/views/categoria_screen.dart';
+import 'package:mi_proyecto/views/category_screen.dart';
 import 'package:mi_proyecto/views/login_screen.dart';
 import 'package:mi_proyecto/main.dart';
 import 'package:mi_proyecto/views/task_screen.dart';
 import 'package:mi_proyecto/views/start_screen.dart';
-import 'package:mi_proyecto/views/noticia_screen.dart';
+import 'package:mi_proyecto/views/noticias_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -166,7 +166,7 @@ class WelcomeScreenState extends State<WelcomeScreen> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const CategoriaScreen()),
+                  MaterialPageRoute(builder: (context) => const CategoryScreen()),
                 );
               },
             ),

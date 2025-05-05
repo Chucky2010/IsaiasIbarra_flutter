@@ -1,51 +1,105 @@
+import 'package:flutter/foundation.dart';
 import 'package:mi_proyecto/api/services/noticia_service.dart';
 import 'package:mi_proyecto/domain/noticia.dart';
+import 'package:mi_proyecto/constants.dart';
 import 'package:mi_proyecto/exceptions/api_exception.dart';
-
 
 class NoticiaRepository {
   final NoticiaService _service = NoticiaService();
 
-
-  Future<void> createNoticia(Noticia noticia) async {
-   
+  /// Obtiene cotizaciones paginadas con validaciones
+  Future<List<Noticia>> obtenerNoticias() async {
     try {
-       await _service.createNoticia(noticia);
+      final noticias = await _service.getNoticias();
+      return noticias;
     } catch (e) {
       if (e is ApiException) {
-        // Propaga el mensaje contextual de ApiException
-        throw Exception('Error en el servicio de noticias: ${e.message}');
-      } else {
-        throw Exception('Error desconocido: $e');
+        rethrow; // Relanza la excepción para que la maneje la capa superior
       }
+      debugPrint('Error inesperado al obtener noticias: $e');
+      throw ApiException('Error inesperado al obtener noticias.');
     }
   }
 
-  Future<List<Noticia>> getPaginatedNoticias({
-  required int pageNumber,
-  required int pageSize,
-}) async {
-  try{
-      return await _service.fetchNoticiasFromApi(pageNumber, pageSize);
+  Future<void> crearNoticia({
+    required String titulo,
+    required String descripcion,
+    required String fuente,
+    required String publicadaEl,
+    required String urlImagen,
+    required String categoriaId,
+  }) async {
+    final noticia = {
+      'titulo': titulo,
+      'descripcion': descripcion,
+      'fuente': fuente,
+      'publicadaEl': publicadaEl,
+      'urlImagen': urlImagen,
+      'categoriaId': categoriaId,
+    };
+    try {
+      await _service.crearNoticia(noticia);
     } catch (e) {
       if (e is ApiException) {
-        // Propaga el mensaje contextual de ApiException
         rethrow;
-      } else {
-        throw Exception('Error desconocido: $e');
       }
+      debugPrint('Error inesperado al crear noticia: $e');
+      throw ApiException('Error inesperado al crear noticia.');
     }
-  // final noticias = await _repository.fetchNoticiasFromApi(pageNumber, pageSize);
-  
-  // return noticias;
-}
-
-Future<void> updateNoticia(Noticia noticia) async {
-    await _service.updateNoticia(noticia);
   }
 
-  Future<void> deleteNoticia(String id) async {
-    await _service.deleteNoticia(id);
+  Future<void> eliminarNoticia(String id) async {
+    if (id.isEmpty) {
+      throw Exception(
+        '${NoticiaConstantes.mensajeError} El ID de la noticia no puede estar vacío.',
+      );
+    }
+    try {
+      await _service.eliminarNoticia(id);
+    } catch (e) {
+      if (e is ApiException) {
+        rethrow;
+      }
+      debugPrint('Error inesperado al eliminar noticia: $e');
+      throw ApiException('Error inesperado al eliminar noticia.');
+    }
   }
 
+  Future<void> actualizarNoticia({
+    required String id,
+    required String titulo,
+    required String descripcion,
+    required String fuente,
+    required String publicadaEl,
+    required String urlImagen,
+    required String categoriaId,
+  }) async {
+    if (id.isEmpty) {
+      throw ApiException('El ID de la noticia no puede estar vacío.');
+    }
+
+    if (titulo.isEmpty || descripcion.isEmpty || fuente.isEmpty) {
+      throw ApiException(
+        'Los campos título, descripción y fuente no pueden estar vacíos.',
+      );
+    }
+
+    final noticia = {
+      'titulo': titulo,
+      'descripcion': descripcion,
+      'fuente': fuente,
+      'publicadaEl': publicadaEl,
+      'urlImagen': urlImagen,
+      'categoriaId': categoriaId,
+    };
+    try {
+      await _service.editarNoticia(id, noticia);
+    } catch (e) {
+      if (e is ApiException) {
+        rethrow;
+      }
+      debugPrint('Error inesperado al editar noticia: $e');
+      throw ApiException('Error inesperado al editar noticia.');
+    }
+  }
 }

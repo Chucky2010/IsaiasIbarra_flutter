@@ -1,176 +1,100 @@
+import 'dart:async';
+import 'package:mi_proyecto/exceptions/api_exception.dart';
+import 'package:mi_proyecto/helpers/error_helper.dart';
 import 'package:mi_proyecto/domain/noticia.dart';
 import 'package:dio/dio.dart';
-import 'package:mi_proyecto/constants/constants.dart';
-import 'package:mi_proyecto/exceptions/api_exception.dart';
+import 'package:mi_proyecto/constants.dart';
 
 class NoticiaService {
-  final Dio _dio;
+  final Dio _dioNew = Dio(BaseOptions(
+    connectTimeout: const Duration(seconds: CategoriaConstantes.timeoutSeconds), // Tiempo de conexión
+    receiveTimeout: const Duration(seconds:CategoriaConstantes.timeoutSeconds), // Tiempo de recepción
+  ));
+ 
+  
+  Future<List<Noticia>> getNoticias() async {
+  try {
+    // Realiza la solicitud GET a la API
+    final response = await _dioNew.get(ApiConstantes.noticiasUrl);
 
-  NoticiaService()
-    : _dio = Dio(
-        BaseOptions(
-          connectTimeout: const Duration(
-            milliseconds: Constants.timeoutSeconds * 1000,
-          ), //tiempo espera maximo para conexion
-          receiveTimeout: const Duration(
-            milliseconds: Constants.timeoutSeconds * 1000,
-          ), //tiempo espera maximo para recibir datos
-        ),
-      ); // URL base de la API
-
-  Future<List<Noticia>> fetchNoticiasFromApi(
-    int pageNumber,
-    int pageSize,
-  ) async {
-    try {
-      final response = await _dio.get(Constants.urlNoticias);
-
-      if (response.statusCode == 200) {
-        final List<dynamic> data = response.data;
-
-        if (data.isEmpty) {
-          return []; // Si no hay datos, devuelve una lista vacía
-        }
-        final noticias = data.map((json) => Noticia.fromJson(json)).toList();
-
-        return noticias;
-      } else if (response.statusCode == 400) {
-        throw ApiException(Constants.mensajeError, statusCode: 400);
-      } else if (response.statusCode == 401) {
-        throw ApiException(Constants.errorUnauthorized, statusCode: 401);
-      } else if (response.statusCode == 404) {
-        throw ApiException(Constants.errorNotFound, statusCode: 404);
-      } else if (response.statusCode == 500) {
-        throw ApiException(Constants.errorServer, statusCode: 500);
-      } else if (response.statusCode != 200) {
-        throw ApiException(
-          'Error desconocido al actualizar la noticia',
-          statusCode: response.statusCode,
-        );
+    // Maneja el código de estado HTTP
+    if (response.statusCode == 200) {
+      final List<dynamic> noticiasJson = response.data;
+      return noticiasJson.map((json) {
+        return Noticia(
+          id: json['_id'] ?? '',
+          titulo: json['titulo'] ?? 'Sin título',
+          descripcion: json['descripcion'] ?? 'Sin descripción',
+          fuente: json['fuente'] ?? 'Fuente desconocida',
+          publicadaEl: DateTime.tryParse(json['publicadaEl'] ?? '') ?? DateTime.now(),
+          imageUrl: json['urlImagen'] ?? '',
+          categoriaId: json['categoriaId'] ?? CategoriaConstantes.defaultCategoriaId,
+         );
+        }).toList();
       } else {
-        throw ApiException('No se pudo obtener las noticias');
+        throw ApiException('Error desconocido', statusCode: response.statusCode);
       }
     } on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionTimeout ||
-          e.type == DioExceptionType.receiveTimeout) {
-        throw ApiException(
-          Constants.errorTimeout, // Mensaje de timeout
-          statusCode: e.response?.statusCode,
-        );
-      }
-      throw ApiException(
-        'Error al conectar con la API de noticias: $e',
-        statusCode: e.response?.statusCode,
-      );
+      final errorData = ErrorHelper.getErrorMessageAndColor(e.response?.statusCode);
+      throw ApiException(errorData['message'], statusCode: e.response?.statusCode);
     } catch (e) {
-      throw ApiException('Error desconocido: $e');
+      throw ApiException('Error inesperado: $e');
     }
   }
 
-  Future<void> createNoticia(Noticia noticia) async {
-    try {
-      final response = await _dio.post(
-        Constants.urlNoticias,
-        data: {
-          "titulo": noticia.titulo,
-          "descripcion": noticia.descripcion,
-          "fuente": noticia.fuente,
-          "publicadaEl": noticia.publicadaEl.toIso8601String(),
-          "urlImagen": noticia.imageUrl,
-          "categoriaId": noticia.categoriaId,
-        },
-      );
 
-      if (response.statusCode == 201 || response.statusCode == 200) {
-        // Noticia creada exitosamente
-        return;
-      }
-     else if (response.statusCode == 400) {
-        throw ApiException(Constants.mensajeError, statusCode: 400);
-      } else if (response.statusCode == 401) {
-        throw ApiException(Constants.errorUnauthorized, statusCode: 401);
-      } else if (response.statusCode == 404) {
-        throw ApiException(Constants.errorNotFound, statusCode: 404);
-      } else if (response.statusCode == 500) {
-        throw ApiException(Constants.errorServer, statusCode: 500);
-      } else {
-        throw ApiException(
-          'Error desconocido al crear la noticia',
-          statusCode: response.statusCode,
-        );
+  /// Edita una noticia en la API de CrudCrud
+Future<void> editarNoticia(String id, Map<String, dynamic> noticia) async {
+  try {
+    final url = '${ApiConstantes.noticiasUrl}/$id';
+    final response = await _dioNew.put(
+      url,
+      data: noticia,
+    );
+
+    if (response.statusCode != 200) {
+        throw ApiException('Error desconocido', statusCode: response.statusCode);
       }
     } on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionTimeout ||
-          e.type == DioExceptionType.receiveTimeout) {
-        throw ApiException(Constants.errorTimeout);
-      }
-      throw ApiException('Error al conectar con la API de noticias: $e');
+      final errorData = ErrorHelper.getErrorMessageAndColor(e.response?.statusCode);
+      throw ApiException(errorData['message'], statusCode: e.response?.statusCode);
+    } catch (e) {
+      throw ApiException('Error inesperado: $e');
     }
   }
 
-  Future<void> updateNoticia(Noticia noticia) async {
-    try {
-      final response = await _dio.put(
-        '${Constants.urlNoticias}/${noticia.id}', // URL con el ID de la noticia
-        data: {
-          "titulo": noticia.titulo,
-          "descripcion": noticia.descripcion,
-          "fuente": noticia.fuente,
-          "publicadaEl": noticia.publicadaEl.toIso8601String(),
-          "urlImagen": noticia.imageUrl,
-          "categoriaId": noticia.categoriaId,
-        },
-      );
+  /// Crea una nueva noticia en la API de CrudCrud
+  Future<void> crearNoticia(Map<String, dynamic> noticia) async {
+  try {
+    final response = await _dioNew.post(
+      ApiConstantes.noticiasUrl,
+      data: noticia,
+    );
 
-      if (response.statusCode == 400) {
-        throw ApiException(Constants.mensajeError, statusCode: 400);
-      } else if (response.statusCode == 401) {
-        throw ApiException(Constants.errorUnauthorized, statusCode: 401);
-      } else if (response.statusCode == 404) {
-        throw ApiException(Constants.errorNotFound, statusCode: 404);
-      } else if (response.statusCode == 500) {
-        throw ApiException(Constants.errorServer, statusCode: 500);
-      } else if (response.statusCode != 200) {
-        throw ApiException(
-          'Error desconocido al actualizar la noticia',
-          statusCode: response.statusCode,
-        );
-      }
-    } on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionTimeout ||
-          e.type == DioExceptionType.receiveTimeout) {
-        throw ApiException(Constants.errorTimeout);
-      }
-      throw ApiException('Error al conectar con la API de noticias: $e');
+    if (response.statusCode != 201) {
+      throw Exception('Error desconocido: ${response.statusCode}');
     }
+  } on DioException catch (e) {
+   ErrorHelper.getErrorMessageAndColor(e.response?.statusCode); // Llama a la función centralizada para manejar el error
+  } catch (e) {
+    throw Exception('Error inesperado: $e');
   }
+}
 
-  Future<void> deleteNoticia(String id) async {
-    try {
-      final response = await _dio.delete(
-        '${Constants.urlNoticias}/$id',
-      ); // URL con el ID de la noticia
+  /// Elimina una noticia de la API de CrudCrud
+  Future<void> eliminarNoticia(String id) async {
+  try {
+    final url = '${ApiConstantes.noticiasUrl}/$id';
+    final response = await _dioNew.delete(url);
 
-      if (response.statusCode == 400) {
-        throw ApiException(Constants.mensajeError, statusCode: 400);
-      } else if (response.statusCode == 401) {
-        throw ApiException(Constants.errorUnauthorized, statusCode: 401);
-      } else if (response.statusCode == 404) {
-        throw ApiException(Constants.errorNotFound, statusCode: 404);
-      } else if (response.statusCode == 500) {
-        throw ApiException(Constants.errorServer, statusCode: 500);
-      } else if (response.statusCode != 200) {
-        throw ApiException(
-          'Error desconocido al actualizar la noticia',
-          statusCode: response.statusCode,
-        );
+    if (response.statusCode != 200 && response.statusCode != 204) {
+        throw ApiException('Error desconocido', statusCode: response.statusCode);
       }
     } on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionTimeout ||
-          e.type == DioExceptionType.receiveTimeout) {
-        throw ApiException(Constants.errorTimeout);
-      }
-      throw ApiException('Error al conectar con la API de noticias: $e');
+      final errorData = ErrorHelper.getErrorMessageAndColor(e.response?.statusCode);
+      throw ApiException(errorData['message'], statusCode: e.response?.statusCode);
+    } catch (e) {
+      throw ApiException('Error inesperado: $e');
     }
   }
 }

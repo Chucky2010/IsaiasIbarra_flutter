@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mi_proyecto/api/services/quote_service.dart';
 import 'package:mi_proyecto/domain/quote.dart';
-import 'package:mi_proyecto/constants/constants.dart';
+import 'package:mi_proyecto/constants.dart';
 import 'package:intl/intl.dart'; // Importa el paquete intl
 
 class QuoteScreen extends StatefulWidget {
@@ -54,7 +54,7 @@ class _QuoteScreenState extends State<QuoteScreen> {
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text(Constants.errorMessage),
+        content: Text(AppConstants.errorMessage),
         backgroundColor: Colors.red,
       ),
     );
@@ -75,14 +75,14 @@ class _QuoteScreenState extends State<QuoteScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(Constants.titleApp),
+        title: const Text(AppConstants.titleAppFinance),
       ),
       body: Container(
       color: Colors.grey[200], // Fondo gris claro
        child: _quotes.isEmpty && !_isLoading
           ? const Center(
               child: Text(
-                Constants.emptyList,
+                AppConstants.emptyList,
                 style: TextStyle(fontSize: 16),
               ),
             )
@@ -118,7 +118,7 @@ class _QuoteScreenState extends State<QuoteScreen> {
           children: [
             Text('Precio: \$${quote.stockPrice.toStringAsFixed(2)}'),
             Text(
-              'Última actualización: ${DateFormat(Constants.dateFormat).format(quote.lastUpdated)}',
+              'Última actualización: ${DateFormat(AppConstants.dateFormat).format(quote.lastUpdated)}',
             ),
           ],
         ),

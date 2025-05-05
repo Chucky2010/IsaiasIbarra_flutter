@@ -6,7 +6,7 @@ import 'package:mi_proyecto/views/welcom_screen.dart';
 import 'package:mi_proyecto/api/services/task_service.dart';
 import 'package:mi_proyecto/data/task_repository.dart';
 import 'package:mi_proyecto/domain/task.dart';
-import 'package:mi_proyecto/constants/constants.dart';
+import 'package:mi_proyecto/constants.dart';
 import 'package:mi_proyecto/helpers/task_card_helper.dart';
 
 class TareasScreen extends StatefulWidget {
@@ -215,7 +215,7 @@ class _TareasScreenState extends State<TareasScreen> {
                   type:
                       tipoController.text.isNotEmpty
                           ? tipoController.text
-                          : Constants.taskTypeNormal,
+                          : AppConstants.taskTypeNormal,
                   fecha: fechaSeleccionada ?? DateTime.now(),
                   descripcion: detalleController.text,
                   deadline: DateTime.now().add(const Duration(days: 1)),
@@ -248,12 +248,12 @@ class _TareasScreenState extends State<TareasScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
-        title:  Text('$Constants.titleAppbar - Total: ${_tareas.length}'),
+        title:  Text('$AppConstants.titleAppbar - Total: ${_tareas.length}'),
         backgroundColor: Colors.blueAccent,
       ),
       body:
           _tareas.isEmpty
-              ? const Center(child: Text(Constants.listaTareasVacia))
+              ? const Center(child: Text(AppConstants.listaTareasVacia))
               : ListView.builder(
                 controller: _scrollController,
                 itemCount:

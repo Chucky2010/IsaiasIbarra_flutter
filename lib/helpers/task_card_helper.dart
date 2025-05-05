@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mi_proyecto/constants/constants.dart';
+import 'package:mi_proyecto/constants.dart';
 import 'package:mi_proyecto/domain/task.dart';
 //import 'package:mi_proyecto/api/service/tareas_service.dart';
 
@@ -24,7 +24,7 @@ class TaskCardHelper {
       onDismissed: (rigth) {
         onDelete();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content:  Text(Constants.tareaEliminada)),
+          const SnackBar(content:  Text(AppConstants.tareaEliminada)),
         );
       },
       child: Card(
@@ -78,15 +78,15 @@ class TaskCardHelper {
                 children: [
                   
                   Icon(
-                    task.type == Constants.taskTypeUrgent ? Icons.warning : Icons.task,
-                    color: task.type == Constants.taskTypeUrgent ? Colors.red : Colors.blue,
+                    task.type == AppConstants.taskTypeUrgent ? Icons.warning : Icons.task,
+                    color: task.type == AppConstants.taskTypeUrgent ? Colors.red : Colors.blue,
                     size: 16,
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    '$Constants.tipoTarea ${task.type}',
+                    '$AppConstants.tipoTarea ${task.type}',
                     style: TextStyle(
-                    color: task.type == Constants.taskTypeUrgent ? Colors.red : Colors.blue,
+                    color: task.type == AppConstants.taskTypeUrgent ? Colors.red : Colors.blue,
                     ),
                   ),
                   const SizedBox(width: 16),

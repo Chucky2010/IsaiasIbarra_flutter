@@ -3,7 +3,7 @@
 import 'package:mi_proyecto/data/task_repository.dart';
 import 'package:mi_proyecto/domain/task.dart';
 import 'package:mi_proyecto/data/assistant_repository.dart';
-import 'package:mi_proyecto/constants/constants.dart';
+import 'package:mi_proyecto/constants.dart';
 
 class TaskService {
   final TaskRepository _taskRepository = TaskRepository();
@@ -83,8 +83,8 @@ class TaskService {
           title: 'Tarea ${nextTaskId + index}',
           type:
               ( index % 2) == 0
-                  ? Constants.taskTypeNormal
-                  : Constants.taskTypeUrgent,
+                  ? AppConstants.taskTypeNormal
+                  : AppConstants.taskTypeUrgent,
           descripcion: 'Descripción de tarea ${nextTaskId + index}',
           fecha: DateTime.now().add(Duration(days: index)),
           //deadline: DateTime.now().add(Duration(days: index + 1)),

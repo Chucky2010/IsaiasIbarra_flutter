@@ -1,6 +1,6 @@
 import 'package:mi_proyecto/data/quote_repository.dart';
 import 'package:mi_proyecto/domain/quote.dart';
-import 'package:mi_proyecto/constants/constants.dart';
+import 'package:mi_proyecto/constants.dart';
 
 class QuoteService {
   final QuoteRepository _repository = QuoteRepository();
@@ -8,17 +8,17 @@ class QuoteService {
   // Método para obtener cotizaciones paginadas
   Future<List<Quote>> getPaginatedQuotes({
     required int pageNumber,
-    int pageSize = Constants.pageSize, // Tamaño de página predeterminado
+    int pageSize = AppConstants.pageSize, // Tamaño de página predeterminado
   }) async {
     // Validaciones de los parámetros
     if (pageNumber < 1) {
       throw Exception(
-        '$Constants.errorMessage: El número de página debe ser mayor o igual a 1.',
+        '$AppConstants.errorMessage: El número de página debe ser mayor o igual a 1.',
       );
     }
     if (pageSize <= 0) {
       throw Exception(
-        '$Constants.errorMessage: El tamaño de página debe ser mayor que 0.',
+        '$AppConstants.errorMessage: El tamaño de página debe ser mayor que 0.',
       );
     }
 
@@ -55,7 +55,7 @@ class QuoteService {
       for (final quote in filteredQuotes) {
         if (quote.changePercentage > 100 || quote.changePercentage < -100) {
           throw Exception(
-            '$Constants.errorMessage: El porcentaje de cambio debe estar entre -100 y 100. Cotización inválida: ${quote.companyName}',
+            '$AppConstants.errorMessage: El porcentaje de cambio debe estar entre -100 y 100. Cotización inválida: ${quote.companyName}',
           );
         }
       }
@@ -65,7 +65,7 @@ class QuoteService {
       
       return filteredQuotes;
     } catch (e) {
-      throw Exception('$Constants.errorMessage: $e');
+      throw Exception('$AppConstants.errorMessage: $e');
     }
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mi_proyecto/constants/constants.dart';
+import 'package:mi_proyecto/constants.dart';
 import 'package:mi_proyecto/views/start_screen.dart';
 
 class ResultScreen extends StatelessWidget {
@@ -15,7 +15,7 @@ class ResultScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Texto del puntaje
-    final String scoreText = '$Constants.finalScore $finalScore/$totalQuestions';
+    final String scoreText = '$AppConstants.finalScore $finalScore/$totalQuestions';
 
     // Mensaje de retroalimentación
     final String feedbackMessage = finalScore > (totalQuestions / 2)
@@ -41,7 +41,7 @@ class ResultScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white, // Fondo blanco
       appBar: AppBar(
-        title: const Text(Constants.titleAppGame), // Título de la aplicación
+        title: const Text(AppConstants.titleAppGame), // Título de la aplicación
         backgroundColor: Colors.blue,
         centerTitle: true,
       ),
@@ -80,7 +80,7 @@ class ResultScreen extends StatelessWidget {
                     horizontal: 32.0,
                   ),
                 ),
-                child: const Text(Constants.playAgain), // Texto del botón
+                child: const Text(AppConstants.playAgain), // Texto del botón
               ),
             ],
           ),

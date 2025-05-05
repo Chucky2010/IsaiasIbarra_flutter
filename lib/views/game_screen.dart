@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mi_proyecto/api/services/question_service.dart';
 import 'package:mi_proyecto/domain/question.dart';
 import 'package:mi_proyecto/views/result_screen.dart';
-import 'package:mi_proyecto/constants/constants.dart';
+import 'package:mi_proyecto/constants.dart';
 
 class GameScreen extends StatefulWidget {
    const GameScreen({super.key});
@@ -94,7 +94,7 @@ class GameScreen extends StatefulWidget {
      return Scaffold(
        backgroundColor: Colors.white,
        appBar: AppBar(
-         title: const Text(Constants.titleAppGame),
+         title: const Text(AppConstants.titleAppGame),
          backgroundColor: Colors.blue,
          centerTitle: true,
        ),

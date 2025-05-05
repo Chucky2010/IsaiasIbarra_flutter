@@ -1,147 +1,118 @@
+import 'package:mi_proyecto/constants.dart';
 import 'package:dio/dio.dart';
-import 'package:mi_proyecto/constants/constants.dart';
 import 'package:mi_proyecto/domain/categoria.dart';
-import 'package:mi_proyecto/exceptions/api_exception.dart';
 
 class CategoriaService {
-  final Dio _dio;
+  final Dio _dio = Dio(BaseOptions(
+    connectTimeout: const Duration(seconds: CategoriaConstantes.timeoutSeconds), // Tiempo de conexión
+    receiveTimeout: const Duration(seconds: CategoriaConstantes.timeoutSeconds), // Tiempo de recepción
+  ));
 
-  CategoriaService()
-    : _dio = Dio(
-        BaseOptions(
-          connectTimeout: const Duration(
-            milliseconds: Constants.timeoutSeconds * 1000,
-          ), //tiempo espera maximo para conexion
-          receiveTimeout: const Duration(
-            milliseconds: Constants.timeoutSeconds * 1000,
-          ), //tiempo espera maximo para recibir datos
-        ),
-      );
+  /// Manejo centralizado de errores
+  void _handleError(DioException e) {
+    if (e.type == DioExceptionType.connectionTimeout || e.type == DioExceptionType.receiveTimeout) {
+      throw Exception(CategoriaConstantes.errorTimeout);
+    }
+
+    final statusCode = e.response?.statusCode;
+    switch (statusCode) {
+      case 400:
+        throw Exception(CategoriaConstantes.mensajeError);
+      case 401:
+        throw Exception(ErrorConstantes.errorUnauthorized);
+      case 404:
+        throw Exception(ErrorConstantes.errorNotFound);
+      case 500:
+        throw Exception(ErrorConstantes.errorServer);
+      default:
+        throw Exception('Error desconocido: ${statusCode ?? 'Sin código'}');
+    }
+  }
 
   /// Obtiene todas las categorías desde la API
   Future<List<Categoria>> getCategorias() async {
     try {
-      final response = await _dio.get(Constants.urlCategorias);
+      final response = await _dio.get(ApiConstantes.categoriasUrl);
 
       if (response.statusCode == 200) {
         final List<dynamic> categoriasJson = response.data;
         return categoriasJson.map((json) => Categoria.fromJson(json)).toList();
       } else {
-        throw ApiException(
-          'Error al obtener las categorías',
-          statusCode: response.statusCode,
-        );
+        throw Exception('Error desconocido: ${response.statusCode}');
       }
     } on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionTimeout ||
-          e.type == DioExceptionType.receiveTimeout) {
-        throw ApiException(
-          Constants.errorTimeout, // Mensaje de timeout
-          statusCode: e.response?.statusCode,
-        );
-      }
-      throw ApiException(
-        'Error al conectar con la API de categorías: $e',
-        statusCode: e.response?.statusCode,
-      );
+      _handleError(e); // Llama al método centralizado para manejar el error
     } catch (e) {
-      throw ApiException('Error desconocido: $e');
+      throw Exception('Error inesperado: $e');
     }
+    throw Exception('Error desconocido: No se pudo obtener las categorías');
   }
 
   /// Crea una nueva categoría en la API
   Future<void> crearCategoria(Map<String, dynamic> categoria) async {
     try {
       final response = await _dio.post(
-        Constants.urlCategorias,
+        ApiConstantes.categoriasUrl,
         data: categoria,
       );
 
-      if (response.statusCode == 201 || response.statusCode == 200) {
-        // Categoría creada exitosamente
-        return;
-      }
-      else if (response.statusCode == 400) {
-        throw ApiException(Constants.mensajeError, statusCode: 400);
-      } else if (response.statusCode == 401) {
-        throw ApiException(Constants.errorUnauthorized, statusCode: 401);
-      } else if (response.statusCode == 404) {
-        throw ApiException(Constants.errorNotFound, statusCode: 404);
-      } else if (response.statusCode == 500) {
-        throw ApiException(Constants.errorServer, statusCode: 500);
-      } else {
-        throw ApiException(
-          'Error desconocido al crear la categoria',
-          statusCode: response.statusCode,
-        );
+      if (response.statusCode != 201) {
+        throw Exception('Error desconocido: ${response.statusCode}');
       }
     } on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionTimeout ||
-          e.type == DioExceptionType.receiveTimeout) {
-        throw ApiException(Constants.errorTimeout);
-      }
-      throw ApiException('Error al conectar con la API de categorias: $e');
+      _handleError(e); // Llama al método centralizado para manejar el error
+    } catch (e) {
+      throw Exception('Error inesperado: $e');
     }
   }
 
   /// Edita una categoría existente en la API
-  Future<void> editarCategoria(
-    String id,
-    Map<String, dynamic> categoria,
-  ) async {
+  Future<void> editarCategoria(String id, Map<String, dynamic> categoria) async {
     try {
-      final url = '${Constants.urlCategorias}/$id';
+      final url = '${ApiConstantes.categoriasUrl}/$id';
       final response = await _dio.put(url, data: categoria);
 
-      if (response.statusCode == 400) {
-        throw ApiException(Constants.mensajeError, statusCode: 400);
-      } else if (response.statusCode == 401) {
-        throw ApiException(Constants.errorUnauthorized, statusCode: 401);
-      } else if (response.statusCode == 404) {
-        throw ApiException(Constants.errorNotFound, statusCode: 404);
-      } else if (response.statusCode == 500) {
-        throw ApiException(Constants.errorServer, statusCode: 500);
-      } else if (response.statusCode != 200) {
-        throw ApiException(
-          'Error desconocido al crear la noticia',
-          statusCode: response.statusCode,
-        );
+      if (response.statusCode != 200) {
+        throw Exception('Error desconocido: ${response.statusCode}');
       }
     } on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionTimeout ||
-          e.type == DioExceptionType.receiveTimeout) {
-        throw ApiException(Constants.errorTimeout);
-      }
-      throw ApiException('Error al conectar con la API de categorias: $e');
+      _handleError(e); // Llama al método centralizado para manejar el error
+    } catch (e) {
+      throw Exception('Error inesperado: $e');
     }
   }
 
   /// Elimina una categoría de la API
   Future<void> eliminarCategoria(String id) async {
     try {
-      final url = '${Constants.urlCategorias}/$id';
+      final url = '${ApiConstantes.categoriasUrl}/$id';
       final response = await _dio.delete(url);
 
-      if (response.statusCode == 400) {
-        throw ApiException(Constants.mensajeError, statusCode: 400);
-      } else if (response.statusCode == 401) {
-        throw ApiException(Constants.errorUnauthorized, statusCode: 401);
-      } else if (response.statusCode == 404) {
-        throw ApiException(Constants.errorNotFound, statusCode: 404);
-      } else if (response.statusCode == 500) {
-        throw ApiException(Constants.errorServer, statusCode: 500);
-      } else if (response.statusCode != 200) {
-        throw ApiException(
-          'Error desconocido al crear la noticia',
-          statusCode: response.statusCode,
-        );
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception('Error desconocido: ${response.statusCode}');
       }
     } on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionTimeout ||
-          e.type == DioExceptionType.receiveTimeout) {
-        throw ApiException(Constants.errorTimeout);
+      _handleError(e); // Llama al método centralizado para manejar el error
+    } catch (e) {
+      throw Exception('Error inesperado: $e');
+    }
+  }
+
+  Future<Categoria> obtenerCategoriaPorId(String id) async {
+    try {
+      final url = '${ApiConstantes.categoriasUrl}/$id';
+      final response = await _dio.get(url);
+
+      if (response.statusCode == 200) {
+        return Categoria.fromJson(response.data);
+      } else {
+        throw Exception('Error desconocido: ${response.statusCode}');
       }
-      throw ApiException('Error al conectar con la API de categorias: $e');
+    } on DioException catch (e) {
+      _handleError(e); // Llama al método centralizado para manejar el error
+      throw Exception('Error al obtener la categoría'); // Esta línea nunca se ejecutará, pero es necesaria para el compilador
+    } catch (e) {
+      throw Exception('Error inesperado: $e');
     }
   }
 }

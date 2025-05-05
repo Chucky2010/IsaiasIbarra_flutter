@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mi_proyecto/constants/constants.dart';
+import 'package:mi_proyecto/constants.dart';
 import 'package:mi_proyecto/views/game_screen.dart';
 
 
@@ -10,14 +10,14 @@ class StartScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(Constants.titleAppGame), // Título de la aplicación
+        title: const Text(AppConstants.titleAppGame), // Título de la aplicación
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
            const Text(
-              Constants.welcomeMessage, // Mensaje de bienvenida
+              AppConstants.welcomeMessage, // Mensaje de bienvenida
               style:  TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
@@ -33,7 +33,7 @@ class StartScreen extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue, // Cambia el color del botón a azul
               ),
-              child: const Text(Constants.startGame),
+              child: const Text(AppConstants.startGame),
                // Texto del botón
             ),
           ],

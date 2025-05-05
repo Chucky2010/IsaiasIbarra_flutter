@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mi_proyecto/views/noticia_screen.dart';
 import 'package:mi_proyecto/api/services/auth_service.dart';
 import 'package:mi_proyecto/views/welcom_screen.dart';
 

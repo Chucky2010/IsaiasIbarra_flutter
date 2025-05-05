@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mi_proyecto/helpers/common_widgets_helper.dart';
 import 'package:mi_proyecto/domain/task.dart';
-import 'package:mi_proyecto/constants/constants.dart';
+import 'package:mi_proyecto/constants.dart';
 
 
 class SportsCardScreen extends StatelessWidget {
@@ -83,11 +83,11 @@ class SportsCardScreen extends StatelessWidget {
           
                 // Fecha límite
                 CommonWidgetsHelper.buildBoldFooter(
-                  '$Constants.fechaLimite ${task.fechaLimiteToString()}',
+                  '$AppConstants.fechaLimite ${task.fechaLimiteToString()}',
                 ),
                 CommonWidgetsHelper.buildSpacing(), // Espaciado
                  // Descripción
-                 CommonWidgetsHelper.buildBoldFooter(Constants.taskDescription),
+                 CommonWidgetsHelper.buildBoldFooter(AppConstants.taskDescription),
                 CommonWidgetsHelper.buildSpacing(), // Espaciado
                  const SizedBox(height: 8),
                  Text(task.getDescription),
