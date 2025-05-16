@@ -1,4 +1,5 @@
-import 'package:mi_proyecto/api/services/categoria_service.dart'; // Importa tu repositorio
+// services/categoria_service.dart
+import 'package:mi_proyecto/api/service/categoria_service.dart'; // Importa tu repositorio
 import 'package:mi_proyecto/domain/categoria.dart'; // Importa tu entidad Categoria
 import 'package:flutter/foundation.dart'; // Para debugPrint
 

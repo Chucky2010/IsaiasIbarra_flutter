@@ -6,6 +6,7 @@ import 'package:mi_proyecto/bloc/categorias/categorias_event.dart';
 import 'package:mi_proyecto/bloc/categorias/categorias_state.dart';
 import 'package:mi_proyecto/domain/categoria.dart';
 import 'package:mi_proyecto/helpers/snackbar_helper.dart';
+import 'package:mi_proyecto/helpers/category_helper.dart';
 import 'package:intl/intl.dart';
 
 class CategoryScreen extends StatelessWidget {
@@ -47,12 +48,38 @@ class _CategoryScreenContent extends StatelessWidget {
               }
               return const SizedBox.shrink();
             },
-          ),
+          ), 
+          // Botón para forzar recarga desde API
           IconButton(
             icon: const Icon(Icons.refresh),
-            tooltip: 'Refrescar',
-            onPressed: () {
-              context.read<CategoriaBloc>().add(CategoriaInitEvent());
+            tooltip: 'Forzar actualización desde API',
+            onPressed: () async {
+              try {
+                // Mostrar indicador de progreso
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Actualizando categorías...'),
+                    duration: Duration(seconds: 1),
+                  ),
+                );
+                
+                // Actualizar categorías usando el helper
+                await CategoryHelper.refreshCategories();
+                
+                // Recargar la UI
+                if (context.mounted) {
+                  context.read<CategoriaBloc>().add(CategoriaInitEvent());
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error al actualizar categorías: $e'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
             },
           ),
         ],
@@ -327,7 +354,7 @@ class _CategoryScreenContent extends StatelessWidget {
                 
                   categoriaBloc.add(
                     CategoriaUpdateEvent(
-                      id: categoria.id,
+                      id: categoria.id!,
                       nombre: nombreController.text,
                       descripcion: descripcionController.text,
                       imagenUrl: imagenUrlController.text,
@@ -365,7 +392,7 @@ class _CategoryScreenContent extends StatelessWidget {
               onPressed: () {
                 // Enviar evento para eliminar categoría
                
-                  categoriaBloc.add(CategoriaDeleteEvent(id: categoria.id));
+                  categoriaBloc.add(CategoriaDeleteEvent(id: categoria.id!));
                 
 
                 Navigator.pop(dialogContext);

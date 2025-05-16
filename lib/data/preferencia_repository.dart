@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:mi_proyecto/api/services/preferencia_service.dart';
+import 'package:mi_proyecto/api/service/preferencia_service.dart';
 import 'package:mi_proyecto/domain/preferencia.dart';
 import 'package:mi_proyecto/exceptions/api_exception.dart';
 

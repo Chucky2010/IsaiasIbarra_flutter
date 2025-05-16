@@ -1,134 +1,64 @@
 import 'package:mi_proyecto/domain/task.dart';
-
+import 'package:mi_proyecto/data/api_repository.dart'; 
+import 'dart:math';
+import 'dart:async';
 class TaskRepository {
-  final List<Task> tareas;
-
-  TaskRepository() : tareas = [] {
-    tareas.addAll([
-      Task(
-        title: 'Tarea 1',
-        type: 'normal',
-        descripcion: 'Descripción de la tarea 1',
-        fecha: DateTime(2025, 4, 7),
-        //deadline: DateTime.now().add(const Duration(days: 4)),
-        deadline: DateTime(2025, 4, 10),
-        steps: [],
-      ),
-
-      Task(
-        title: 'Tarea 2',
-        type: 'urgente',
-        descripcion: 'Descripción de la tarea 2',
-        fecha: DateTime(2024, 4, 8),
-        deadline: DateTime.now().add(const Duration(days: 5)),
-        steps: [],
-      ),
-      Task(
-        title: 'Tarea 3',
-        type: 'normal',
-        descripcion: 'Descripción de la tarea 3',
-        fecha: DateTime(2024, 4, 9),
-        deadline: DateTime.now().add(const Duration(days: 4)),
-        steps: [],
-      ),
-      Task(
-        title: 'Tarea 4',
-        type: 'urgente',
-        descripcion: 'Descripción de la tarea 4',
-        fecha: DateTime(2024, 4, 10),
-        deadline: DateTime.now().add(const Duration(days: 3)),
-        steps: [],
-      ),
-      Task(
-        title: 'Tarea 5',
-        type: 'normal',
-        descripcion: 'Descripción de la tarea 5',
-        fecha: DateTime(2024, 4, 11),
-        deadline: DateTime.now().add(const Duration(days: 2)),
-        steps: [],
-        // Mock de pasos
-      ),
-      // Task(
-      //   title: 'Tarea 6',
-      //   type: 'urgente',
-      //   descripcion: 'Descripción de la tarea 5',
-      //   fecha: DateTime(2024, 4, 11),
-      //   deadline: DateTime.now().add(const Duration(days: 4)),
-      //   steps: [],
-      // ), // Mock de pasos
-    ]);
-  }
-
-  //List<Task> _tasks = List.from(inicial); // Copia de la lista original
-
-  List<Task> getTasks() {
-    return tareas;
-  }
-
-  // agregar tarea
-  void addTask(Task tarea) async {
-    tareas.add(tarea);
-    
-  }
-
-  Task? getTaskById(int index) {
-    if (index >= 0 && index < tareas.length) {
-      return tareas[index];
-    } else {
-      throw Exception('Índice fuera de rango: $index');
-    }
-  }
-
-  // elimina tarea
-  void deleteTask(int index) {
-    if (index < 0 || index >= tareas.length) {
-      tareas.removeAt(index);
-    }
-  }
-
-  // actualiza tarea
-  void updateTask(int index, Task task) async {
-    if (index >= 0 && index < tareas.length) {
-      // Actualiza los pasos personalizados al modificar la tarea
-
-      tareas[index] = task;
-    }
-  }
-
-  void setListaPasos(List<String> pasos) {
-    for (Task task in tareas) {
-      if (task.getPasos == null || task.getPasos!.isEmpty) {
-        task.setPasos(pasos);
-      }
-    }
-  }
-
-  // List<Task> loadMoreTasks(int nextTaskId, int count) {
-  //   return List.generate(
-  //     count,
-  //     (index) => Task(
-  //       title: 'Tarea ${nextTaskId + index}',
-  //       type: (index % 2) == 0 ? TASK_TYPE_NORMAL : TASK_TYPE_URGENT,
-  //       descripcion: 'Descripción de tarea ${nextTaskId + index}',
-  //       fecha: DateTime.now().add(Duration(days: index)),
-  //       deadline: DateTime.now().add(Duration(days: index + 1)),
-  //       steps: TaskService().getTasksWithSteps(
-  //         'Tarea ${nextTaskId + index}',
-  //         DateTime.now().add(Duration(days: index + 1)),
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  // Obtener pasos simulados para una tarea según su título
-  List<String> getPasos(String titulo, DateTime fechalimite) {
-    String fechaString =
-        '${fechalimite.day}/${fechalimite.month}/${fechalimite.year}';
-
+  final ApiRepository apiRepository = ApiRepository(); 
+  final Random random = Random();
+  Future<List<Task>> getTasks() async {
+    await Future.delayed(const Duration(seconds: 2));
     return [
-      'Paso 1: Planificar $titulo antes de $fechaString',
-      'Paso 2: Ejecutar $titulo antes de $fechaString',
-      'Paso 3: Revisar $titulo antes de $fechaString',
+      Task(
+        titulo: 'Tarea 1',
+        tipo: 'urgente',
+        descripcion: 'Descripción de la tarea 1',
+        fechaLimite: DateTime(2025, 4, 10), //Modificacion 1.3
+        pasos: [],
+      ),
+      Task(
+        titulo: 'Tarea 2',
+        tipo: 'normal',
+        descripcion: 'Descripción de la tarea 2',
+        fechaLimite: DateTime.now().add(Duration(days: random.nextInt(5) + 1)),
+        pasos: [],
+      ),
+      Task(
+        titulo: 'Tarea 3',
+        tipo: 'urgente',
+        descripcion: 'Descripción de la tarea 3',
+        fechaLimite: DateTime.now().add(Duration(days: random.nextInt(5) + 1)),
+        pasos: [],
+      ),
+      Task(
+        titulo: 'Tarea 4',
+        tipo: 'normal',
+        descripcion: 'Descripción de la tarea 4',
+        fechaLimite: DateTime.now().add(Duration(days: random.nextInt(5) + 1)),
+        pasos: [],
+      ),
+      Task(
+        titulo: 'Tarea 5',
+        tipo: 'urgente',
+        descripcion: 'Descripción de la tarea 5',
+        fechaLimite: DateTime.now().add(Duration(days: random.nextInt(5) + 1)),
+        pasos: [],
+      ),
     ];
+  }
+
+ Future<List<Task>>getMoreTasks({int offset = 0, int limit = 5}) async {
+    await Future.delayed(const Duration(seconds: 2));// Simula la obtención de más tareas
+    return List.generate(limit, (index) {
+      final taskNumber = offset + index + 1;
+      final fechaLimite = DateTime.now().add(Duration(days: random.nextInt(5) + 1));
+      final numeroDePasos = random.nextInt(5) + 3;
+      return Task(
+        titulo: 'Tarea $taskNumber',
+        tipo: taskNumber % 2 == 0 ? 'normal' : 'urgente',
+        descripcion: 'Descripción de la tarea $taskNumber',
+        fechaLimite: fechaLimite,
+        pasos: apiRepository.obtenerPasos('Tarea $taskNumber', fechaLimite, numeroDePasos), 
+      );
+    });
   }
 }

@@ -3,12 +3,11 @@ import 'package:intl/intl.dart';
 import 'package:mi_proyecto/data/noticia_repository.dart';
 import 'package:mi_proyecto/constants.dart';
 import 'package:mi_proyecto/domain/categoria.dart';
-import 'package:mi_proyecto/api/services/categoria_service.dart';
-class NoticiaModal {
-  static Future<void> mostrarModal({
+import 'package:mi_proyecto/api/service/categoria_service.dart';
+class NoticiaModal {  static Future<void> mostrarModal({
     required BuildContext context,
     Map<String, dynamic>? noticia, // Datos de la noticia para editar
-    required VoidCallback onSave, // Callback para guardar
+    required Function(Map<String, dynamic>? noticia, Map<String, dynamic> noticiaActualizada) onSave, // Callback para guardar con noticia actualizada
   }) async {
     final formKey = GlobalKey<FormState>();
     final NoticiaRepository noticiaService = NoticiaRepository();
@@ -62,7 +61,6 @@ class NoticiaModal {
       if (formKey.currentState!.validate()) {
         try {
           // Convierte la fecha seleccionada al formato ISO 8601
-          final fechaIso8601 = fechaSeleccionada?.toUtc().toIso8601String();
 
           if (noticia == null) {
             // Crear nueva noticia
@@ -70,28 +68,37 @@ class NoticiaModal {
               titulo: tituloController.text,
               descripcion: descripcionController.text,
               fuente: fuenteController.text,
-              publicadaEl: fechaIso8601 ?? '',
+              publicadaEl: fechaSeleccionada ?? DateTime.now(),
               urlImagen: imagenUrlController.text,
               categoriaId: categoriaSeleccionada ?? CategoriaConstantes.defaultCategoriaId,
             );
           } else {
             // Editar noticia existente
             await noticiaService.actualizarNoticia(
-              id: noticia['_id'],
+              id: noticia['id'],
               titulo: tituloController.text,
               descripcion: descripcionController.text,
               fuente: fuenteController.text,
-              publicadaEl: fechaIso8601 ?? '',
+               publicadaEl: fechaSeleccionada ?? DateTime.now(),
               urlImagen: imagenUrlController.text,
               categoriaId: categoriaSeleccionada ?? CategoriaConstantes.defaultCategoriaId,
             );
           }
 
           // Muestra un mensaje de éxito
-         
-
+             // Crea un map con los datos actualizados de la noticia
+          final noticiaActualizada = {
+            'id': noticia?['id'],
+            'titulo': tituloController.text,
+            'descripcion': descripcionController.text,
+            'fuente': fuenteController.text,
+            'publicadaEl': (fechaSeleccionada ?? DateTime.now()).toIso8601String(),
+            'urlImagen': imagenUrlController.text,
+            'categoriaId': categoriaSeleccionada ?? CategoriaConstantes.defaultCategoriaId,
+          };
+          
           // Llama al callback para actualizar la lista de noticias
-          onSave();
+          onSave(noticia, noticiaActualizada);
 
           // Cierra el modal
           if (!context.mounted) return;

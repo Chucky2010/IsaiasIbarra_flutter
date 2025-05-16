@@ -1,57 +1,49 @@
 import 'package:flutter/material.dart';
 
 class CommonWidgetsHelper {
-
-
-  // Método: titulo en negrita
-  static Widget buildBoldTitle(String title) {
+  // Método para construir un título en negrita con tamaño 20
+  Widget buildBoldTitle(String title) {
     return Text(
       title,
       style: const TextStyle(
-        fontSize: 22,
         fontWeight: FontWeight.bold,
+        fontSize: 22, //Modificacion 2.3
       ),
     );
   }
 
-  // Método: lineas de informacion
-  static Widget buildInfoLines({
-    required String firstLine,
-    String? secondLine,
-    String? thirdLine,
-  }) {
+  // Método para mostrar hasta 3 líneas de información
+  Widget buildInfoLines(String line1, {String? line2, String? line3}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(firstLine, style: const TextStyle(fontSize: 16)),
-        if (secondLine != null)
-          Text(secondLine, style: const TextStyle(fontSize: 14, color: Colors.grey)),
-        if (thirdLine != null)
-          Text(thirdLine, style: const TextStyle(fontSize: 14, color: Colors.grey)),
+        Text(line1, style: const TextStyle(fontStyle: FontStyle.normal, fontWeight: FontWeight.w100, fontFamily: 'Arial')),
+        if (line2 != null) Text(line2),
+        if (line3 != null) Text(line3),
       ],
     );
   }
 
-  // Método: pie de pagina en negrita
-  static Widget buildBoldFooter(String footerText) {
+  // Método para construir un pie de página en negrita
+  Widget buildBoldFooter(String footer) {
     return Text(
-      footerText,
+      footer,
       style: const TextStyle(
-        fontSize: 16,
         fontWeight: FontWeight.bold,
-        color: Colors.grey,
+        color: Colors.grey //Modificacion 3.3
       ),
     );
   }
 
-  // Método: espaciado
-  static Widget buildSpacing() {
+  // Método para construir un SizedBox con altura de 8
+  Widget buildSpacing() {
     return const SizedBox(height: 8);
   }
 
-  // Método: borde redondeado
-  static ShapeBorder buildRoundedBorder() {
-    return RoundedRectangleBorder(
+  // Método para construir un borde redondeado
+  BoxDecoration buildRoundedBorder() {
+    return BoxDecoration(
+      border: Border.all(color: Colors.grey),
       borderRadius: BorderRadius.circular(10),
     );
   }

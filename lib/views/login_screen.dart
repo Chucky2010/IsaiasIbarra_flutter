@@ -1,83 +1,123 @@
 import 'package:flutter/material.dart';
-import 'package:mi_proyecto/api/services/auth_service.dart';
-import 'package:mi_proyecto/views/welcom_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mi_proyecto/bloc/auth/auth_bloc.dart';
+import 'package:mi_proyecto/bloc/auth/auth_event.dart';
+import 'package:mi_proyecto/bloc/auth/auth_state.dart';
+import 'package:mi_proyecto/views/welcom_srceen.dart';
 
-
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  @override
   Widget build(BuildContext context) {
-    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-    final TextEditingController usernameController = TextEditingController();
-    final TextEditingController passwordController = TextEditingController();
-    final AuthService authService = AuthService();
-
     return Scaffold(
-      appBar: AppBar(title: const Text('Inicio de Sesión')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: formKey, // Asocia el formulario con la clave global
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              TextFormField(
-                controller: usernameController,
-                decoration: const InputDecoration(
-                  labelText: 'Usuario',
-                  border: OutlineInputBorder(),
+      appBar: AppBar(
+        title: const Text('Login'),
+      ),      body: BlocConsumer<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state is AuthAuthenticated) {
+            print('cambiando a la pantalla de bienvenida');
+            // Navegar a la pantalla de bienvenida cuando el usuario está autenticado
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => WelcomeScreen(
+                  username: _usernameController.text.trim(),
                 ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'El campo Usuario es obligatorio';
-                  }
-                  return null;
-                },
               ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Contraseña',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'El campo Contraseña es obligatorio';
-                  }
-                  return null;
-                },
+            );
+          } else if (state is AuthFailure) {
+            // Mostrar mensaje de error en caso de fallo
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.error),
+                backgroundColor: Colors.red,
               ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () async {
-                  if (formKey.currentState!.validate()) {
-                    final username = usernameController.text.trim();
-                    final password = passwordController.text.trim();
+            );
+          }
+        },
+        builder: (context, state) {
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Campo de Usuario
+                  TextFormField(
+                    controller: _usernameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Usuario',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'El campo Usuario es obligatorio';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
 
-                    // Llama al servicio de autenticación
-                    await authService.login(username, password);
+                  TextFormField(
+                    controller: _passwordController,
+                    decoration: const InputDecoration(
+                      labelText: 'Contraseña',
+                      border: OutlineInputBorder(),
+                    ),
+                    obscureText: true,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'El campo Contraseña es obligatorio';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  // Botón de Iniciar Sesión con estado de carga
+                  state is AuthLoading
+                      ? const CircularProgressIndicator()
+                      : ElevatedButton(
+                          onPressed: () {
+                            // Validar el formulario
+                            if (_formKey.currentState?.validate() ?? false) {
+                              final username = _usernameController.text.trim();
+                              final password = _passwordController.text.trim();
 
-                    // Verifica si el widget sigue montado antes de usar el contexto
-                    if (!context.mounted) return;
-
-                    // Muestra un mensaje de éxito
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const WelcomeScreen(),
-                      ),
-                    );
-                  }
-                },
-                child: const Text('Iniciar Sesión'),
+                              // Dispara el evento de login al BLoC
+                              context.read<AuthBloc>().add(
+                                    AuthLoginRequested(
+                                      email: username,
+                                      password: password,
+                                    ),
+                                  );
+                            }
+                          },
+                          child: const Text('Iniciar Sesión'),
+                        ),
+                ],
               ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 }

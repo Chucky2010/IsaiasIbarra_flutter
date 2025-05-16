@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:mi_proyecto/constants.dart';
-import 'package:mi_proyecto/api/services/categoria_service.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mi_proyecto/bloc/comentarios/comentario_bloc.dart';
+import 'package:mi_proyecto/bloc/comentarios/comentario_event.dart';
+import 'package:mi_proyecto/bloc/comentarios/comentario_state.dart';
+import 'package:mi_proyecto/helpers/category_helper.dart';
 
-class NoticiaCard extends StatelessWidget {
-  
+class NoticiaCard extends StatefulWidget {
+  final String? id;
   final String titulo;
   final String descripcion;
   final String fuente;
@@ -12,12 +16,12 @@ class NoticiaCard extends StatelessWidget {
   final String categoriaId;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
+  final VoidCallback onComment;
+  final VoidCallback onReport;
   final String categoriaNombre;
-
-  final CategoriaService categoriaService;
-
-  NoticiaCard({
+  const NoticiaCard({
     super.key,
+    this.id,
     required this.titulo,
     required this.descripcion,
     required this.fuente,
@@ -27,16 +31,51 @@ class NoticiaCard extends StatelessWidget {
     required this.onEdit,
     required this.onDelete,
     required this.categoriaNombre,
+    required this.onComment,
+    required this.onReport,
+  });
 
-  }) : categoriaService = CategoriaService();
+  @override
+  State<NoticiaCard> createState() => _NoticiaCardState();
+}
 
-  Future<String> _obtenerNombreCategoria(String categoriaId) async {
+class _NoticiaCardState extends State<NoticiaCard> {
+  int _numeroComentarios = 0;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     try {
-      final categoria = await categoriaService.obtenerCategoriaPorId(categoriaId);
-      return categoria.nombre;
+      if (_isLoading) {
+        if (widget.id != null) {
+          context.read<ComentarioBloc>().add(
+            GetNumeroComentarios(noticiaId: widget.id!),
+          );
+        }
+        _isLoading = false;
+      }
+
+      final state = context.watch<ComentarioBloc>().state;
+      if (state is NumeroComentariosLoaded && state.noticiaId == widget.id) {
+        if (_numeroComentarios != state.numeroComentarios) {
+          setState(() {
+            _numeroComentarios = state.numeroComentarios;
+          });
+        }
+      }
     } catch (e) {
-      return 'Sin categoría';
+      debugPrint('Error al cargar comentarios: $e');
     }
+  }
+  Future<String> _obtenerNombreCategoria(String categoriaId) async {
+    // Usar el nuevo helper que implementa la caché de categorías
+    return await CategoryHelper.getCategoryName(categoriaId);
   }
 
   @override
@@ -59,62 +98,56 @@ class NoticiaCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      titulo,
+                      widget.titulo,
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 18,
+                        fontSize: 16,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      fuente,
+                      widget.fuente,
                       style: const TextStyle(
                         fontStyle: FontStyle.italic,
                         fontWeight: FontWeight.w300,
+                        fontSize: 12,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      descripcion,
+                      widget.descripcion,
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(fontSize: 14),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 1),
                     Text(
-                      '${AppConstants.publicadaEl} ${formatDate(publicadaEl)}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey,
-                      ),
+                      '${AppConstants.publicadaEl} ${widget.publicadaEl}',
+                      style: const TextStyle(fontSize: 10, color: Colors.grey),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 1),
                     FutureBuilder<String>(
-                    future: _obtenerNombreCategoria(categoriaId),
+                      future: _obtenerNombreCategoria(widget.categoriaId),
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
                           return const Text(
-                            'Cargando categoría...',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey,
-                            ),
+                            'Cargando...',
+                            style: TextStyle(fontSize: 10, color: Colors.grey),
                           );
                         }
                         if (snapshot.hasError) {
                           return const Text(
-                            'Error al cargar categoría',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.red,
-                            ),
+                            'Error',
+                            style: TextStyle(fontSize: 10, color: Colors.red),
                           );
                         }
-                        final categoriaNombre = snapshot.data ?? 'Sin categoría';
+                        final categoriaNombre =
+                            snapshot.data ?? 'Sin categoría';
                         return Text(
-                          'Categoría: $categoriaNombre',
+                          'Cat: $categoriaNombre',
                           style: const TextStyle(
-                            fontSize: 12,
+                            fontSize: 10,
                             color: Colors.grey,
                           ),
                         );
@@ -123,38 +156,136 @@ class NoticiaCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: imageUrl.isNotEmpty
-                        ? Image.network(
-                            imageUrl,
-                            fit: BoxFit.cover,
-                            width: 100,
-                            height: 100,
-                          )
-                        : const SizedBox(),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.blue),
-                        tooltip: 'Editar',
-                        onPressed: onEdit,
+              const SizedBox(width: 2),
+              SizedBox(
+                width:
+                    120, // Mantenemos el ancho para la columna de imagen y botones
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (widget.imageUrl.isNotEmpty)
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: Image.network(
+                          widget.imageUrl,
+                          fit: BoxFit.cover,
+                          width: 60,
+                          height: 60,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              width: 60,
+                              height: 60,
+                              color: Colors.grey[300],
+                              child: const Icon(Icons.broken_image, size: 24),
+                            );
+                          },
+                        ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        tooltip: 'Eliminar',
-                        onPressed: onDelete,
+                    const SizedBox(height: 8),
+                    // Ajustamos la fila de íconos para evitar overflow
+                    SizedBox(
+                      width: 120,
+                      child: Row(
+                        mainAxisAlignment:
+                            MainAxisAlignment
+                                .spaceEvenly, // Distribuye el espacio uniformemente
+                        mainAxisSize:
+                            MainAxisSize.max, // Ocupa todo el ancho disponible
+                        children: [
+                          // Botón de comentarios - más compacto
+                          InkWell(
+                            onTap: widget.onComment,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '$_numeroComentarios',
+                                  style: const TextStyle(
+                                    fontSize: 15, // Reducimos tamaño de fuente
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+
+                                Icon(
+                                  Icons.comment,
+                                  size: 24, // Reducimos más el tamaño del ícono
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                                const SizedBox(width: 8),
+                              ],
+                            ),
+                          ),
+
+                          // Botón de reporte - más compacto
+                          GestureDetector(
+                            onTap: widget.onReport,
+                            child: const Icon(
+                              Icons.report,
+                              size: 24, // Tamaño reducido
+                              color: Colors.amber,
+                            ),
+                          ),
+
+                          // Menú de tres puntos - más compacto
+                          PopupMenuButton<String>(
+                            icon: const Icon(
+                              Icons.more_vert,
+                              size: 24, // Tamaño reducido
+                            ),
+                            padding: EdgeInsets.zero,
+                            iconSize:
+                                18, // Establecemos el tamaño explícitamente
+                            itemBuilder:
+                                (BuildContext context) => [
+                                  const PopupMenuItem<String>(
+                                    value: 'edit',
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.edit,
+                                          color: Colors.blue,
+                                          size: 18,
+                                        ),
+                                        SizedBox(width: 4),
+                                        Text(
+                                          'Editar',
+                                          style: TextStyle(fontSize: 14),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const PopupMenuItem<String>(
+                                    value: 'delete',
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.delete,
+                                          color: Colors.red,
+                                          size: 18,
+                                        ),
+                                        SizedBox(width: 4),
+                                        Text(
+                                          'Eliminar',
+                                          style: TextStyle(fontSize: 14),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                            onSelected: (String value) {
+                              if (value == 'edit') {
+                                widget.onEdit();
+                              } else if (value == 'delete') {
+                                widget.onDelete();
+                              }
+                            },
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -162,79 +293,4 @@ class NoticiaCard extends StatelessWidget {
       ),
     );
   }
-
-String formatDate(String dateStr) {
-  try {
-    if (dateStr.isEmpty) {
-      return 'Fecha desconocida';
-    }
-    
-    final RegExp ddmmyyyyRegex = RegExp(r'^(\d{1,2})\/(\d{1,2})\/(\d{4})$');
-    if (ddmmyyyyRegex.hasMatch(dateStr)) {
-      final parts = dateStr.split('/');
-      final day = int.parse(parts[0]).toString().padLeft(2, '0');
-      final month = int.parse(parts[1]).toString().padLeft(2, '0');
-      final year = parts[2];
-      return '$day/$month/$year';
-    }
-    
-    if (dateStr.contains('min') || dateStr.endsWith('h') || dateStr.endsWith('d')) {
-      final now = DateTime.now();
-      DateTime actualDate;
-      
-      if (dateStr.contains('-') && dateStr.contains('min')) {
-        return '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
-      }
-      
-      final RegExp numericRegex = RegExp(r'(\d+)');
-      final match = numericRegex.firstMatch(dateStr);
-      
-      if (match != null) {
-        final value = int.tryParse(match.group(1) ?? '0') ?? 0;
-        
-        if (dateStr.endsWith('min')) {
-          actualDate = now.subtract(Duration(minutes: value));
-        }
-        else if (dateStr.endsWith('h')) {
-          actualDate = now.subtract(Duration(hours: value));
-        }
-        else if (dateStr.endsWith('d')) {
-          actualDate = now.subtract(Duration(days: value));
-        }
-        else {
-          actualDate = now;
-        }
-        
-        return '${actualDate.day.toString().padLeft(2, '0')}/${actualDate.month.toString().padLeft(2, '0')}/${actualDate.year}';
-      }
-    }
-    
-    try {
-      final date = DateTime.parse(dateStr);
-      return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
-    } catch (_) {
-      
-      final dashParts = dateStr.split('-');
-      if (dashParts.length == 3) {
-        try {
-          final year = int.parse(dashParts[0]);
-          final month = int.parse(dashParts[1]);
-          final day = int.parse(dashParts[2]);
-          
-          if (year >= 1900 && year <= 2100 && 
-              month >= 1 && month <= 12 && 
-              day >= 1 && day <= 31) {
-            return '${day.toString().padLeft(2, '0')}/${month.toString().padLeft(2, '0')}/$year';
-          }
-        } catch (_) {
-        }
-      }
-    }
-    
-    
-    return dateStr;
-  } catch (e) {
-    return dateStr;
-  }
-}
 }

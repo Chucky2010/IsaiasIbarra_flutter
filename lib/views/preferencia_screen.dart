@@ -78,19 +78,16 @@ class PreferenciasScreen extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(
-                      child: Text(
-                        state is PreferenciaError
-                          ? 'Error al cargar preferencias'
-                          : 'Categorías seleccionadas: ${state.categoriasSeleccionadas.length}',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: state is PreferenciaError ? Colors.red : null,
-                        ),
-                        overflow: TextOverflow.ellipsis, // Permite truncar el texto si es demasiado largo
+                    Text(
+                      state is PreferenciaError
+                        ? 'Error al cargar preferencias'
+                        : 'Categorías seleccionadas: ${state.categoriasSeleccionadas.length}',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: state is PreferenciaError ? Colors.red : null,
                       ),
                     ),
-                    const SizedBox(width: 8), // Espacio entre el texto y el botón
                     ElevatedButton(
                       onPressed: isEnabled ? () => _aplicarFiltros(context, state) : null,
                       child: const Text('Aplicar filtros'),
@@ -128,7 +125,7 @@ class PreferenciasScreen extends StatelessWidget {
             style: Theme.of(context).textTheme.bodySmall,
           ),
           value: isSelected,
-          onChanged: (_) => _toggleCategoria(context, categoria.id, isSelected),
+          onChanged: (_) => _toggleCategoria(context, categoria.id!, isSelected),
           controlAffinity: ListTileControlAffinity.leading,
           activeColor: Theme.of(context).colorScheme.primary,
         );

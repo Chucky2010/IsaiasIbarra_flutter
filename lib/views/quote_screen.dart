@@ -1,145 +1,146 @@
 import 'package:flutter/material.dart';
-import 'package:mi_proyecto/api/services/quote_service.dart';
+import 'package:mi_proyecto/api/service/quote_service.dart';
+import 'package:mi_proyecto/data/quote_repository.dart';
 import 'package:mi_proyecto/domain/quote.dart';
 import 'package:mi_proyecto/constants.dart';
-import 'package:intl/intl.dart'; // Importa el paquete intl
+import 'package:mi_proyecto/components/quote_card.dart';
 
 class QuoteScreen extends StatefulWidget {
   const QuoteScreen({super.key});
 
   @override
-  State<QuoteScreen> createState() => _QuoteScreenState();
+  QuoteScreenState createState() => QuoteScreenState();
 }
 
-class _QuoteScreenState extends State<QuoteScreen> {
-  final QuoteService _quoteService = QuoteService();
-  final List<Quote> _quotes = [];
+class QuoteScreenState extends State<QuoteScreen> {
+  final QuoteService quoteService = QuoteService(QuoteRepository());
   final ScrollController _scrollController = ScrollController();
-  int _currentPage = 1;
-  bool _isLoading = false;
-  bool _hasMore = true;
-  final double spacingHeight = 10; // Espaciado entre Cards
+  List<Quote> quotesList = [];
+  int currentPage = 1;
+  bool isLoading = false;
+  bool hasMore = true;
 
-
-  @override
-  void initState() {
-    super.initState();
-    _loadQuotes();
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent && !_isLoading && _hasMore) {
-        _loadQuotes();
-      }
-    });
-  }
-
- Future<void> _loadQuotes() async {
-  if (_isLoading || !_hasMore) return;
-
+@override
+void initState() {
+  super.initState();
+  _loadInitialQuotes(); // Carga las cotizaciones iniciales
+  _scrollController.addListener(() {
+    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent && hasMore && !isLoading) {
+      _loadQuotes(); // Carga más cotizaciones al llegar al final del scroll
+    }
+  });
+}
+  Future<void> _loadInitialQuotes() async {
   setState(() {
-    _isLoading = true;
+    isLoading = true;
+    quotesList.clear();
+    currentPage = 1; 
+    hasMore = true; 
   });
 
   try {
-    // Llama al servicio para obtener cotizaciones paginadas
-    final List<Quote> newQuotes = await _quoteService.getPaginatedQuotes(pageNumber: _currentPage);
+    // Llama a getQuotes para cargar la primera página
+    final initialQuotes = await quoteService.getQuotes(
+      pageNumber: currentPage,
+      pageSize: AppConstants.pageSize,
+    );
 
     setState(() {
-      if (newQuotes.isEmpty) {
-        _hasMore = false; // No hay más cotizaciones
+      if (initialQuotes.isEmpty) {
+        hasMore = false; // No hay datos iniciales para cargar
       } else {
-        _quotes.addAll(newQuotes);
-        _currentPage++;
+        quotesList.addAll(initialQuotes); 
+        currentPage++; 
       }
     });
   } catch (e) {
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(AppConstants.errorMessage),
-        backgroundColor: Colors.red,
-      ),
+      const SnackBar(content: Text(AppConstants.errorMessage)),
     );
   } finally {
     setState(() {
-      _isLoading = false;
+      isLoading = false;
     });
   }
 }
+
+Future<void> _loadQuotes() async {
+  setState(() {
+    isLoading = true;
+  });
+
+  try {
+    // Llama a getPaginatedQuotes para cargar la siguiente página
+    final newQuotes = await quoteService.getPaginatedQuotes(
+      pageNumber: currentPage,
+      pageSize: AppConstants.pageSize,
+    );
+
+    setState(() {
+      if (newQuotes.isEmpty) {
+        hasMore = false; // No hay más datos para cargar
+      } else {
+        quotesList.addAll(newQuotes);
+        currentPage++; 
+      }
+    });
+  } catch (e) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text(AppConstants.errorMessage)),
+    );
+  } finally {
+    setState(() {
+      isLoading = false;
+    });
+  }
+}
+
+ 
+
+  @override
+  Widget build(BuildContext context) {
+    const double spacingHeight = 10;
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(AppConstants.titleAppFinance),
+      ),
+      body: Container(
+        color: Colors.grey[200],
+        child: quotesList.isEmpty && isLoading
+            ? const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 16),
+                    Text(AppConstants.loadingmessage),
+                  ],
+                ),
+              )
+            : ListView.builder(
+                controller: _scrollController,
+                itemCount: quotesList.length + (isLoading ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (index == quotesList.length) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  final quote = quotesList[index];
+                  return QuoteCard(
+                    quote: quote,
+                    spacingHeight: spacingHeight,
+                  );
+                },
+              ),
+      ),
+    );
+  }
 
   @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();
   }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(AppConstants.titleAppFinance),
-      ),
-      body: Container(
-      color: Colors.grey[200], // Fondo gris claro
-       child: _quotes.isEmpty && !_isLoading
-          ? const Center(
-              child: Text(
-                AppConstants.emptyList,
-                style: TextStyle(fontSize: 16),
-              ),
-            )
-          : ListView.builder(
-              controller: _scrollController,
-              itemCount: _quotes.length + (_hasMore ? 1 : 0),
-              itemBuilder: (context, index) {
-                if (index == _quotes.length) {
-                  // Muestra un indicador de carga al final de la lista
-                  return const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
-                }
-
-                final quote = _quotes[index];
-                return Column(
-                  children: [
-                    Card(
-                      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                      child: ListTile(
-                        title: Text(
-          quote.companyName,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Precio: \$${quote.stockPrice.toStringAsFixed(2)}'),
-            Text(
-              'Última actualización: ${DateFormat(AppConstants.dateFormat).format(quote.lastUpdated)}',
-            ),
-          ],
-        ),
-        trailing: Text(
-          '${quote.changePercentage > 0 ? '+' : ''}${quote.changePercentage.toStringAsFixed(2)}%',
-          style: TextStyle(
-            color: quote.changePercentage > 0 ? Colors.green : Colors.red,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-                      ),
-                    ),
-                    SizedBox(height: spacingHeight), // Espaciado entre Cards
-                  ],
-                );
-                
-              },
-            ),
-      ),
-    );
-  }
 }
-
-
