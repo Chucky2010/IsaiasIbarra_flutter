@@ -1,25 +1,25 @@
 import 'package:flutter/foundation.dart';
 import 'package:mi_proyecto/api/service/comentarios_service.dart';
+import 'package:mi_proyecto/data/base_repository.dart';
 import 'package:mi_proyecto/domain/comentario.dart';
 import 'package:mi_proyecto/exceptions/api_exception.dart';
 
-class ComentarioRepository {
+class ComentarioRepository extends BaseRepository {
   final ComentariosService _service = ComentariosService();
-
   /// Obtiene los comentarios asociados a una noticia específica
   Future<List<Comentario>> obtenerComentariosPorNoticia(String noticiaId) async {
-    try {
-      final comentarios = await _service.obtenerComentariosPorNoticia(noticiaId);
-      return comentarios;
-    } catch (e) {
-      if (e is ApiException) {
-        rethrow; // Relanza la excepción para que la maneje el BLoC
-      }
-      debugPrint('Error inesperado al obtener comentarios: $e');
-      throw ApiException('Error inesperado al obtener comentarios.');
-    }
+    return executeWithTryCatch(
+      () async {
+        final comentarios = await _service.obtenerComentariosPorNoticia(noticiaId);
+        return validateListNotEmpty(
+          comentarios,
+          'No hay comentarios para esta noticia',
+          throwIfEmpty: false, // No lanzar error si está vacío, solo devolver lista vacía
+        );
+      },
+      'obtener comentarios',
+    );
   }
-
   /// Agrega un nuevo comentario a una noticia
   Future<void> agregarComentario(
     String noticiaId,
@@ -31,55 +31,43 @@ class ComentarioRepository {
       throw ApiException('El texto del comentario no puede estar vacío.');
     }
     
-    try {
-      await _service.agregarComentario(
+    return executeWithTryCatch(
+      () => _service.agregarComentario(
         noticiaId,
         texto,
         autor,
         fecha,
-      );
-    } catch (e) {
-      if (e is ApiException) {
-        rethrow;
-      }
-      debugPrint('Error inesperado al agregar comentario: $e');
-      throw ApiException('Error inesperado al agregar comentario.');
-    }
+      ),
+      'agregar comentario',
+    );
   }
-
   /// Obtiene el número total de comentarios para una noticia específica
   Future<int> obtenerNumeroComentarios(String noticiaId) async {
     try {
-      final count = await _service.obtenerNumeroComentarios(noticiaId);
-      return count;
+      // Usamos try-catch directo porque queremos devolver 0 en caso de error
+      // en lugar de propagar la excepción
+      return await executeWithTryCatch(
+        () => _service.obtenerNumeroComentarios(noticiaId),
+        'obtener número de comentarios',
+      );
     } catch (e) {
-      if (e is ApiException) {
-        rethrow;
-      }
       debugPrint('Error al obtener número de comentarios: $e');
       return 0; // En caso de error, retornamos 0 como valor seguro
     }
   }
-
   /// Añade una reacción (like o dislike) a un comentario específico
   Future<void> reaccionarComentario({
     required String comentarioId,
     required String tipoReaccion,
   }) async {
-    try {
-      await _service.reaccionarComentario(
+    return executeWithTryCatch(
+      () => _service.reaccionarComentario(
         comentarioId: comentarioId,
         tipoReaccion: tipoReaccion,
-      );
-    } catch (e) {
-      if (e is ApiException) {
-        rethrow;
-      }
-      debugPrint('Error inesperado al reaccionar al comentario: $e');
-      throw ApiException('Error inesperado al reaccionar al comentario.');
-    }
+      ),
+      'reaccionar al comentario',
+    );
   }
-
   /// Agrega un subcomentario a un comentario existente
   Future<Map<String, dynamic>> agregarSubcomentario({
     required String comentarioId,
@@ -94,12 +82,14 @@ class ComentarioRepository {
     }
 
     try {
-      final resultado = await _service.agregarSubcomentario(
-        comentarioId: comentarioId,
-        texto: texto,
-        autor: autor,
+      return await executeWithTryCatch(
+        () => _service.agregarSubcomentario(
+          comentarioId: comentarioId,
+          texto: texto,
+          autor: autor,
+        ),
+        'agregar subcomentario',
       );
-      return resultado;
     } catch (e) {
       debugPrint('Error inesperado al agregar subcomentario: $e');
       return {

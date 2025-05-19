@@ -1,19 +1,16 @@
 import 'package:mi_proyecto/api/service/reporte_service.dart';
+import 'package:mi_proyecto/data/base_repository.dart';
 import 'package:mi_proyecto/domain/reporte.dart';
-import 'package:mi_proyecto/exceptions/api_exception.dart';
 
-class ReporteRepository {
+class ReporteRepository extends BaseRepository {
   final ReporteService _reporteService = ReporteService();
 
   // Obtener todos los reportes
   Future<List<Reporte>> obtenerReportes() async {
-    try {
-      return await _reporteService.getReportes();
-    } on ApiException catch (e) {
-      throw Exception('Error al obtener reportes: ${e.message}');
-    } catch (e) {
-      throw Exception('Error al obtener reportes: ${e.toString()}');
-    }
+    return executeWithTryCatch(
+      () => _reporteService.getReportes(),
+      'obtener reportes',
+    );
   }
 
   // Crear un nuevo reporte
@@ -21,37 +18,34 @@ class ReporteRepository {
     required String noticiaId,
     required MotivoReporte motivo,
   }) async {
-    try {
-      return await _reporteService.crearReporte(
+    return executeWithTryCatch(
+      () => _reporteService.crearReporte(
         noticiaId: noticiaId,
         motivo: motivo,
-      );
-    } on ApiException catch (e) {
-      throw Exception('Error al crear reporte: ${e.message}');
-    } catch (e) {
-      throw Exception('Error al crear reporte: ${e.toString()}');
-    }
+      ),
+      'crear reporte',
+    );
   }
 
   // Obtener reportes por id de noticia
   Future<List<Reporte>> obtenerReportesPorNoticia(String noticiaId) async {
-    try {
-      return await _reporteService.getReportesPorNoticia(noticiaId);
-    } on ApiException catch (e) {
-      throw Exception('Error al obtener reportes por noticia: ${e.message}');
-    } catch (e) {
-      throw Exception('Error al obtener reportes por noticia: ${e.toString()}');
-    }
+    return executeWithTryCatch(
+      () async {
+        final reportes = await _reporteService.getReportesPorNoticia(noticiaId);
+        return validateListNotEmpty(
+          reportes,
+          'No se encontraron reportes para esta noticia',
+        );
+      },
+      'obtener reportes por noticia',
+    );
   }
 
   // Eliminar un reporte
   Future<void> eliminarReporte(String reporteId) async {
-    try {
-      await _reporteService.eliminarReporte(reporteId);
-    } on ApiException catch (e) {
-      throw Exception('Error al eliminar reporte: ${e.message}');
-    } catch (e) {
-      throw Exception('Error al eliminar reporte: ${e.toString()}');
-    }
+    return executeWithTryCatch(
+      () => _reporteService.eliminarReporte(reporteId),
+      'eliminar reporte',
+    );
   }
 }
