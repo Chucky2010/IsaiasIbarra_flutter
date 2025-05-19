@@ -39,7 +39,7 @@ class NoticiaModal {  static Future<void> mostrarModal({
       final categoriaRepository = CategoriaService();
       categorias = await categoriaRepository.getCategorias();
       // Añadir la opción "Sin categoría" al inicio de la lista
-      categorias.insert(0, Categoria(id: '', nombre: 'Sin categoría', descripcion: 'Sin categoría'));
+       categorias.insert(0, const Categoria(id: '', nombre: 'Sin categoría', descripcion: 'Sin categoría', imagenUrl:'' ));
 
       // Verificar si la categoría seleccionada existe en las opciones
       if (categoriaSeleccionada != null) {

@@ -27,7 +27,8 @@ class CategoriaService extends BaseService {
                 if (json['_id'] != null && json['id'] == null) {
                   json['id'] = json['_id']; // Copiar '_id' a 'id' si solo existe '_id'
                 }
-                categorias.add(Categoria.fromJson(json));
+                categorias.add(CategoriaMapper.ensureInitialized().decodeMap<Categoria>(
+                    json,));
               } else {
                 debugPrint('⚠️ Categoría sin ID ni _id, ignorando: $json');
               }
@@ -75,7 +76,9 @@ class CategoriaService extends BaseService {
             if (data['_id'] != null && data['id'] == null) {
               data['id'] = data['_id']; // Copiar '_id' a 'id' si solo existe '_id'
             }
-            return Categoria.fromJson(data);
+            return CategoriaMapper.ensureInitialized().decodeMap<Categoria>(
+              data,
+            );
           } else {
             throw ApiException('Categoría sin identificador válido');
           }

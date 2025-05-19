@@ -1,9 +1,10 @@
-import 'package:json_annotation/json_annotation.dart';
-part 'noticia.g.dart';
+import 'package:dart_mappable/dart_mappable.dart';
 
-@JsonSerializable()
-class Noticia {
-  @JsonKey(includeIfNull: false)
+part 'noticia.mapper.dart';
+
+@MappableClass()
+class Noticia with NoticiaMappable{
+  //@JsonKey(includeIfNull: false)
   final String? id;
   final String titulo;
   final String descripcion;
@@ -21,6 +22,5 @@ class Noticia {
     required this.urlImagen,
     this.categoriaId, // Valor por defecto
   });
-  factory Noticia.fromJson(Map<String, dynamic> json) => _$NoticiaFromJson(json);
-  Map<String, dynamic> toJson() => _$NoticiaToJson(this); 
+
 }

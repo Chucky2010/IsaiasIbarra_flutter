@@ -81,6 +81,14 @@ class ApiConstantes {
   static const String errorNotFound = 'Noticias no encontradas';
   static const String errorServer = 'Error del servidor';
   static const String errorNoInternet = 'Por favor, verifica tu conexión a internet.';
+
+  // Endpoints
+  static final String noticias = '/noticias';
+  static final String categorias = '/categorias';
+  static final String preferencias = '/preferencias';
+  static final String comentarios = '/comentarios';
+  static final String reportes = '/reportes';
+  static final String login = '/login';
 }
 
 
@@ -94,6 +102,48 @@ class NoticiaConstantes {
   static const double espaciadoAlto = 10;
  
 }
+
+/// Constantes para módulo de noticias
+class NewsConstants {
+  // Títulos
+  static const String tituloAppNoticias = 'Noticias técnicas';
+  static const String tituloApp = 'Noticias Técnicas';
+  static const String tituloNoticias = 'Noticias';
+  
+  // Mensajes de estado
+  static const String mensajeCargando = 'Cargando noticias...';
+  static const String listaVacia = 'No hay noticias disponibles';
+  static const String listasVacia = 'No hay noticias disponibles';
+  static const String mensajeError = 'Error al cargar las noticias';
+  
+  // Valores por defecto
+  static const String defaultcategoriaId = 'Sin categoria';
+  static const String formatoFecha = 'dd/MM/yyyy HH:mm';
+  static const int tamanoPaginaConst = 10;
+  static const double espaciadoAlto = 10;
+  
+  // Campos y etiquetas
+  static const String descripcionNoticia = 'Descripción';
+  static const String fuente = 'Fuente';
+  static const String publicadaEl = 'Publicado el';
+  static const String tooltipOrden = 'Cambiar orden';
+  
+  // URLs
+
+  
+  // Mensajes de error
+  static const String errorNotFound = "Noticias no encontradas";
+  static const String errorServer = "Error del servidor al cargar la noticia";
+  
+  // Mensajes de operaciones exitosas
+  static const String successCreated = 'Noticia creada';
+  static const String successUpdated = 'Noticia actualizada';
+  static const String successDeleted = 'Noticia eliminada';
+  static const String newssuccessCreated = 'Noticia creada con éxito';
+  static const String newssuccessUpdated = 'Noticia actualizada con éxito';
+  static const String newssuccessDeleted = 'Noticia eliminada con éxito';
+}
+
 
 
 
@@ -110,4 +160,6 @@ class CategoriaConstantes {
   static const String defaultCategoriaId = 'sin_categoria'; // ID por defecto para noticias sin categoría
   static const String mensajeError = 'Error al cargar categorias';
 }
+
+
 

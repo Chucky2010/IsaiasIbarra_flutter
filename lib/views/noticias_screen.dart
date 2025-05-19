@@ -338,7 +338,7 @@ class NoticiaScreen extends StatelessWidget {
   Future<void> _editarNoticia(BuildContext context, Noticia noticia) async {
     await NoticiaModal.mostrarModal(
       context: context,
-      noticia: noticia.toJson(),
+      noticia: noticia.toMap(),
       onSave: (oldNoticia, noticiaActualizada) {
         // Crear una nueva instancia de Noticia con los datos actualizados
         final noticiaModel = Noticia(
@@ -406,9 +406,7 @@ class NoticiaScreen extends StatelessWidget {
                   context,
                   'Reporte enviado correctamente',
                 );
-                Navigator.of(
-                  context,
-                ).pop(); // Cerrar el diálogo cuando el reporte se ha creado
+                Navigator.of(context).pop(); // Cerrar el diálogo cuando el reporte se ha creado
               } else if (state is ReporteError) {
                 SnackBarHelper.showClientError(
                   context,
@@ -417,91 +415,168 @@ class NoticiaScreen extends StatelessWidget {
               }
             },
             builder: (context, state) {
-              return AlertDialog(
-                title: const Text('Reportar Noticia'),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text('Por favor, seleccione el motivo del reporte:'),
-                    const SizedBox(height: 16),
-                    StatefulBuilder(
-                      builder: (context, setState) {
-                        return DropdownButton<MotivoReporte>(
-                          value: motivoSeleccionado,
-                          isExpanded: true,
-                          items:
-                              MotivoReporte.values.map((MotivoReporte motivo) {
-                                String motivoText;
-                                switch (motivo) {
-                                  case MotivoReporte.noticiaInapropiada:
-                                    motivoText = 'Noticia Inapropiada';
-                                    break;
-                                  case MotivoReporte.informacionFalsa:
-                                    motivoText = 'Información Falsa';
-                                    break;
-                                  case MotivoReporte.otro:
-                                    motivoText = 'Otro';
-                                    break;
-                                }
-                                return DropdownMenuItem<MotivoReporte>(
-                                  value: motivo,
-                                  child: Text(motivoText),
-                                );
-                              }).toList(),
-                          onChanged: (MotivoReporte? valor) {
-                            if (valor != null) {
-                              setState(() {
-                                motivoSeleccionado = valor;
-                              });
-                            }
-                          },
-                        );
-                      },
-                    ),
-                    if (state is ReporteLoading)
-                      const Padding(
-                        padding: EdgeInsets.only(top: 16.0),
-                        child: Center(child: CircularProgressIndicator()),
-                      ),
-                  ],
+              return Dialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.0),
                 ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Cancelar'),
-                  ),
-                  ElevatedButton(
-                    onPressed:
-                        state is ReporteLoading
-                            ? null // Deshabilitar el botón si está cargando
-                            : () {
-                              // Reiniciar el estado del bloc si hubo un error previo
-                              if (state is ReporteError) {
-                                context.read<ReporteBloc>().add(
-                                  ReporteInitEvent(),
-                                );
-                              }
-
-                              // Enviar el reporte utilizando el bloc con un delay
-                              // para asegurar que la UI se actualice
-                              Future.delayed(
-                                const Duration(milliseconds: 100),
-                                () {
-                                  if(!context.mounted) return;
-                                  context.read<ReporteBloc>().add(
-                                    ReporteCreateEvent(
-                                      noticiaId: noticiaId,
-                                      motivo: motivoSeleccionado,
-                                    ),
-                                  );
-                                },
-                              );
+                backgroundColor: Colors.white,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Reportar Noticia',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Selecciona el motivo del reporte:',
+                        style: TextStyle(fontSize: 14),
+                      ),
+                      const SizedBox(height: 16),
+                      
+                      // Opciones con iconos
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                // Opción: Inapropiada
+                          _buildOpcionReporte(
+                            context: context,
+                            icono: Icons.block,
+                            color: Colors.redAccent.withOpacity(0.2),
+                            iconColor: Colors.redAccent,
+                            texto: 'Inapropiada',
+                            onTap: () {
+                              motivoSeleccionado = MotivoReporte.noticiaInapropiada;
+                              _enviarReporte(context, reporteBloc, noticiaId, motivoSeleccionado);
                             },
-                    child: const Text('Enviar Reporte'),
+                          ),
+                          
+                          // Opción: Falsa
+                          _buildOpcionReporte(
+                            context: context,
+                            icono: Icons.warning_amber_rounded,
+                            color: Colors.orangeAccent.withOpacity(0.2),
+                            iconColor: Colors.orangeAccent,
+                            texto: 'Falsa',
+                            onTap: () {
+                              motivoSeleccionado = MotivoReporte.informacionFalsa;
+                              _enviarReporte(context, reporteBloc, noticiaId, motivoSeleccionado);
+                            },
+                          ),
+                          
+                          // Opción: Otro
+                          _buildOpcionReporte(
+                            context: context,
+                            icono: Icons.flag_rounded,
+                            color: Colors.blue.withOpacity(0.2),
+                            iconColor: Colors.blue,
+                            texto: 'Otro',
+                            onTap: () {
+                              motivoSeleccionado = MotivoReporte.otro;
+                              _enviarReporte(context, reporteBloc, noticiaId, motivoSeleccionado);
+                            },
+                          ),
+                        ],
+                      ),
+                      
+                      const SizedBox(height: 16),
+                      
+                      // Indicador de cargando
+                      if (state is ReporteLoading)
+                        const Center(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 8.0),
+                            child: CircularProgressIndicator(),
+                          ),
+                        ),
+                      
+                      // Botón Cerrar
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text(
+                            'Cerrar',
+                            style: TextStyle(
+                              color: Colors.redAccent,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               );
             },
+          ),
+        );
+      },
+    );
+  }
+    /// Construye una opción de reporte con icono
+  Widget _buildOpcionReporte({
+    required BuildContext context,
+    required IconData icono,
+    required Color color,
+    required Color iconColor,
+    required String texto,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        width: 80,
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+        child: Column(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: color,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icono,
+                color: iconColor,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              texto,
+              style: const TextStyle(
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  /// Método auxiliar para enviar el reporte
+  void _enviarReporte(BuildContext context, ReporteBloc bloc, String noticiaId, MotivoReporte motivo) {
+    // Reiniciar el estado del bloc si hubo un error previo
+    if (bloc.state is ReporteError) {
+      bloc.add(ReporteInitEvent());
+    }
+
+    // Enviar el reporte utilizando el bloc
+    Future.delayed(
+      const Duration(milliseconds: 100),
+      () {
+        if (!context.mounted) return;
+        bloc.add(
+          ReporteCreateEvent(
+            noticiaId: noticiaId,
+            motivo: motivo,
           ),
         );
       },

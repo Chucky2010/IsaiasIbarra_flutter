@@ -10,7 +10,7 @@ class NoticiaRepository {
   /// Obtiene cotizaciones paginadas con validaciones
   Future<List<Noticia>> obtenerNoticias() async {
     try {
-      final noticias = await _service.getNoticias();
+      final noticias = await _service.obtenerNoticias();
       return noticias;
     } catch (e) {
       if (e is ApiException) {
@@ -88,7 +88,7 @@ class NoticiaRepository {
       categoriaId: categoriaId,
     );
     try {
-      await _service.editarNoticia(id, noticia);
+      await _service.actualizarNoticia(id, noticia);
     } catch (e) {
       if (e is ApiException) {
         rethrow;
