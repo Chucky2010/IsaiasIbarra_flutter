@@ -13,6 +13,7 @@ import 'package:mi_proyecto/bloc/bloc%20noticias/noticias_state.dart';
 import 'package:mi_proyecto/bloc/bloc%20noticias/noticias_bloc.dart';
 import 'package:mi_proyecto/bloc/preferencia/preferencia_bloc.dart';
 import 'package:mi_proyecto/bloc/preferencia/preferencia_event.dart';
+import 'package:mi_proyecto/bloc/preferencia/preferencia_state.dart';
 import 'package:mi_proyecto/components/noticia_dialogs.dart';
 import 'package:mi_proyecto/domain/noticia.dart';
 import 'package:mi_proyecto/constants.dart';
@@ -24,34 +25,53 @@ import 'package:mi_proyecto/views/preferencia_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mi_proyecto/helpers/snackbar_helper.dart';
 import 'package:watch_it/watch_it.dart';
+
 class NoticiaScreen extends StatelessWidget {
   const NoticiaScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MultiBlocProvider(
+  Widget build(BuildContext context) {    return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => NoticiasBloc()..add(const FetchNoticias()),
+          create: (context) => NoticiasBloc(),
         ),
         BlocProvider(
           create:
               (context) => PreferenciaBloc()..add(const CargarPreferencias()),
         ),
-        // Asegurarnos de usar el BLoC global    
+        // Asegurarnos de usar el BLoC global para comentarios
         BlocProvider.value(value: context.read<ComentarioBloc>()),
+        // Asegurarnos de usar el BLoC global para reportes
+        BlocProvider.value(value: context.read<ReporteBloc>()),
       ],
-      child: BlocConsumer<NoticiasBloc, NoticiasState>(
-        listener: (context, state) {
-          if (state is NoticiasError) {
-            _mostrarError(context, state.statusCode);
-          }
-        },
-        builder: (context, state) {
-          // Acceder al estado de preferencias para mostrar información de filtros
-          final preferenciaState = context.watch<PreferenciaBloc>().state;
-          final filtrosActivos =
-              preferenciaState.categoriasSeleccionadas.isNotEmpty;
+      child: MultiBlocListener(
+        listeners: [
+          // Listener para el estado de PreferenciaBloc - Aplicar filtros automáticamente cuando se cargan las preferencias
+          BlocListener<PreferenciaBloc, PreferenciaState>(
+            listener: (context, preferenciaState) {
+              // Si hay categorías seleccionadas, aplicar filtros automáticamente
+              if (preferenciaState.categoriasSeleccionadas.isNotEmpty) {
+                context.read<NoticiasBloc>().add(
+                  FilterNoticiasByPreferencias(preferenciaState.categoriasSeleccionadas),
+                );
+              } else {
+                // Si no hay filtros, cargar todas las noticias
+                context.read<NoticiasBloc>().add(const FetchNoticias());
+              }
+            },
+          ),
+        ],
+        child: BlocConsumer<NoticiasBloc, NoticiasState>(
+          listener: (context, state) {
+            if (state is NoticiasError) {
+              _mostrarError(context, state.statusCode);
+            }
+          },
+          builder: (context, state) {
+            // Acceder al estado de preferencias para mostrar información de filtros
+            final preferenciaState = context.watch<PreferenciaBloc>().state;
+            final filtrosActivos =
+                preferenciaState.categoriasSeleccionadas.isNotEmpty;
 
           return Scaffold(
             backgroundColor: Colors.grey[200],
@@ -76,7 +96,8 @@ class NoticiaScreen extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.add),
                   tooltip: 'Agregar Noticia',
-                  onPressed: () async {                    try {
+                  onPressed: () async {
+                    try {
                       await NoticiaModal.mostrarModal(
                         context: context,
                         noticia: null,
@@ -221,6 +242,7 @@ class NoticiaScreen extends StatelessWidget {
           );
         },
       ),
+      )
     );
   }
 
@@ -333,8 +355,9 @@ class NoticiaScreen extends StatelessWidget {
       }
     }
     // Estado predeterminado o error
-    return const Center(child: Text('Algo salió mal al cargar las noticias.'));  }  
-  
+    return const Center(child: Text('Algo salió mal al cargar las noticias.'));
+  }
+
   Future<void> _editarNoticia(BuildContext context, Noticia noticia) async {
     await NoticiaModal.mostrarModal(
       context: context,
@@ -352,8 +375,10 @@ class NoticiaScreen extends StatelessWidget {
         );
 
         // Llamar al evento UpdateNoticia del bloc
-        context.read<NoticiasBloc>().add(UpdateNoticia(noticia.id!, noticiaModel));
-        
+        context.read<NoticiasBloc>().add(
+          UpdateNoticia(noticia.id!, noticiaModel),
+        );
+
         // Mostrar mensaje de éxito
         SnackBarHelper.showSnackBar(
           context,
@@ -382,7 +407,6 @@ class NoticiaScreen extends StatelessWidget {
           statusCode, // Pasar el código de estado para el color adecuado
     );
   }
-
   /// Muestra un diálogo para reportar una noticia
   Future<void> _mostrarDialogoReporte(
     BuildContext context,
@@ -390,8 +414,8 @@ class NoticiaScreen extends StatelessWidget {
   ) async {
     MotivoReporte motivoSeleccionado = MotivoReporte.otro;
 
-    // Obtener una instancia fresca del ReporteBloc
-    final reporteBloc = di<ReporteBloc>();
+    // Usar la misma instancia de ReporteBloc que está observando NoticiaCard
+    final reporteBloc = context.read<ReporteBloc>();
 
     await showDialog(
       context: context,
@@ -399,14 +423,15 @@ class NoticiaScreen extends StatelessWidget {
       builder: (BuildContext context) {
         return BlocProvider.value(
           value: reporteBloc,
-          child: BlocConsumer<ReporteBloc, ReporteState>(
-            listener: (context, state) {
+          child: BlocConsumer<ReporteBloc, ReporteState>(            listener: (context, state) {
               if (state is ReporteCreated) {
                 SnackBarHelper.showSuccess(
                   context,
                   'Reporte enviado correctamente',
                 );
-                Navigator.of(context).pop(); // Cerrar el diálogo cuando el reporte se ha creado
+                
+                // Cerrar el diálogo cuando el reporte se ha creado
+                Navigator.of(context).pop();
               } else if (state is ReporteError) {
                 SnackBarHelper.showClientError(
                   context,
@@ -439,12 +464,12 @@ class NoticiaScreen extends StatelessWidget {
                         style: TextStyle(fontSize: 14),
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // Opciones con iconos
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                // Opción: Inapropiada
+                          // Opción: Inapropiada
                           _buildOpcionReporte(
                             context: context,
                             icono: Icons.block,
@@ -452,11 +477,17 @@ class NoticiaScreen extends StatelessWidget {
                             iconColor: Colors.redAccent,
                             texto: 'Inapropiada',
                             onTap: () {
-                              motivoSeleccionado = MotivoReporte.noticiaInapropiada;
-                              _enviarReporte(context, reporteBloc, noticiaId, motivoSeleccionado);
+                              motivoSeleccionado =
+                                  MotivoReporte.noticiaInapropiada;
+                              _enviarReporte(
+                                context,
+                                reporteBloc,
+                                noticiaId,
+                                motivoSeleccionado,
+                              );
                             },
                           ),
-                          
+
                           // Opción: Falsa
                           _buildOpcionReporte(
                             context: context,
@@ -465,11 +496,17 @@ class NoticiaScreen extends StatelessWidget {
                             iconColor: Colors.orangeAccent,
                             texto: 'Falsa',
                             onTap: () {
-                              motivoSeleccionado = MotivoReporte.informacionFalsa;
-                              _enviarReporte(context, reporteBloc, noticiaId, motivoSeleccionado);
+                              motivoSeleccionado =
+                                  MotivoReporte.informacionFalsa;
+                              _enviarReporte(
+                                context,
+                                reporteBloc,
+                                noticiaId,
+                                motivoSeleccionado,
+                              );
                             },
                           ),
-                          
+
                           // Opción: Otro
                           _buildOpcionReporte(
                             context: context,
@@ -479,14 +516,19 @@ class NoticiaScreen extends StatelessWidget {
                             texto: 'Otro',
                             onTap: () {
                               motivoSeleccionado = MotivoReporte.otro;
-                              _enviarReporte(context, reporteBloc, noticiaId, motivoSeleccionado);
+                              _enviarReporte(
+                                context,
+                                reporteBloc,
+                                noticiaId,
+                                motivoSeleccionado,
+                              );
                             },
                           ),
                         ],
                       ),
-                      
+
                       const SizedBox(height: 16),
-                      
+
                       // Indicador de cargando
                       if (state is ReporteLoading)
                         const Center(
@@ -495,7 +537,7 @@ class NoticiaScreen extends StatelessWidget {
                             child: CircularProgressIndicator(),
                           ),
                         ),
-                      
+
                       // Botón Cerrar
                       Align(
                         alignment: Alignment.centerRight,
@@ -503,9 +545,7 @@ class NoticiaScreen extends StatelessWidget {
                           onPressed: () => Navigator.of(context).pop(),
                           child: const Text(
                             'Cerrar',
-                            style: TextStyle(
-                              color: Colors.redAccent,
-                            ),
+                            style: TextStyle(color: Colors.redAccent),
                           ),
                         ),
                       ),
@@ -519,7 +559,8 @@ class NoticiaScreen extends StatelessWidget {
       },
     );
   }
-    /// Construye una opción de reporte con icono
+
+  /// Construye una opción de reporte con icono
   Widget _buildOpcionReporte({
     required BuildContext context,
     required IconData icono,
@@ -539,47 +580,32 @@ class NoticiaScreen extends StatelessWidget {
             Container(
               width: 48,
               height: 48,
-              decoration: BoxDecoration(
-                color: color,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                icono,
-                color: iconColor,
-              ),
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              child: Icon(icono, color: iconColor),
             ),
             const SizedBox(height: 8),
-            Text(
-              texto,
-              style: const TextStyle(
-                fontSize: 12,
-              ),
-            ),
+            Text(texto, style: const TextStyle(fontSize: 12)),
           ],
         ),
       ),
     );
   }
-  
   /// Método auxiliar para enviar el reporte
-  void _enviarReporte(BuildContext context, ReporteBloc bloc, String noticiaId, MotivoReporte motivo) {
+  void _enviarReporte(
+    BuildContext context,
+    ReporteBloc bloc,
+    String noticiaId,
+    MotivoReporte motivo,
+  ) {
     // Reiniciar el estado del bloc si hubo un error previo
     if (bloc.state is ReporteError) {
       bloc.add(ReporteInitEvent());
     }
 
-    // Enviar el reporte utilizando el bloc
-    Future.delayed(
-      const Duration(milliseconds: 100),
-      () {
-        if (!context.mounted) return;
-        bloc.add(
-          ReporteCreateEvent(
-            noticiaId: noticiaId,
-            motivo: motivo,
-          ),
-        );
-      },
-    );
+    // Enviar el reporte inmediatamente (sin delay)
+    if (context.mounted) {
+      debugPrint('Enviando reporte para noticia: $noticiaId con motivo: $motivo');
+      bloc.add(ReporteCreateEvent(noticiaId: noticiaId, motivo: motivo));
+    }
   }
 }

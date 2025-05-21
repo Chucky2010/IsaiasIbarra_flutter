@@ -13,6 +13,7 @@ class ReporteBloc extends Bloc<ReporteEvent, ReporteState> {
     on<ReporteCreateEvent>(_onCreateReporte);
     on<ReporteDeleteEvent>(_onDeleteReporte);
     on<ReporteGetByNoticiaEvent>(_onGetByNoticia);
+    on<GetNumeroReportesEvent>(_onGetNumeroReportes);
   }
 
   Future<void> _onInit(ReporteInitEvent event, Emitter<ReporteState> emit) async {
@@ -25,9 +26,7 @@ class ReporteBloc extends Bloc<ReporteEvent, ReporteState> {
       final int? statusCode = e is ApiException ? e.statusCode : null;
       emit(ReporteError('Error al cargar reportes: ${e.toString()}', statusCode: statusCode));
     }
-  }
-
-  Future<void> _onCreateReporte(ReporteCreateEvent event, Emitter<ReporteState> emit) async {
+  }  Future<void> _onCreateReporte(ReporteCreateEvent event, Emitter<ReporteState> emit) async {
     emit(ReporteLoading());
 
     try {
@@ -39,7 +38,17 @@ class ReporteBloc extends Bloc<ReporteEvent, ReporteState> {
 
       // Recargar la lista después de crear
       final reportes = await reporteRepository.obtenerReportes();
+      // Emitimos el estado de lista cargada primero
       emit(ReporteLoaded(reportes, DateTime.now()));
+      
+      // Obtener el número actualizado de reportes para esta noticia
+      final int numeroReportesActualizado = await reporteRepository.obtenerTotalReportesPorNoticia(event.noticiaId);
+      
+      // Emitir el estado con el contador actualizado como último estado para asegurar que sea capturado por NoticiaCard
+      emit(NumeroReportesLoaded(
+        numeroReportes: numeroReportesActualizado,
+        noticiaId: event.noticiaId,
+      ));
     } catch (e) {
       final int? statusCode = e is ApiException ? e.statusCode : null;
       emit(ReporteError('Error al crear reporte: ${e.toString()}', statusCode: statusCode));
@@ -71,6 +80,16 @@ class ReporteBloc extends Bloc<ReporteEvent, ReporteState> {
     } catch (e) {
       final int? statusCode = e is ApiException ? e.statusCode : null;
       emit(ReporteError('Error al obtener reportes por noticia: ${e.toString()}', statusCode: statusCode));
+    }
+  }
+
+  Future<void> _onGetNumeroReportes(GetNumeroReportesEvent event, Emitter<ReporteState> emit) async {
+    try {
+      final int numeroReportes = await reporteRepository.obtenerTotalReportesPorNoticia(event.noticiaId);
+      emit(NumeroReportesLoaded(numeroReportes: numeroReportes, noticiaId: event.noticiaId));
+    } catch (e) {
+      final int? statusCode = e is ApiException ? e.statusCode : null;
+      emit(ReporteError('Error al obtener número de reportes: ${e.toString()}', statusCode: statusCode));
     }
   }
 }

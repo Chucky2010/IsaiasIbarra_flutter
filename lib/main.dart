@@ -7,6 +7,7 @@ import 'package:mi_proyecto/bloc/preferencia/preferencia_bloc.dart';
 import 'package:mi_proyecto/bloc/preferencia/preferencia_event.dart';
 import 'package:mi_proyecto/di/locator.dart';
 import 'package:mi_proyecto/bloc/auth/auth_bloc.dart'; // Importa el AuthBloc
+import 'package:mi_proyecto/bloc/reportes/reportes_bloc.dart'; // Importa el ReporteBloc
 import 'package:mi_proyecto/helpers/secure_storage_service.dart'; // Importa el servicio de almacenamiento seguro
 import 'package:watch_it/watch_it.dart'; // Importa watch_it para usar di
 import 'package:mi_proyecto/components/connectivity_wrapper.dart'; // Importa el wrapper de conectividad
@@ -31,14 +32,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
+    return MultiBlocProvider(      providers: [
         BlocProvider(create: (context) => ContadorBloc()),
         BlocProvider(
           create:
               (context) => PreferenciaBloc()..add(const CargarPreferencias()),
         ),
         BlocProvider(create: (context) => ComentarioBloc()),
+        BlocProvider(create: (context) => ReporteBloc()),
         BlocProvider(
           create: (context) => AuthBloc(),
         ), // Solo se inicializa el AuthBloc sin verificar autenticación

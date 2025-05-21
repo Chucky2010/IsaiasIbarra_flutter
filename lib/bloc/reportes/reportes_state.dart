@@ -63,3 +63,17 @@ class ReportesPorNoticiaLoaded extends ReporteState {
   @override
   List<Object> get props => [reportes, noticiaId];
 }
+
+// Estado para el número de reportes por noticia
+class NumeroReportesLoaded extends ReporteState {
+  final int numeroReportes;
+  final String noticiaId;
+
+  NumeroReportesLoaded({
+    required this.numeroReportes,
+    required this.noticiaId,
+  });
+
+  @override
+  List<Object> get props => [numeroReportes, noticiaId];
+}

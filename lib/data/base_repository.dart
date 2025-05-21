@@ -1,57 +1,94 @@
 import 'package:flutter/foundation.dart';
 import 'package:mi_proyecto/exceptions/api_exception.dart';
 
-/// BaseRepository proporciona funciones comunes para manejar operaciones
-/// de repositorio y errores de una manera consistente.
-///
-/// Esta clase está diseñada para ser extendida por repositorios específicos
-/// en la aplicación, proporcionando métodos útiles para manejar errores,
-/// formatear mensajes y validar datos.
+/// Repositorio base que proporciona funcionalidades comunes para todos los repositorios
 abstract class BaseRepository {
-  /// Ejecuta una operación y maneja las excepciones de forma consistente.
-
-  Future<T> executeWithTryCatch<T>(
-    Future<T> Function() operation,
-    String context,
+  /// Maneja errores comunes y proporciona un mensaje claro
+  ///
+  /// [error] - La excepción capturada
+  /// [operacion] - Descripción de la operación que falló (ej: "al obtener noticias")
+  /// [entidad] - El nombre de la entidad con la que se trabaja (ej: "noticia")
+  Future<Never> handleError(
+    dynamic error,
+    String operacion,
+    String entidad,
   ) async {
-    try {
-      return await operation();
-    } on ApiException catch (e) {
-      // Registrar el error para depuración
-      debugPrint('ApiException en $context: ${e.message}');
-      throw Exception('Error al $context: ${e.message}');
-    } catch (e) {
-      // Registrar error genérico
-      debugPrint('Error en $context: $e');
-      throw Exception('Error al $context: ${e.toString()}');
+    debugPrint('❌ Error $operacion: ${error.toString()}');
+
+    if (error is ApiException) {
+      throw ApiException(
+        'Error $operacion: ${error.message}',
+        statusCode: error.statusCode,
+      );
+    }
+
+    throw ApiException('Error inesperado $operacion');
+  }
+
+  /// Verifica si un id está vacío o es nulo, lanzando una excepción en caso afirmativo
+  ///
+  /// [id] - El ID a verificar
+  /// [entidad] - El nombre de la entidad para el mensaje de error (ej: "noticia")
+  void checkIdNotEmpty(String? id, String entidad) {
+    if (id == null || id.isEmpty) {
+      throw ApiException(
+        'El ID de $entidad no puede estar vacío',
+        statusCode: 400,
+      );
     }
   }
 
-  /// Verifica si una lista está vacía y opcionalmente lanza una excepción.
-  /// 
- List<T> validateListNotEmpty<T>(
-    List<T> data,
-    String errorMessage, {
-    bool throwIfEmpty = true,
+  /// Verifica si un campo obligatorio está vacío o es nulo, lanzando una excepción en caso afirmativo
+  ///
+  /// [valor] - El valor a verificar
+  /// [nombreCampo] - El nombre del campo para el mensaje de error
+  void checkFieldNotEmpty(String? valor, String nombreCampo) {
+    if (valor == null || valor.isEmpty) {
+      throw ApiException(
+        'El campo $nombreCampo no puede estar vacío',
+        statusCode: 400,
+      );
+    }
+  }
+
+  /// Verifica si una lista está vacía, devolviendo un valor por defecto o lanzando una excepción
+  ///
+  /// [lista] - La lista a verificar
+  /// [entidad] - El nombre de la entidad para el mensaje (ej: "noticias")
+  /// [lanzarError] - Si es true, lanza una excepción cuando la lista está vacía
+  /// [valorPorDefecto] - El valor por defecto a devolver si la lista está vacía y no se lanza error
+  T checkListNotEmpty<T>(
+    List<dynamic>? lista,
+    String entidad, {
+    bool lanzarError = false,
+    T? valorPorDefecto,
   }) {
-    if (data.isEmpty && throwIfEmpty) {
-      throw ApiException(errorMessage, statusCode: 404);
+    if (lista == null || lista.isEmpty) {
+      if (lanzarError) {
+        throw ApiException('No se encontraron $entidad', statusCode: 404);
+      }
+      return valorPorDefecto as T;
     }
-    return data;
+    return lista as T;
   }
 
-  /// Valida que un objeto no sea nulo.
-
-  T validateNotNull<T>(T? data, String errorMessage) {
-    if (data == null) {
-      throw ApiException(errorMessage, statusCode: 404);
-    }
-    return data;
+  /// Registra el inicio de una operación para debugging
+  void logOperationStart(
+    String operacion,
+    String entidad, [
+    String? idOpcional,
+  ]) {
+    final idStr = idOpcional != null ? ' con ID: $idOpcional' : '';
+    debugPrint('🔄 Iniciando $operacion $entidad$idStr');
   }
 
-  /// Formatea un mensaje de error con más contexto.
- 
-  String formatErrorMessage(String baseMessage, String context) {
-    return 'Error al $context: $baseMessage';
+  /// Registra el éxito de una operación para debugging
+  void logOperationSuccess(
+    String operacion,
+    String entidad, [
+    String? idOpcional,
+  ]) {
+    final idStr = idOpcional != null ? ' con ID: $idOpcional' : '';
+    debugPrint('✅ $entidad$idStr ${operacion.toLowerCase()} exitosamente');
   }
 }
