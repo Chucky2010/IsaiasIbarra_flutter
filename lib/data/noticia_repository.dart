@@ -1,80 +1,55 @@
 import 'package:kgaona/api/service/noticia_service.dart';
+import 'package:kgaona/core/base_repository.dart';
 import 'package:kgaona/domain/noticia.dart';
 import 'package:kgaona/exceptions/api_exception.dart';
 
-class NoticiaRepository {
+/// Repositorio para gestionar operaciones relacionadas con las noticias.
+/// Extiende BaseRepository para aprovechar la gestión de errores estandarizada.
+class NoticiaRepository extends BaseRepository<Noticia> {
   final NoticiaService _noticiaService = NoticiaService();
 
-  /// Método privado para validar una noticia
-  void _validarNoticia(Noticia noticia) {
-    if (noticia.titulo.isEmpty) {
-      throw Exception('El título de la noticia no puede estar vacío.');
-    }
-    if (noticia.descripcion.isEmpty) {
-      throw Exception('La descripción de la noticia no puede estar vacía.');
-    }
-    if (noticia.fuente.isEmpty) {
-      throw Exception('La fuente de la noticia no puede estar vacía.');
-    }
+  @override
+  void validarEntidad(Noticia noticia) {
+    validarNoVacio(noticia.titulo, 'título de la noticia');
+    validarNoVacio(noticia.descripcion, 'descripción de la noticia');
+    validarNoVacio(noticia.fuente, 'fuente de la noticia');
+    
+    // Validación adicional para la fecha
     if (noticia.publicadaEl.isAfter(DateTime.now())) {
-      throw Exception('La fecha de publicación no puede estar en el futuro.');
+      throw ApiException(
+        'La fecha de publicación no puede estar en el futuro.',
+        statusCode: 400
+      );
     }
   }
-
   /// Obtiene todas las noticias desde el repositorio
   Future<List<Noticia>> obtenerNoticias() async {
-    try {
-      return await _noticiaService.obtenerNoticias();
-    } catch (e) {
-      if (e is ApiException) {
-        rethrow;
-      } else {
-        throw Exception('Error desconocido: $e');
-      }
-    }
+    return manejarExcepcion(
+      () => _noticiaService.obtenerNoticias(),
+      mensajeError: 'Error al obtener noticias'
+    );
   }
 
   /// Crea una nueva noticia
   Future<void> crearNoticia(Noticia noticia) async {
-    try {
-      _validarNoticia(noticia);
-      await _noticiaService.crearNoticia(noticia);
-    } catch (e) {
-      if (e is ApiException) {
-        rethrow;
-      } else {
-        throw Exception('Error desconocido: $e');
-      }
-    }
+    return manejarExcepcion(() {
+      validarEntidad(noticia);
+      return _noticiaService.crearNoticia(noticia);
+    }, mensajeError: 'Error al crear noticia');
   }
-
   /// Edita una noticia existente
   Future<void> editarNoticia(Noticia noticia) async {
-    try {
-      _validarNoticia(noticia);
-      await _noticiaService.editarNoticia(noticia);
-    } catch (e) {
-      if (e is ApiException) {
-        rethrow;
-      } else {
-        throw Exception('Error desconocido: $e');
-      }
-    }
+    return manejarExcepcion(() {
+      validarEntidad(noticia);
+      return _noticiaService.editarNoticia(noticia);
+    }, mensajeError: 'Error al editar noticia');
   }
 
-  ///Elimina una noticia
+  /// Elimina una noticia
   Future<void> eliminarNoticia(String id) async {
-    try {
-      if (id.isEmpty) {
-        throw Exception('El ID de la noticia no puede estar vacío.');
-      }
-      await _noticiaService.eliminarNoticia(id);
-    } catch (e) {
-      if (e is ApiException) {
-        rethrow;
-      } else {
-        throw Exception('Error desconocido: $e');
-      }
-    }
+    return manejarExcepcion(() {
+      validarId(id);
+      return _noticiaService.eliminarNoticia(id);
+    }, mensajeError: 'Error al eliminar noticia');
   }
 }

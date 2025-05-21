@@ -57,6 +57,20 @@ class _ComentariosScreenContentState extends State<_ComentariosScreenContent> {
     _busquedaController.dispose();
     super.dispose();
   }
+
+  @override
+  void initState() {
+    super.initState();
+    // Cargar los comentarios iniciales
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _recargarComentarios();
+    });
+  }
+
+  void _recargarComentarios() {
+    context.read<ComentarioBloc>().add(LoadComentarios(widget.noticiaId));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -11,18 +11,16 @@ class ConnectivityService {
   Future<bool> hasInternetConnection() async {
     try {
       final results = await _connectivity.checkConnectivity();
-      // En la versión 6.x de connectivity_plus, checkConnectivity devuelve una lista
-      // Verificamos si hay al menos un resultado que no sea NONE
       return results.any((result) => result != ConnectivityResult.none);
     } catch (e) {
       return false;
     }
   }
 
-  /// Verifica la conectividad y lanza una excepción si no hay conexión a Internet
-  /// Esta función debe ser llamada antes de realizar cualquier solicitud a la API
+  /// Verifica la conectividad y lanza una excepción si no hay conexión
   Future<void> checkConnectivity() async {
     if (!await hasInternetConnection()) {
+      //pasar a constante
       throw ApiException('Por favor, verifica tu conexión a internet.', 
         statusCode: 503
       );

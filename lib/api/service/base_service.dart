@@ -10,6 +10,7 @@ import 'package:watch_it/watch_it.dart' show di;
 class BaseService {
   late final Dio _dio;
   final SecureStorageService _secureStorage = SecureStorageService();
+
   
   /// Constructor que inicializa la configuración de Dio con los parámetros base
   BaseService() {
@@ -23,7 +24,7 @@ class BaseService {
           milliseconds: (ConstantesApi.timeoutSeconds * 1000),
         ),
         headers: {
-          'Authorization': 'Bearer ${ApiConfig.beeceptorApiKey}',
+          'x-beeceptor-auth': ApiConfig.beeceptorApiKey,
           'Content-Type': 'application/json',
         },
       ),
@@ -44,16 +45,17 @@ class BaseService {
     } else if (endpoint.contains(ApiConfig.noticiasEndpoint)) {
       errorNotFound = ConstantesNoticias.errorNotFound;
     }
-    
+    //falta los otros endpoints
     final statusCode = e.response?.statusCode;
     
     // Aplicar código de estado al tipo de recurso
     switch (statusCode) {
       case 400:
-        return ApiException('Datos inválidos para esta $endpoint', statusCode: 400);
+        return ApiException('Datos inválidos para esta url $endpoint', statusCode: 400);
       case 401:
         return ApiException(ConstantesApi.errorUnauthorized, statusCode: 401);
       case 404:
+      //personalizacion
         return ApiException(errorNotFound, statusCode: 404);
       case 500:
         return ApiException(ConstantesApi.errorServer, statusCode: 500);
@@ -67,8 +69,8 @@ class BaseService {
     String errorMessage,
   ) async {
     try {
-      // Verificar la conectividad antes de realizar la solicitud HTTP
       final connectivityService = di<ConnectivityService>();
+      // Verificar la conectividad antes de realizar la solicitud HTTP 
       await connectivityService.checkConnectivity();
       
       // Proceder con la solicitud HTTP si hay conectividad

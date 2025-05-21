@@ -19,6 +19,7 @@ class ErrorHelper {
         color = Colors.orange;
         break;
       case 403:
+      case 562:
         message = 'Prohibido. No tienes permisos para acceder.';
         color = Colors.redAccent;
         break;
@@ -36,7 +37,7 @@ class ErrorHelper {
         break;
       default:
         message = 'Ocurrió un error desconocido.';
-        color = Colors.grey;
+        color = Colors.purple;
         break;
     }
   

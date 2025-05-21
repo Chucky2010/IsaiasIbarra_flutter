@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kgaona/bloc/connectivity/connectivity_bloc.dart';
 import 'package:kgaona/bloc/connectivity/connectivity_state.dart';
-import 'package:kgaona/exceptions/api_exception.dart';
-import 'package:kgaona/helpers/snackbar_helper.dart';
 import 'package:kgaona/helpers/snackbar_manager.dart';
 
 /// Widget que muestra una alerta cuando no hay conectividad a Internet usando SnackBar
+/// Complementario a la animación del dinosaurio en el ConnectivityWrapper
 class ConnectivityAlert extends StatelessWidget {
   const ConnectivityAlert({super.key});
 
@@ -23,19 +22,10 @@ class ConnectivityAlert extends StatelessWidget {
       listener: (context, state) {
         // Obtener la instancia del SnackBarManager
         final SnackBarManager snackBarManager = SnackBarManager();
-
         if (state is ConnectivityDisconnected) {
-          // Mostrar mensaje de error de conectividad utilizando SnackBarHelper
-          SnackBarHelper.manejarError(
-            context,
-            ApiException(
-              'Por favor, verifica tu conexión a internet.',
-              statusCode: 503,
-            ),
-            duration: const Duration(days: 1),
-            isConnectivityMessage:
-                true, // Marcamos que es un mensaje de conectividad
-          );
+          // Ya no es necesario mostrar el SnackBar porque ahora mostramos una pantalla completa
+          // Solo actualizamos el estado del manager para seguimiento interno
+          snackBarManager.setConnectivitySnackBarShowing(true);
         } else if (state is ConnectivityConnected) {
           // Ocultar SnackBar cuando se recupera la conexión
           ScaffoldMessenger.of(context).hideCurrentSnackBar();

@@ -1,21 +1,29 @@
-import 'package:flutter/foundation.dart';
 import 'package:kgaona/api/service/reporte_service.dart';
 import 'package:kgaona/constants/constantes.dart';
+import 'package:kgaona/core/base_repository.dart';
 import 'package:kgaona/domain/reporte.dart';
 import 'package:kgaona/exceptions/api_exception.dart';
 
-class ReporteRepository {
+class ReporteRepository extends CacheableRepository<Reporte> {
   final ReporteService _reporteService = ReporteService();
-  
-  // Caché de reportes (similar a preferencias)
-  List<Reporte>? _cachedReportes;
+
+  @override
+  void validarEntidad(Reporte reporte) {
+    validarNoVacio(reporte.noticiaId, 'ID de la noticia');
+    // Validaciones adicionales si es necesario
+  }
+
+  @override
+  Future<List<Reporte>> cargarDatos() async {
+    return await _reporteService.obtenerReportes();
+  }
 
   /// Envía un reporte de una noticia
   Future<bool> enviarReporte({
     required String noticiaId,
     required MotivoReporte motivo,
   }) async {
-    try {
+    return manejarExcepcion(() async {
       // Verificar que la noticia exista
       final noticiaExiste = await _reporteService.verificarNoticiaExiste(noticiaId);
       
@@ -37,42 +45,17 @@ class ReporteRepository {
       invalidarCache();
       
       return true;
-    } catch (e) {
-      debugPrint('Error al enviar reporte: $e');
-      if (e is ApiException) {
-        rethrow;
-      }
-      throw ApiException(ReporteConstantes.errorCrearReporte);
-    }
+    }, mensajeError: 'Error al enviar reporte');
   }
 
   /// Obtiene todos los reportes
   Future<List<Reporte>> obtenerReportes() async {
-    try {
-      // Si hay caché, devolver la caché
-      if (_cachedReportes != null) {
-        return _cachedReportes!;
-      }
-      
-      // Si no hay caché, obtener de la API
-      final reportes = await _reporteService.obtenerReportes();
-      
-      // Guardar en caché
-      _cachedReportes = reportes;
-      
-      return reportes;
-    } catch (e) {
-      debugPrint('Error al obtener reportes: $e');
-      if (e is ApiException) {
-        rethrow;
-      }
-      throw ApiException(ReporteConstantes.errorObtenerReportes);
-    }
+    return await obtenerDatos();
   }
   
   /// Obtiene estadísticas de reportes por motivo
   Future<Map<MotivoReporte, int>> obtenerEstadisticasReportes() async {
-    try {
+    return manejarExcepcion(() async {
       final reportes = await obtenerReportes();
       final estadisticas = <MotivoReporte, int>{};
       
@@ -87,18 +70,14 @@ class ReporteRepository {
       }
       
       return estadisticas;
-    } catch (e) {
-      debugPrint('Error al obtener estadísticas: $e');
-      if (e is ApiException) {
-        rethrow;
-      }
-      throw ApiException(ReporteConstantes.errorObtenerReportes);
-    }
+    }, mensajeError: 'Error al obtener estadísticas');
   }
   
   /// Obtiene estadísticas de reportes de una noticia específica
   Future<Map<MotivoReporte, int>> obtenerEstadisticasReportesPorNoticia(String noticiaId) async {
-    try {
+    return manejarExcepcion(() async {
+      validarNoVacio(noticiaId, 'ID de la noticia');
+      
       final reportes = await obtenerReportes();
       final estadisticas = <MotivoReporte, int>{};
       
@@ -115,24 +94,16 @@ class ReporteRepository {
       }
       
       return estadisticas;
-    } catch (e) {
-      debugPrint('Error al obtener estadísticas por noticia: $e');
-      if (e is ApiException) {
-        rethrow;
-      }
-      throw ApiException(ReporteConstantes.errorObtenerReportes);
-    }
+    }, mensajeError: 'Error al obtener estadísticas por noticia');
   }
   
   /// Verifica si el usuario actual ha reportado una noticia con un motivo específico
   /// Ahora siempre devuelve false para permitir reportes múltiples
-  Future<bool> verificarReporteUsuario({required String noticiaId, required MotivoReporte motivo}) async {
+  Future<bool> verificarReporteUsuario({
+    required String noticiaId, 
+    required MotivoReporte motivo
+  }) async {
     // Siempre retornar false para permitir que el usuario reporte múltiples veces
     return false;
-  }
-  
-  /// Limpia la caché para forzar una recarga desde la API
-  void invalidarCache() {
-    _cachedReportes = null;
   }
 }

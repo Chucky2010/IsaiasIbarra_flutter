@@ -6,27 +6,26 @@ import 'package:kgaona/bloc/connectivity/connectivity_state.dart';
 import 'package:kgaona/helpers/connectivity_service.dart';
 import 'package:watch_it/watch_it.dart';
 
-
 /// BLoC para gestionar el estado de la conectividad a Internet en la aplicación
-class ConnectivityBloc extends Bloc<ConnectivityEvent, ConnectivityState> {  final ConnectivityService _connectivityService = di<ConnectivityService>();
+class ConnectivityBloc extends Bloc<ConnectivityEvent, ConnectivityState> {
+  final ConnectivityService _connectivityService = di<ConnectivityService>();
   late StreamSubscription _connectivitySubscription;
-  
+
   ConnectivityBloc() : super(ConnectivityInitial()) {
     on<CheckConnectivity>(_onCheckConnectivity);
     on<ConnectivityStatusChanged>(_onConnectivityStatusChanged);
-    
+
     // Suscripción a cambios de conectividad
-    _connectivitySubscription = Connectivity().onConnectivityChanged.listen(
-      (result) {        // En conectivity_plus 6.x, el resultado es una lista
-        // Procesamos el resultado sea cual sea su tipo
-        add(ConnectivityStatusChanged(result));
-      }
-    );
-    
+    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((
+      result,
+    ) {
+      add(ConnectivityStatusChanged(result));
+    });
+
     // Verificación inicial
     add(CheckConnectivity());
   }
-  
+
   Future<void> _onCheckConnectivity(
     CheckConnectivity event,
     Emitter<ConnectivityState> emit,
@@ -34,15 +33,15 @@ class ConnectivityBloc extends Bloc<ConnectivityEvent, ConnectivityState> {  fin
     final isConnected = await _connectivityService.hasInternetConnection();
     emit(isConnected ? ConnectivityConnected() : ConnectivityDisconnected());
   }
-    void _onConnectivityStatusChanged(
+
+  void _onConnectivityStatusChanged(
     ConnectivityStatusChanged event,
     Emitter<ConnectivityState> emit,
   ) async {
-    // Utilizamos directamente el servicio para verificar la conectividad
     final isConnected = await _connectivityService.hasInternetConnection();
     emit(isConnected ? ConnectivityConnected() : ConnectivityDisconnected());
   }
-  
+
   @override
   Future<void> close() {
     _connectivitySubscription.cancel();

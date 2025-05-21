@@ -106,18 +106,19 @@ class CommentInputForm extends StatelessWidget {
         isSubComentario: false
       );
       
-      bloc.add(AddComentario(noticiaId, nuevoComentario));
-    } else {
+      bloc.add(AddComentario(noticiaId, nuevoComentario));    } else {
       // Crear un subcomentario
       final nuevoSubComentario = Comentario(
+        id: '', // El ID real se generará en el backend
         noticiaId: noticiaId,
         texto: comentarioController.text,
         fecha: fecha,
         autor: 'Usuario anónimo',
         likes: 0,
         dislikes: 0,
+        subcomentarios: [], // Un subcomentario no puede tener sus propios subcomentarios
         isSubComentario: true,
-        idSubComentario: respondingToId
+        idSubComentario: respondingToId // Este es el ID del comentario padre al que estamos respondiendo
       );
       
       bloc.add(AddSubcomentario(nuevoSubComentario));

@@ -172,13 +172,28 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
         ),
       );
     }
-  }
-
-  Future<void> _onAddReaccion(
+  }  Future<void> _onAddReaccion(
     AddReaccion event,
     Emitter<ComentarioState> emit,
   ) async {
+    // Guardar el estado actual para no perderlo
+    ComentarioState? estadoActual = state;
+
+    // Si estamos en un estado de comentarios cargados, podemos proceder
+    if (estadoActual is ComentarioLoaded) {
+      // Sólo verificamos que estemos en un estado válido
+    } else {
+      // Si no tenemos un estado cargado, no podemos actualizar
+      emit(ComentarioError(
+        'No se pueden actualizar las reacciones en este momento',
+        ApiException('No hay comentarios cargados para actualizar'),
+        TipoOperacionComentario.reaccionar,
+      ));
+      return;
+    }
+    
     try {
+      // Aplicar la reacción sin emitir un estado de carga para evitar parpadeos en la UI
       await _comentarioRepository.reaccionarComentario(
         event.comentarioId,
         event.tipoReaccion,
@@ -186,14 +201,7 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
         event.comentarioPadreId,
       );
       
-      // Volver a cargar los comentarios para mostrar los cambios
-      if (state is ComentarioLoaded) {
-        final noticiaId = (state as ComentarioLoaded).noticiaId;
-        emit(ComentarioLoading());
-        
-        final comentarios = await _comentarioRepository.obtenerComentariosPorNoticia(noticiaId);
-        emit(ComentarioLoaded(comentarios, noticiaId));
-      }
+      // No emitimos ningún estado nuevo, la recarga se manejará desde los widgets
     } catch (e) {
       emit(ComentarioError(
         'Error al reaccionar al comentario', 

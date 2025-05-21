@@ -80,17 +80,45 @@ class SubcommentCard extends StatelessWidget {
         ],
       ),
     );
-  }
-  void _handleReaction(BuildContext context, String tipoReaccion) {
-    context.read<ComentarioBloc>().add(
+  }  void _handleReaction(BuildContext context, String tipoReaccion) {
+    // Capturamos una referencia al bloc fuera del Future.delayed
+    final comentarioBloc = context.read<ComentarioBloc>();
+    final String currentNoticiaId = noticiaId;
+    
+    // Determinamos correctamente los IDs para la reacción
+    String comentarioId = '';
+    String? padreId;
+    
+    // Si tiene ID propio, lo usamos directamente
+    if (subcomentario.id != null && subcomentario.id!.isNotEmpty) {
+      comentarioId = subcomentario.id!;
+      
+      // Si además tiene idSubComentario, ese es el padre
+      if (subcomentario.idSubComentario != null && subcomentario.idSubComentario!.isNotEmpty) {
+        padreId = subcomentario.idSubComentario;
+      }
+    } 
+    // Si no tiene ID propio pero tiene idSubComentario, usamos ese como su ID
+    else if (subcomentario.idSubComentario != null && subcomentario.idSubComentario!.isNotEmpty) {
+      comentarioId = subcomentario.idSubComentario!;
+    }
+    
+    // Agregamos la reacción con los IDs correctos
+    comentarioBloc.add(
       AddReaccion(
-        subcomentario.idSubComentario ?? subcomentario.id ?? '',
+        comentarioId,
         tipoReaccion,
         true,
-        subcomentario.idSubComentario != null ? 
-          subcomentario.noticiaId : // Aquí necesitamos el ID del comentario padre
-          subcomentario.noticiaId,
+        padreId,
       ),
     );
+    
+    // Luego forzamos la recarga de comentarios para actualizar la UI
+    // No usamos context dentro del Future.delayed
+    Future.delayed(const Duration(milliseconds: 500), () {
+      comentarioBloc.add(
+        LoadComentarios(currentNoticiaId),
+      );
+    });
   }
 }
