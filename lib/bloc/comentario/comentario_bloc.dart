@@ -1,9 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:kgaona/bloc/comentario/comentario_event.dart';
-import 'package:kgaona/bloc/comentario/comentario_state.dart';
-import 'package:kgaona/data/comentario_repository.dart';
-import 'package:kgaona/domain/comentario.dart';
-import 'package:kgaona/exceptions/api_exception.dart';
+import 'package:mi_proyecto/bloc/comentario/comentario_event.dart';
+import 'package:mi_proyecto/bloc/comentario/comentario_state.dart';
+import 'package:mi_proyecto/data/comentario_repository.dart';
+import 'package:mi_proyecto/domain/comentario.dart';
+import 'package:mi_proyecto/exceptions/api_exception.dart';
 import 'package:watch_it/watch_it.dart';
 
 class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {

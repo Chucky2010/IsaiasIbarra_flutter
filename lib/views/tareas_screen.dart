@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:kgaona/api/service/tarea_service.dart';
-import 'package:kgaona/components/custom_bottom_navigation_bar.dart';
-import 'package:kgaona/components/side_menu.dart';
-import 'package:kgaona/constants/constantes.dart';
-import 'package:kgaona/views/task_details_screen.dart';
-import 'package:kgaona/domain/task.dart';
-import 'package:kgaona/helpers/task_card_helper.dart';
-import 'package:kgaona/components/add_task_modal.dart'; // Importa el modal reutilizable
+import 'package:mi_proyecto/api/service/tarea_service.dart';
+import 'package:mi_proyecto/components/custom_bottom_navigation_bar.dart';
+import 'package:mi_proyecto/components/side_menu.dart';
+import 'package:mi_proyecto/constants/constantes.dart';
+import 'package:mi_proyecto/views/task_details_screen.dart';
+import 'package:mi_proyecto/domain/task.dart';
+import 'package:mi_proyecto/helpers/task_card_helper.dart';
+import 'package:mi_proyecto/components/add_task_modal.dart'; // Importa el modal reutilizable
 
 class TareaScreen extends StatefulWidget {
   const TareaScreen({super.key});
@@ -146,14 +146,14 @@ class TareaScreenState extends State<TareaScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('$Constants.tituloAppbar - Total: ${_tareas.length}')
+        title: Text('$TareasConstantes.tituloAppbar - Total: ${_tareas.length}')
       ),
       drawer: const SideMenu(),
       backgroundColor: Colors.grey[200],
       body: _tareas.isEmpty && !_cargando // Verifica si no hay tareas y no se está cargando
         ? const Center(
             child: Text(
-              Constants.listaVacia,
+              TareasConstantes.listaVacia,
               style: TextStyle(fontSize: 18, color: Colors.black54),
             ),
           )
@@ -185,7 +185,7 @@ class TareaScreenState extends State<TareaScreen> {
               onDismissed: (direction) {
                 _eliminarTarea(index);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text(Constants.tareaEliminada)),
+                  const SnackBar(content: Text(TareasConstantes.tareaEliminada)),
                 );                
               },
               // Usa la nueva tarjeta deportiva,

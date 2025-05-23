@@ -1,5 +1,5 @@
-import 'package:kgaona/data/question_repository.dart';
-import 'package:kgaona/domain/question.dart';
+import 'package:mi_proyecto/data/question_repository.dart';
+import 'package:mi_proyecto/domain/question.dart';
 
 class QuestionService {
   final QuestionRepository _questionRepository = QuestionRepository();

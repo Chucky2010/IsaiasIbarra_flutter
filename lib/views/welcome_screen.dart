@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:kgaona/components/custom_bottom_navigation_bar.dart';
-import 'package:kgaona/components/side_menu.dart';
-import 'package:kgaona/helpers/secure_storage_service.dart';
-import 'package:kgaona/views/login_screen.dart'; // Añadimos la importación de LoginScreen
+import 'package:mi_proyecto/components/custom_bottom_navigation_bar.dart';
+import 'package:mi_proyecto/components/side_menu.dart';
+import 'package:mi_proyecto/helpers/secure_storage_service.dart';
+import 'package:mi_proyecto/views/login_screen.dart'; // Añadimos la importación de LoginScreen
 import 'package:watch_it/watch_it.dart';
 
 class WelcomeScreen extends StatefulWidget {

@@ -1,14 +1,13 @@
-import 'package:kgaona/api/service/base_service.dart';
-import 'package:kgaona/constants/constantes.dart';
-import 'package:kgaona/core/api_config.dart';
-import 'package:kgaona/domain/noticia.dart';
+import 'package:mi_proyecto/api/service/base_service.dart';
+import 'package:mi_proyecto/constants/constantes.dart';
+import 'package:mi_proyecto/domain/noticia.dart';
 
 class NoticiaService extends BaseService {
   /// Obtiene todas las noticias desde la API
   Future<List<Noticia>> obtenerNoticias() async {
     final List<dynamic> noticiasJson = await get<List<dynamic>>(
-      ApiConfig.noticiasEndpoint,
-      errorMessage: ConstantesNoticias.mensajeError,
+      ApiConstantes.noticiasEndpoint,
+      errorMessage: NoticiasConstantes.mensajeError,
     );
 
     return noticiasJson
@@ -19,27 +18,29 @@ class NoticiaService extends BaseService {
   }
 
   /// Crea una nueva noticia en la API
-  Future<void> crearNoticia(Noticia noticia) async {
-    await post(
-      ApiConfig.noticiasEndpoint,
+  Future<Noticia> crearNoticia(Noticia noticia) async {
+    final response = await post(
+      ApiConstantes.noticiasEndpoint,
       data: noticia.toMap(),
-      errorMessage: 'Error al crear la noticia',
+      errorMessage: NoticiasConstantes.errorCreated,
     );
+    return NoticiaMapper.fromMap(response);
   }
 
   /// Edita una noticia existente en la API
-  Future<void> editarNoticia(Noticia noticia) async {
-    final url = '${ApiConfig.noticiasEndpoint}/${noticia.id}';
-    await put(
+  Future<Noticia> editarNoticia(Noticia noticia) async {
+    final url = '${ApiConstantes.noticiasEndpoint}/${noticia.id}';
+    final response = await put(
       url,
       data: noticia.toMap(),
-      errorMessage: 'Error al editar la noticia',
+      errorMessage: NoticiasConstantes.errorUpdated,
     );
+    return NoticiaMapper.fromMap(response);
   }
 
   /// Elimina una noticia existente en la API
   Future<void> eliminarNoticia(String id) async {
-    final url = '${ApiConfig.noticiasEndpoint}/$id';
-    await delete(url, errorMessage: 'Error al eliminar la noticia');
+    final url = '${ApiConstantes.noticiasEndpoint}/$id';
+    await delete(url, errorMessage: NoticiasConstantes.errorDelete);
   }
 }

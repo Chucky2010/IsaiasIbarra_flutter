@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:kgaona/domain/noticia.dart';
+import 'package:mi_proyecto/domain/noticia.dart';
 
 abstract class NoticiaEvent extends Equatable {
   @override
@@ -47,3 +47,5 @@ class FilterNoticiasByPreferenciasEvent extends NoticiaEvent {
   @override
   List<Object> get props => [categoriasIds];
 }
+
+class ResetNoticiaEvent extends NoticiaEvent {}

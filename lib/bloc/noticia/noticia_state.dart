@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:kgaona/domain/noticia.dart';
-import 'package:kgaona/exceptions/api_exception.dart';
+import 'package:mi_proyecto/domain/noticia.dart';
+import 'package:mi_proyecto/exceptions/api_exception.dart';
 
 abstract class NoticiaState extends Equatable {
   @override
@@ -24,14 +24,13 @@ class NoticiaLoaded extends NoticiaState {
 enum TipoOperacionNoticia { cargar, crear, actualizar, eliminar, filtrar }
 
 class NoticiaError extends NoticiaState {
-  final String message;
   final ApiException error;
   final TipoOperacionNoticia tipoOperacion;
 
-  NoticiaError(this.message, this.error, this.tipoOperacion);
+  NoticiaError(this.error, this.tipoOperacion);
 
   @override
-  List<Object> get props => [message, error, tipoOperacion];
+  List<Object> get props => [error, tipoOperacion];
 }
 
 class NoticiaCreated extends NoticiaLoaded {

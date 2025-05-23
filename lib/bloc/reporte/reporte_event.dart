@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:kgaona/domain/reporte.dart';
+import 'package:mi_proyecto/domain/reporte.dart';
 
 abstract class ReporteEvent extends Equatable {
   const ReporteEvent();

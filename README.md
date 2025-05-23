@@ -1,4 +1,4 @@
-# kgaona
+# mi_proyecto
 Aplicación desarrollada como parte del Bootcamp de Flutter de Sodep (2025). Implementa un sistema completo de tipo CRUD (Crear, Leer, Actualizar, Eliminar), utilizando Dio para la comunicación HTTP y Bloc como patrón de gestión de estado.
 ##  Entorno de desarrollo
 Estas son las versiones utilizadas en el desarrollo para asegurar compatibilidad:

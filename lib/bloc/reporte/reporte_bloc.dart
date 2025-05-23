@@ -1,10 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/foundation.dart';
-import 'package:kgaona/bloc/reporte/reporte_event.dart';
-import 'package:kgaona/bloc/reporte/reporte_state.dart';
-import 'package:kgaona/constants/constantes.dart';
-import 'package:kgaona/data/reporte_repository.dart';
-import 'package:kgaona/exceptions/api_exception.dart';
+import 'package:mi_proyecto/bloc/reporte/reporte_event.dart';
+import 'package:mi_proyecto/bloc/reporte/reporte_state.dart';
+import 'package:mi_proyecto/constants/constantes.dart';
+import 'package:mi_proyecto/data/reporte_repository.dart';
+import 'package:mi_proyecto/exceptions/api_exception.dart';
 import 'package:watch_it/watch_it.dart';
 
 class ReporteBloc extends Bloc<ReporteEvent, ReporteState> {

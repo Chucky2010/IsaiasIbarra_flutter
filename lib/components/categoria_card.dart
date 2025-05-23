@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kgaona/domain/categoria.dart';
+import 'package:mi_proyecto/domain/categoria.dart';
 
 class CategoriaCard extends StatelessWidget {
   final Categoria categoria;
@@ -79,9 +79,6 @@ class CategoriaCard extends StatelessWidget {
           onTap: () {
             // Aquí podríamos navegar a un detalle de la categoría
             // o mostrar las noticias filtradas por esta categoría
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Seleccionaste: ${categoria.nombre}')),
-            );
           },
         ),
     );

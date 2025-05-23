@@ -1,20 +1,19 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:kgaona/api/service/base_service.dart';
-import 'package:kgaona/constants/constantes.dart';
-import 'package:kgaona/core/api_config.dart';
-import 'package:kgaona/domain/comentario.dart';
-import 'package:kgaona/exceptions/api_exception.dart';
+import 'package:mi_proyecto/api/service/base_service.dart';
+import 'package:mi_proyecto/constants/constantes.dart';
+import 'package:mi_proyecto/domain/comentario.dart';
+import 'package:mi_proyecto/exceptions/api_exception.dart';
 
 class ComentarioService extends BaseService {
   /// Obtiene todos los comentarios de una noticia específica
   Future<List<Comentario>> obtenerComentariosPorNoticia(
     String noticiaId,
   ) async {
-    final endpoint = ApiConfig.comentariosEndpoint;
+    final endpoint = ApiConstantes.comentariosEndpoint;
     final List<dynamic> comentariosJson = await get<List<dynamic>>(
       endpoint,
-      errorMessage: ConstantesComentarios.mensajeError,
+      errorMessage: ComentarioConstantes.mensajeError,
     );
 
     // Filtrar solo los comentarios para la noticia específica
@@ -29,7 +28,7 @@ class ComentarioService extends BaseService {
   /// Agrega un nuevo comentario a una noticia
   Future<void> agregarComentario(Comentario comentario) async {
     await post(
-      ApiConfig.comentariosEndpoint,
+      ApiConstantes.comentariosEndpoint,
       data: comentario.toMap(),
       errorMessage: 'Error al agregar el comentario',
     );
@@ -166,7 +165,7 @@ class ComentarioService extends BaseService {
         }
       }
 
-      throw ApiException(ConstantesApi.errorServer, statusCode: 404);
+      throw ApiException(ComentarioConstantes.errorServer, statusCode: 404);
     } on DioException catch (e) {
       debugPrint('❌ DioException en reaccionarComentario: ${e.toString()}');
     } catch (e) {

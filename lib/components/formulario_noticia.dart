@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:kgaona/constants/constantes.dart';
-import 'package:kgaona/domain/categoria.dart';
-import 'package:kgaona/domain/noticia.dart';
+import 'package:mi_proyecto/constants/constantes.dart';
+import 'package:mi_proyecto/domain/categoria.dart';
+import 'package:mi_proyecto/domain/noticia.dart';
 
 class FormularioNoticia extends StatefulWidget {
   final Noticia? noticia; // Noticia existente para edición (null para creación)
@@ -22,7 +22,7 @@ class _FormularioNoticiaState extends State<FormularioNoticia> {
   late TextEditingController _imagenUrlController;
   late TextEditingController _fechaController;
   DateTime _fechaSeleccionada = DateTime.now();
-  String _selectedCategoriaId = ConstantesCategorias.defaultcategoriaId;
+  String _selectedCategoriaId = CategoriaConstantes.defaultcategoriaId;
   @override
   void initState() {
     super.initState();
@@ -40,9 +40,9 @@ class _FormularioNoticiaState extends State<FormularioNoticia> {
       final existeCategoria = widget.categorias.any((c) => c.id == widget.noticia!.categoriaId);
       _selectedCategoriaId = existeCategoria 
           ? widget.noticia!.categoriaId! 
-          : ConstantesCategorias.defaultcategoriaId;
+          :CategoriaConstantes.defaultcategoriaId;
     } else {
-      _selectedCategoriaId = ConstantesCategorias.defaultcategoriaId;
+      _selectedCategoriaId = CategoriaConstantes.defaultcategoriaId;
     }
   }
 
@@ -221,7 +221,7 @@ class _FormularioNoticiaState extends State<FormularioNoticia> {
               items: [
                 // Opción por defecto
                 const DropdownMenuItem<String>(
-                  value: ConstantesCategorias.defaultcategoriaId,
+                  value: CategoriaConstantes.defaultcategoriaId,
                   child: Text('Sin categoría'),
                 ),                // Opciones de categorías cargadas
                 ...widget.categorias

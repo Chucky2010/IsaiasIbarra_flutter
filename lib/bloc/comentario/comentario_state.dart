@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:kgaona/domain/comentario.dart';
-import 'package:kgaona/exceptions/api_exception.dart';
+import 'package:mi_proyecto/domain/comentario.dart';
+import 'package:mi_proyecto/exceptions/api_exception.dart';
 
 abstract class ComentarioState extends Equatable {
   @override

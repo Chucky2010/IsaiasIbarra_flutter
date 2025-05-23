@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'package:kgaona/data/assistant_repository.dart';
-import 'package:kgaona/data/task_repository.dart';
-import 'package:kgaona/domain/task.dart';
+import 'package:mi_proyecto/data/assistant_repository.dart';
+import 'package:mi_proyecto/data/task_repository.dart';
+import 'package:mi_proyecto/domain/task.dart';
 
 class TareasService {
   final TaskRepository _taskRepository = TaskRepository();

@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
-import 'package:kgaona/domain/reporte.dart';
+import 'package:mi_proyecto/domain/reporte.dart';
 
 @immutable
 abstract class ReporteState extends Equatable {

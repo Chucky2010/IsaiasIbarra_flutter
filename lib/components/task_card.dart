@@ -1,95 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:kgaona/helpers/task_card_helper.dart';
-import 'package:kgaona/domain/task.dart';
-import 'package:kgaona/constants/constantes.dart';
-
-// class TaskCard extends StatelessWidget {
-//   final String title;
-//   final String? subtitle; // Subtítulo opcional
-//   final Widget leadingIcon; // Ícono dinámico pasado desde afuera
-//   final String type;  
-//   final String? description;
-//   final DateTime? date;
-//   final Widget? trailing; // Botón o widget adicional (opcional)
-  
-//   const TaskCard({
-//     super.key,
-//     required this.title,
-//     this.subtitle, // Acepta un subtítulo opcional
-//     required this.leadingIcon,
-//     required this.type,
-//     this.description,
-//     this.date,
-//     this.trailing, // Acepta un widget adicional
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Card(
-//       elevation: 4,
-//       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-//       shape: RoundedRectangleBorder(
-//         borderRadius: BorderRadius.circular(10), // Borde redondeado
-//       ),
-//       child: Padding(
-//         padding: const EdgeInsets.all(16.0),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             Row(
-//               children: [
-//                 leadingIcon, // Ícono dinámico pasado como parámetro
-//                 const SizedBox(width: 16),
-//                 Expanded(
-//                   child: Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       Text(
-//                         title,
-//                         style: const TextStyle(
-//                           fontSize: 18,
-//                           fontWeight: FontWeight.bold,
-//                         ),
-//                       ),
-//                       if (subtitle != null) // Muestra el subtítulo si está definido
-//                         Text(
-//                           subtitle!,
-//                           style: const TextStyle(
-//                             fontSize: 14,
-//                             color: Colors.black54,
-//                           ),
-//                         ),
-//                     ],
-//                   ),
-//                 ),
-
-//                 if (trailing != null) trailing!, // Muestra el botón si está definido
-//               ],
-//             ),
-//             const SizedBox(height: 8),
-//             Text(
-//               type,
-//               style: const TextStyle(
-//                 fontSize: 14,
-//                 color: Colors.black87,
-//               ),
-//             ),
-//             const SizedBox(height: 8),
-//             Text(
-//               description ?? 'Sin descripción',
-//               style: const TextStyle(fontSize: 14, color: Colors.black54),
-//             ),
-//             const SizedBox(height: 8),
-//             Text(
-//               'Fecha: ${date != null ? "${date!.day}/${date!.month}/${date!.year}" : 'Sin fecha'}',
-//               style: const TextStyle(fontSize: 14, color: Colors.grey),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
+import 'package:mi_proyecto/helpers/task_card_helper.dart';
+import 'package:mi_proyecto/domain/task.dart';
+import 'package:mi_proyecto/constants/constantes.dart';
 
 class TaskCard extends StatelessWidget {
   final Task tarea;
@@ -147,7 +59,7 @@ class TaskCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween, // Alinea el botón a la derecha
                   children: [
-                    CommonWidgetsHelper.buildBoldFooter('$Constants.fechaLimite $fechaLimiteDato'),
+                    CommonWidgetsHelper.buildBoldFooter('${TareasConstantes.fechaLimite} $fechaLimiteDato'),
                     ElevatedButton.icon(
                       onPressed: onBackPressed,
                       icon: const Icon(Icons.arrow_back, size: 16),

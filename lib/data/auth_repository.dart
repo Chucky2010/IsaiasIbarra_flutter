@@ -1,14 +1,13 @@
-import 'package:kgaona/api/service/auth_service.dart';
-import 'package:kgaona/data/preferencia_repository.dart';
-import 'package:kgaona/domain/login_request.dart';
-import 'package:kgaona/domain/login_response.dart';
-import 'package:kgaona/helpers/secure_storage_service.dart';
+import 'package:mi_proyecto/api/service/auth_service.dart';
+import 'package:mi_proyecto/data/preferencia_repository.dart';
+import 'package:mi_proyecto/domain/login_request.dart';
+import 'package:mi_proyecto/domain/login_response.dart';
+import 'package:mi_proyecto/helpers/secure_storage_service.dart';
 import 'package:watch_it/watch_it.dart';
 
 class AuthRepository {
   final AuthService _authService = AuthService();
-  final SecureStorageService _secureStorage = SecureStorageService();
-  // Login user and store JWT token
+  final SecureStorageService _secureStorage = SecureStorageService();  // Login user and store JWT token
   Future<bool> login(String email, String password) async {
     try {
       if (email.isEmpty || password.isEmpty) {
@@ -27,14 +26,22 @@ class AuthRepository {
       final LoginResponse response = await _authService.login(loginRequest);
       await _secureStorage.saveJwt(response.sessionToken);
       await _secureStorage.saveUserEmail(email);
+      
+      // Cargar preferencias del usuario recién logueado
+      await preferenciaRepository.cargarDatos();
+      
       return true;
     } catch (e) {
       return false;
     }
   }
-  
-  // Logout user
+    // Logout user
   Future<void> logout() async {
+    // Limpiar la caché de preferencias antes de limpiar el token
+    final preferenciaRepository = di<PreferenciaRepository>();
+    preferenciaRepository.invalidarCache();
+    
+    // Limpiar tokens y datos de sesión
     await _secureStorage.clearJwt();
     await _secureStorage.clearUserEmail();
   }

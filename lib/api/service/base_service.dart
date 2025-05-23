@@ -1,9 +1,10 @@
 import 'package:dio/dio.dart';
-import 'package:kgaona/constants/constantes.dart';
-import 'package:kgaona/core/api_config.dart';
-import 'package:kgaona/exceptions/api_exception.dart';
-import 'package:kgaona/helpers/connectivity_service.dart';
-import 'package:kgaona/helpers/secure_storage_service.dart';
+import 'package:flutter/material.dart';
+import 'package:mi_proyecto/constants/constantes.dart';
+import 'package:mi_proyecto/core/api_config.dart';
+import 'package:mi_proyecto/exceptions/api_exception.dart';
+import 'package:mi_proyecto/helpers/connectivity_service.dart';
+import 'package:mi_proyecto/helpers/secure_storage_service.dart';
 import 'package:watch_it/watch_it.dart' show di;
 
 /// Clase base para servicios API que proporciona funcionalidad común
@@ -18,10 +19,10 @@ class BaseService {
       BaseOptions(
         baseUrl: ApiConfig.beeceptorBaseUrl,
         connectTimeout: const Duration(
-          milliseconds: (ConstantesApi.timeoutSeconds * 1000),
+          milliseconds: (AppConstantes.timeoutSeconds * 1000),
         ),
         receiveTimeout: const Duration(
-          milliseconds: (ConstantesApi.timeoutSeconds * 1000),
+          milliseconds: (AppConstantes.timeoutSeconds * 1000),
         ),
         headers: {
           'x-beeceptor-auth': ApiConfig.beeceptorApiKey,
@@ -35,34 +36,91 @@ class BaseService {
     // Manejo de errores de timeout
     if (e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.receiveTimeout) {
-      throw ApiException(ConstantesApi.errorTimeout);
+      throw ApiException(AppConstantes.errorTimeOut);
     }
 
-    // Identificar tipo de endpoint
+    // Personalización de errores según el endpoint
     String errorNotFound = '';
-    if (endpoint.contains(ApiConfig.categoriaEndpoint)) {
-      errorNotFound = ConstantesCategorias.errorNocategoria;
-    } else if (endpoint.contains(ApiConfig.noticiasEndpoint)) {
-      errorNotFound = ConstantesNoticias.errorNotFound;
+    String errorUnauthorized = '';
+    String errorBadRequest = '';
+    String errorServer = '';
+
+    if (endpoint.contains(ApiConstantes.categoriaEndpoint)) {
+      errorNotFound = CategoriaConstantes.errorNocategoria;
+      errorUnauthorized = CategoriaConstantes.errorUnauthorized;
+      errorBadRequest = CategoriaConstantes.errorInvalidData;
+      errorServer = CategoriaConstantes.errorServer;
+    } else if (endpoint.contains(ApiConstantes.noticiasEndpoint)) {
+      errorNotFound = NoticiasConstantes.errorNotFound;
+      errorUnauthorized = NoticiasConstantes.errorUnauthorized;
+      errorBadRequest = NoticiasConstantes.errorInvalidData;
+      errorServer = NoticiasConstantes.errorServer;
+    }else if (endpoint.contains(ApiConstantes.preferenciasEndpoint)) {
+      errorNotFound = PreferenciaConstantes.errorNotFound;
+      errorUnauthorized = PreferenciaConstantes.errorUnauthorized;
+      errorBadRequest = PreferenciaConstantes.errorInvalidData;
+      errorServer = PreferenciaConstantes.errorServer;
+    } else if (endpoint.contains(ApiConstantes.reportesEndpoint)) {
+      errorNotFound = ReporteConstantes.errorNotFound;
+      errorUnauthorized = ReporteConstantes.errorUnauthorized;
+      errorBadRequest = ReporteConstantes.errorInvalidData;
+      errorServer = ReporteConstantes.errorServer;
+    } else if (endpoint.contains(ApiConstantes.comentariosEndpoint)) {
+      errorNotFound = ComentarioConstantes.errorNotFound;
+      errorUnauthorized = ComentarioConstantes.errorUnauthorized;
+      errorBadRequest = ComentarioConstantes.errorInvalidData;
+      errorServer = ComentarioConstantes.errorServer;
     }
-    //falta los otros endpoints
+    // falta los otros endpoints
     final statusCode = e.response?.statusCode;
     
     // Aplicar código de estado al tipo de recurso
     switch (statusCode) {
       case 400:
-        return ApiException('Datos inválidos para esta url $endpoint', statusCode: 400);
+        return ApiException(errorBadRequest, statusCode: 400);
       case 401:
-        return ApiException(ConstantesApi.errorUnauthorized, statusCode: 401);
+        return ApiException(errorUnauthorized, statusCode: 401);
+      case 403:
+        // Error de autorización - Problemas con API key o IP no autorizada
+        return ApiException(AppConstantes.errorAccesoDenegado, statusCode: 403);
       case 404:
-      //personalizacion
+        // Personalización para recurso no encontrado
         return ApiException(errorNotFound, statusCode: 404);
+      case 429:
+        // Límite de tasa alcanzado en Beeceptor
+        return ApiException(AppConstantes.limiteAlcanzado, statusCode: 429);
       case 500:
-        return ApiException(ConstantesApi.errorServer, statusCode: 500);
+        return ApiException(errorServer, statusCode: 500);
+      case 561:
+        // Error en la plantilla de respuesta de Beeceptor
+        return ApiException(AppConstantes.errorServidorMock, statusCode: 561);
+      case 562:
+        // Necesita autorización en Beeceptor (x-beeceptor-auth)
+        return ApiException(AppConstantes.errorUnauthorized, statusCode: 562);
+      case 571:
+      case 572:
+      case 573:
+      case 574:
+      case 575:
+      case 576:
+      case 577:
+      case 578:
+        // Errores de conexión proxy de Beeceptor
+        return ApiException(AppConstantes.errorConexionProxy, statusCode: statusCode);
+      case 580:
+        // Cliente desconectado (socket hang up)
+        return ApiException(AppConstantes.conexionInterrumpida, statusCode: 580);
+      case 581:
+        // Error al recuperar archivo en Beeceptor
+        return ApiException(AppConstantes.errorRecuperarRecursos, statusCode: 581);
+      case 599:
+        // Error crítico en Beeceptor
+        return ApiException(AppConstantes.errorCriticoServidor, statusCode: 599);
       default:
         return ApiException('Error desconocido en $endpoint', statusCode: statusCode);
     }
   }
+
     /// Método privado que ejecuta una petición HTTP y maneja los errores de forma centralizada
   Future<T> _executeRequest<T>(
     Future<Response<dynamic>> Function() requestFn,
@@ -86,6 +144,7 @@ class BaseService {
       }
     } on DioException catch (e) {
       final endpoint = e.requestOptions.path;
+      debugPrint('Error en la solicitud: ${e.message}');
       throw handleError(e, endpoint);
     } catch (e) {
       if (e is ApiException) {
@@ -99,7 +158,7 @@ class BaseService {
   Future<T> get<T>(
     String endpoint, {
     Map<String, dynamic>? queryParameters,
-    String errorMessage = 'Error al conectar con la API',
+    String errorMessage = AppConstantes.errorGetDefault,
     bool requireAuthToken = false,
   }) async {
     final options = await _getRequestOptions(requireAuthToken: requireAuthToken);
@@ -117,7 +176,7 @@ class BaseService {
     String endpoint, {
     required dynamic data,
     Map<String, dynamic>? queryParameters,
-    String errorMessage = 'Error al crear el recurso',
+    String errorMessage = AppConstantes.errorCreateDefault,
     bool requireAuthToken = false,
   }) async {
     final options = await _getRequestOptions(requireAuthToken: requireAuthToken);
@@ -136,7 +195,7 @@ class BaseService {
     String endpoint, {
     required dynamic data,
     Map<String, dynamic>? queryParameters,
-    String errorMessage = 'Error al actualizar el recurso',
+    String errorMessage = AppConstantes.errorUpdateDefault,
     bool requireAuthToken = false,
   }) async {
     final options = await _getRequestOptions(requireAuthToken: requireAuthToken);
@@ -155,7 +214,7 @@ class BaseService {
   Future<dynamic> delete(
     String endpoint, {
     Map<String, dynamic>? queryParameters,
-    String errorMessage = 'Error al eliminar el recurso',
+    String errorMessage = AppConstantes.errorDeleteDefault,
     bool requireAuthToken = false,
   }) async {
     final options = await _getRequestOptions(requireAuthToken: requireAuthToken);
@@ -182,7 +241,7 @@ class BaseService {
         };
       } else {
         throw ApiException(
-          'No se encontró el token de autenticación',
+          AppConstantes.tokenNoEncontrado,
           statusCode: 401,
         );
       }

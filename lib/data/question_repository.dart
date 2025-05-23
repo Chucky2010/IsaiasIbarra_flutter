@@ -1,4 +1,4 @@
-import 'package:kgaona/domain/question.dart';
+import 'package:mi_proyecto/domain/question.dart';
 
 class QuestionRepository {
   // Método para obtener las preguntas iniciales

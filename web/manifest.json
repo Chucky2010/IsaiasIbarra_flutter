@@ -1,6 +1,6 @@
 {
-    "name": "kgaona",
-    "short_name": "kgaona",
+    "name": "mi_proyecto",
+    "short_name": "mi_proyecto",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

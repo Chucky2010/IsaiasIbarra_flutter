@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:kgaona/bloc/comentario/comentario_bloc.dart';
-import 'package:kgaona/bloc/comentario/comentario_event.dart';
-import 'package:kgaona/bloc/comentario/comentario_state.dart';
-import 'package:kgaona/domain/comentario.dart';
-import 'package:kgaona/helpers/snackbar_helper.dart';
-import 'package:kgaona/views/comentarios/components/comment_card.dart';
+import 'package:mi_proyecto/bloc/comentario/comentario_bloc.dart';
+import 'package:mi_proyecto/bloc/comentario/comentario_event.dart';
+import 'package:mi_proyecto/bloc/comentario/comentario_state.dart';
+import 'package:mi_proyecto/domain/comentario.dart';
+import 'package:mi_proyecto/helpers/snackbar_helper.dart';
+import 'package:mi_proyecto/views/comentarios/components/comment_card.dart';
 
 class CommentList extends StatelessWidget {
   final String noticiaId;
@@ -24,7 +24,6 @@ class CommentList extends StatelessWidget {
           SnackBarHelper.manejarError(
             context,
             state.error,
-            mensajePredeterminado: 'Error al cargar comentarios',
           );
         }
       },

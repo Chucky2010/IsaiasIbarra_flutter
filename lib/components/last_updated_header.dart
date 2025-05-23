@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:kgaona/constants/constantes.dart';
+import 'package:mi_proyecto/constants/constantes.dart';
 
 class LastUpdatedHeader extends StatelessWidget {
   final DateTime? lastUpdated;
@@ -14,7 +14,7 @@ class LastUpdatedHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     if (lastUpdated == null) return const SizedBox.shrink();
     
-    final String formattedDate = DateFormat(Constants.formatoFecha).format(lastUpdated!);
+    final String formattedDate = DateFormat(AppConstantes.formatoFecha).format(lastUpdated!);
     
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),

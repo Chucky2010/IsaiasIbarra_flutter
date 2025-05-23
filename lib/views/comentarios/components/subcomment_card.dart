@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:kgaona/bloc/comentario/comentario_bloc.dart';
-import 'package:kgaona/bloc/comentario/comentario_event.dart';
-import 'package:kgaona/domain/comentario.dart';
+import 'package:mi_proyecto/bloc/comentario/comentario_bloc.dart';
+import 'package:mi_proyecto/bloc/comentario/comentario_event.dart';
+import 'package:mi_proyecto/domain/comentario.dart';
 
 class SubcommentCard extends StatelessWidget {
   final Comentario subcomentario;

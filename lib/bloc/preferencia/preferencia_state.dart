@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:kgaona/exceptions/api_exception.dart';
+import 'package:mi_proyecto/exceptions/api_exception.dart';
 
 abstract class PreferenciaState extends Equatable {
   @override
@@ -13,37 +13,32 @@ class PreferenciaLoading extends PreferenciaState {}
 enum TipoOperacionPreferencia { cargar, guardar, reiniciar, cambiarCategoria }
 
 class PreferenciaError extends PreferenciaState {
-  final String mensaje;
   final ApiException error;
   final TipoOperacionPreferencia tipoOperacion;
 
   PreferenciaError(
-    this.mensaje, {
-    required this.error,
-    this.tipoOperacion = TipoOperacionPreferencia.cargar,
-  });
+    this.error,
+    this.tipoOperacion,
+  );
 
   @override
-  List<Object?> get props => [mensaje, error, tipoOperacion];
+  List<Object?> get props => [error, tipoOperacion];
 }
 
 // Estado base cuando las preferencias están cargadas
 class PreferenciasLoaded extends PreferenciaState {
   final List<String> categoriasSeleccionadas;
   final DateTime? lastUpdated;
-  final bool operacionExitosa;
 
   PreferenciasLoaded({
     this.categoriasSeleccionadas = const [],
     this.lastUpdated,
-    this.operacionExitosa = false,
   });
 
   @override
   List<Object?> get props => [
     categoriasSeleccionadas,
     lastUpdated,
-    operacionExitosa,
   ];
 }
 
@@ -52,7 +47,6 @@ class PreferenciasSaved extends PreferenciasLoaded {
   PreferenciasSaved({
     required super.categoriasSeleccionadas,
     super.lastUpdated,
-    super.operacionExitosa = true,
   });
 }
 
@@ -61,6 +55,5 @@ class PreferenciasReset extends PreferenciasLoaded {
   PreferenciasReset({
     super.categoriasSeleccionadas = const [],
     super.lastUpdated,
-    super.operacionExitosa = true,
   });
 }

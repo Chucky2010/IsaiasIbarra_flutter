@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:kgaona/constants/constantes.dart';
-import 'package:kgaona/domain/quote.dart';
+import 'package:mi_proyecto/constants/constantes.dart';
+import 'package:mi_proyecto/domain/quote.dart';
 
 class QuoteRepository {
   final List<Quote> _quotes = [
@@ -27,7 +27,7 @@ class QuoteRepository {
 
   Future<List<Quote>> getPaginatedQuotes({
     required int pageNumber,
-    int pageSize = Constants.pageSize,
+    int pageSize = CotizacionConstantes.pageSize,
   }) async {
     // Simula un delay de 2 segundos
     await Future.delayed(const Duration(seconds: 2));

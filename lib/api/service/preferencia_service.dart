@@ -1,46 +1,42 @@
-import 'package:kgaona/api/service/base_service.dart';
-import 'package:kgaona/core/api_config.dart';
-import 'package:kgaona/domain/preferencia.dart';
+import 'package:mi_proyecto/api/service/base_service.dart';
+import 'package:mi_proyecto/constants/constantes.dart';
+import 'package:mi_proyecto/domain/preferencia.dart';
 
 class PreferenciaService extends BaseService {
   /// Obtiene las preferencias del usuario identificadas por su email
   Future<Preferencia> obtenerPreferenciaPorEmail(String email) async {
-    final endpoint = '${ApiConfig.preferenciasEndpoint}/$email';
+    final endpoint = '${ApiConstantes.preferenciasEndpoint}/$email';
     final Map<String, dynamic> responseData = await get<Map<String, dynamic>>(
       endpoint,
-      errorMessage: 'Error al obtener preferencias',
-    );
-    
+      errorMessage: PreferenciaConstantes.mensajeError,
+    );    
     return PreferenciaMapper.fromMap(responseData);
   }
 
   /// Actualiza las preferencias del usuario en la API
-  Future<void> guardarPreferencias(Preferencia preferencia) async {
-    final endpoint = '${ApiConfig.preferenciasEndpoint}/${preferencia.email}';
+  Future<Preferencia> guardarPreferencias(Preferencia preferencia) async {
+    final endpoint = '${ApiConstantes.preferenciasEndpoint}/${preferencia.email}';
     final dataToSend = PreferenciaMapper.ensureInitialized().encodeMap(preferencia);
     
-    await put(
+    final response = await put(
       endpoint,
       data: dataToSend,
-      errorMessage: 'Error al guardar preferencias',
+      errorMessage: PreferenciaConstantes.errorUpdated,
     );
+    return PreferenciaMapper.fromMap(response);
   }
     /// Crea un nuevo registro de preferencias en la API
-  Future<Preferencia> crearPreferencias(String email, {List<String>? categorias}) async {
+  Future<Preferencia> crearPreferencia(String email, {List<String>? categorias}) async {
     final Map<String, dynamic> preferenciasData = {
       'email': email,
       'categoriasSeleccionadas': categorias ?? []
     };
 
-    await post(
-      ApiConfig.preferenciasEndpoint,
+    final response = await post(
+      ApiConstantes.preferenciasEndpoint,
       data: preferenciasData,
-      errorMessage: 'Error al crear preferencias',
+      errorMessage: PreferenciaConstantes.errorCreated,
     );
-    
-    return Preferencia(
-      email: email,
-      categoriasSeleccionadas: categorias ?? []
-    );
+    return PreferenciaMapper.fromMap(response);
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kgaona/domain/reporte.dart';
+import 'package:mi_proyecto/domain/reporte.dart';
 
 
 /// Helper para construcción de iconos y botones relacionados con reportes

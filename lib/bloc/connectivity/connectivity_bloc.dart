@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:kgaona/bloc/connectivity/connectivity_event.dart';
-import 'package:kgaona/bloc/connectivity/connectivity_state.dart';
-import 'package:kgaona/helpers/connectivity_service.dart';
+import 'package:mi_proyecto/bloc/connectivity/connectivity_event.dart';
+import 'package:mi_proyecto/bloc/connectivity/connectivity_state.dart';
+import 'package:mi_proyecto/helpers/connectivity_service.dart';
 import 'package:watch_it/watch_it.dart';
 
 /// BLoC para gestionar el estado de la conectividad a Internet en la aplicación

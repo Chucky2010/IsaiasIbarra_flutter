@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:kgaona/bloc/auth/auth_bloc.dart';
-import 'package:kgaona/bloc/auth/auth_event.dart';
-import 'package:kgaona/bloc/auth/auth_state.dart';
-import 'package:kgaona/components/snackbar_component.dart';
-import 'package:kgaona/views/welcome_screen.dart';
+import 'package:mi_proyecto/bloc/auth/auth_bloc.dart';
+import 'package:mi_proyecto/bloc/auth/auth_event.dart';
+import 'package:mi_proyecto/bloc/auth/auth_state.dart';
+import 'package:mi_proyecto/bloc/noticia/noticia_bloc.dart';
+import 'package:mi_proyecto/bloc/noticia/noticia_event.dart';
+import 'package:mi_proyecto/components/snackbar_component.dart';
+import 'package:mi_proyecto/views/welcome_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
@@ -33,12 +35,13 @@ class LoginScreen extends StatelessWidget {
             // Cerrar diálogo de carga si está abierto
             Navigator.of(context, rootNavigator: true).popUntil((route) => route.isFirst);
             
-            // Navegar a WelcomeScreen
-            Navigator.push(
+            // Cargar noticias para el nuevo usuario
+            context.read<NoticiaBloc>().add(FetchNoticiasEvent());
+            
+            // Navegar a la pantalla principal
+            Navigator.pushReplacement(
               context,
-              MaterialPageRoute(
-                builder: (context) => const WelcomeScreen(),
-              ),
+              MaterialPageRoute(builder: (context) => const WelcomeScreen()),
             );
           } else if (state is AuthFailure) {
             // Cerrar diálogo de carga si está abierto
@@ -47,7 +50,7 @@ class LoginScreen extends StatelessWidget {
             // Mostrar error
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBarComponent.crear(
-                mensaje: state.error,
+                mensaje: state.error.message,
                 color: Colors.red,
                 duracion: const Duration(seconds: 4),
               ),

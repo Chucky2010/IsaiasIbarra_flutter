@@ -1,32 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:kgaona/bloc/categoria/categoria_bloc.dart';
-import 'package:kgaona/bloc/categoria/categoria_event.dart';
-import 'package:kgaona/bloc/categoria/categoria_state.dart';
-import 'package:kgaona/bloc/noticia/noticia_bloc.dart';
-import 'package:kgaona/bloc/noticia/noticia_event.dart';
-import 'package:kgaona/bloc/noticia/noticia_state.dart';
-import 'package:kgaona/components/custom_bottom_navigation_bar.dart';
-import 'package:kgaona/components/floating_add_button.dart';
-import 'package:kgaona/components/formulario_noticia.dart';
-import 'package:kgaona/components/last_updated_header.dart';
-import 'package:kgaona/components/noticia_card.dart';
-import 'package:kgaona/components/reporte_dialog.dart';
-import 'package:kgaona/components/side_menu.dart';
-import 'package:kgaona/constants/constantes.dart';
-import 'package:kgaona/domain/categoria.dart';
-import 'package:kgaona/domain/noticia.dart';
-import 'package:kgaona/helpers/categoria_helper.dart';
-import 'package:kgaona/helpers/dialog_helper.dart';
-import 'package:kgaona/helpers/modal_helper.dart';
-import 'package:kgaona/helpers/snackbar_helper.dart';
-import 'package:kgaona/helpers/snackbar_manager.dart';
-import 'package:kgaona/views/categoria_screen.dart';
-import 'package:kgaona/views/preferencia_screen.dart';
+import 'package:mi_proyecto/bloc/categoria/categoria_bloc.dart';
+import 'package:mi_proyecto/bloc/categoria/categoria_event.dart';
+import 'package:mi_proyecto/bloc/categoria/categoria_state.dart';
+import 'package:mi_proyecto/bloc/noticia/noticia_bloc.dart';
+import 'package:mi_proyecto/bloc/noticia/noticia_event.dart';
+import 'package:mi_proyecto/bloc/noticia/noticia_state.dart';
+import 'package:mi_proyecto/components/custom_bottom_navigation_bar.dart';
+import 'package:mi_proyecto/components/floating_add_button.dart';
+import 'package:mi_proyecto/components/formulario_noticia.dart';
+import 'package:mi_proyecto/components/last_updated_header.dart';
+import 'package:mi_proyecto/components/noticia_card.dart';
+import 'package:mi_proyecto/components/reporte_dialog.dart';
+import 'package:mi_proyecto/components/side_menu.dart';
+import 'package:mi_proyecto/constants/constantes.dart';
+import 'package:mi_proyecto/domain/categoria.dart';
+import 'package:mi_proyecto/domain/noticia.dart';
+import 'package:mi_proyecto/helpers/categoria_helper.dart';
+import 'package:mi_proyecto/helpers/dialog_helper.dart';
+import 'package:mi_proyecto/helpers/modal_helper.dart';
+import 'package:mi_proyecto/helpers/snackbar_helper.dart';
+import 'package:mi_proyecto/helpers/snackbar_manager.dart';
+import 'package:mi_proyecto/views/categoria_screen.dart';
+import 'package:mi_proyecto/views/preferencia_screen.dart';
 
 class NoticiaScreen extends StatelessWidget {
-  const NoticiaScreen({super.key});
-  @override
+  const NoticiaScreen({super.key});  @override
   Widget build(BuildContext context) {
     // Limpiar cualquier SnackBar existente al entrar a esta pantalla
     // pero solo si no está mostrándose el SnackBar de conectividad
@@ -34,16 +33,9 @@ class NoticiaScreen extends StatelessWidget {
       if (!SnackBarManager().isConnectivitySnackBarShowing) {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
       }
-    });
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider<NoticiaBloc>(
-          create: (context) => NoticiaBloc()..add(FetchNoticiasEvent()),
-        ),
-        BlocProvider<CategoriaBloc>(
-          create: (context) => CategoriaBloc()..add(CategoriaInitEvent()),
-        ),
-      ],      
+    });    // Usamos el NoticiaBloc global que viene del MultiBlocProvider en main.dart
+    return BlocProvider<CategoriaBloc>(
+      create: (context) => CategoriaBloc()..add(CategoriaInitEvent()),
       child: _NoticiaScreenContent(),
     );
   }
@@ -55,33 +47,24 @@ class _NoticiaScreenContent extends StatelessWidget {
     return BlocConsumer<NoticiaBloc, NoticiaState>(
       listener: (context, state) {
         if (state is NoticiaError) {
-          final mensajeError = switch (state.tipoOperacion) {
-            TipoOperacionNoticia.actualizar => 'Error al actualizar la noticia',
-            TipoOperacionNoticia.crear => 'Error al crear la noticia',
-            TipoOperacionNoticia.eliminar => 'Error al eliminar la noticia',
-            TipoOperacionNoticia.filtrar => 'Error al filtrar las noticias',
-            _ => 'Error al cargar las noticias'
-          };
-
           SnackBarHelper.manejarError(
             context,
             state.error,
-            mensajePredeterminado: mensajeError,
           );
         }else if (state is NoticiaCreated) {
           SnackBarHelper.mostrarExito(
             context,
-            mensaje: ConstantesNoticias.successCreated,
+            mensaje: NoticiasConstantes.successCreated,
           );
         }else if (state is NoticiaUpdated) {
           SnackBarHelper.mostrarExito(
             context,
-            mensaje: ConstantesNoticias.successUpdated,
+            mensaje: NoticiasConstantes.successUpdated,
           );
         }else if (state is NoticiaDeleted) {
           SnackBarHelper.mostrarExito(
             context,
-            mensaje: ConstantesNoticias.successDeleted,
+            mensaje: NoticiasConstantes.successDeleted,
           );
         }else if (state is NoticiaFiltered) {
           SnackBarHelper.mostrarExito(
@@ -92,7 +75,7 @@ class _NoticiaScreenContent extends StatelessWidget {
           if (state.noticias.isEmpty) {
             SnackBarHelper.mostrarInfo(
               context,
-              mensaje: ConstantesNoticias.listaVacia,
+              mensaje: NoticiasConstantes.listaVacia,
             );
           }else{
             SnackBarHelper.mostrarExito(
@@ -109,7 +92,7 @@ class _NoticiaScreenContent extends StatelessWidget {
         }
         return Scaffold(
           appBar: AppBar(
-            title: const Text(ConstantesNoticias.tituloApp),
+            title: const Text(NoticiasConstantes.tituloApp),
             centerTitle: true,
             actions: [              
               IconButton(
@@ -208,7 +191,7 @@ class _NoticiaScreenContent extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              state.message,
+              state.error.message,
               style: const TextStyle(color: Colors.red),
               textAlign: TextAlign.center,
             ),
@@ -322,7 +305,7 @@ class _NoticiaScreenContent extends StatelessWidget {
               children: [
                 SizedBox(
                   height: MediaQuery.of(context).size.height * 0.6,
-                  child: const Center(child: Text(ConstantesNoticias.listaVacia)),
+                  child: const Center(child: Text(NoticiasConstantes.listaVacia)),
                 ),
               ],
             ),

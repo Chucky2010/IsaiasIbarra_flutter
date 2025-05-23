@@ -1,4 +1,4 @@
-import 'package:kgaona/domain/task.dart';
+import 'package:mi_proyecto/domain/task.dart';
 
 class TaskRepository {
   final List<Task> _tasks = [

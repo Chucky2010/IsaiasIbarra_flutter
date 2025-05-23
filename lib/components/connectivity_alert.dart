@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:kgaona/bloc/connectivity/connectivity_bloc.dart';
-import 'package:kgaona/bloc/connectivity/connectivity_state.dart';
-import 'package:kgaona/helpers/snackbar_manager.dart';
+import 'package:mi_proyecto/bloc/connectivity/connectivity_bloc.dart';
+import 'package:mi_proyecto/bloc/connectivity/connectivity_state.dart';
+import 'package:mi_proyecto/helpers/snackbar_manager.dart';
 
 /// Widget que muestra una alerta cuando no hay conectividad a Internet usando SnackBar
 /// Complementario a la animación del dinosaurio en el ConnectivityWrapper

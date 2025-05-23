@@ -1,14 +1,13 @@
-import 'package:kgaona/api/service/base_service.dart';
-import 'package:kgaona/constants/constantes.dart';
-import 'package:kgaona/core/api_config.dart';
-import 'package:kgaona/domain/categoria.dart';
+import 'package:mi_proyecto/api/service/base_service.dart';
+import 'package:mi_proyecto/constants/constantes.dart';
+import 'package:mi_proyecto/domain/categoria.dart';
 
 class CategoriaService extends BaseService {
   /// Obtiene todas las categorías desde la API
   Future<List<Categoria>> obtenerCategorias() async {
     final List<dynamic> categoriasJson = await get<List<dynamic>>(
-      ApiConfig.categoriaEndpoint,
-      errorMessage: ConstantesCategorias.mensajeError,
+      ApiConstantes.categoriaEndpoint,
+      errorMessage: CategoriaConstantes.mensajeError,
     );
 
     return categoriasJson
@@ -19,27 +18,30 @@ class CategoriaService extends BaseService {
   }
 
   /// Crea una nueva categoría en la API
-  Future<void> crearCategoria(Categoria categoria) async {
-    await post(
-      ApiConfig.categoriaEndpoint,
+  /// Retorna el objeto categoria con los datos actualizados desde el servidor (incluyendo ID)
+  Future<Categoria> crearCategoria(Categoria categoria) async {
+    final response = await post(
+      ApiConstantes.categoriaEndpoint,
       data: categoria.toMap(),
-      errorMessage: 'Error al crear la categoría',
+      errorMessage: CategoriaConstantes.errorCreated,
     );
+    return CategoriaMapper.fromMap(response);
   }
 
   /// Edita una categoría existente en la API
-  Future<void> editarCategoria(Categoria categoria) async {
-    final url = '${ApiConfig.categoriaEndpoint}/${categoria.id}';
-    await put(
+  Future<Categoria> editarCategoria(Categoria categoria) async {
+    final url = '${ApiConstantes.categoriaEndpoint}/${categoria.id}';
+    final response = await put(
       url,
       data: categoria.toMap(),
-      errorMessage: 'Error al editar la categoría',
+      errorMessage: CategoriaConstantes.errorUpdated,
     );
+    return CategoriaMapper.fromMap(response);
   }
 
   /// Elimina una categoría de la API
   Future<void> eliminarCategoria(String id) async {
-    final url = '${ApiConfig.categoriaEndpoint}/$id';
-    await delete(url, errorMessage: 'Error al eliminar la categoría');
+    final url = '${ApiConstantes.categoriaEndpoint}/$id';
+    await delete(url, errorMessage: CategoriaConstantes.errorDelete);
   }
 }

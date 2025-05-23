@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:kgaona/constants/constantes.dart';
-import 'package:kgaona/views/start_screen.dart';
+import 'package:mi_proyecto/constants/constantes.dart';
+import 'package:mi_proyecto/views/start_screen.dart';
 
 class ResultScreen extends StatelessWidget {
   final int finalScoreGame;
@@ -14,7 +14,7 @@ class ResultScreen extends StatelessWidget {
     const double spacingHeight = 16;
 
     // Variable para mostrar el puntaje final
-    final String scoreText = '$Constants.finalScore: $finalScoreGame/$totalQuestions';
+    final String scoreText = '$PreguntasConstantes.finalScore: $finalScoreGame/$totalQuestions';
 
     // Mensaje de retroalimentación
     final String feedbackMessage = finalScoreGame > (totalQuestions / 2)
@@ -88,7 +88,7 @@ class ResultScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 ),
                 child: const Text(
-                  Constants.playAgain,
+                  PreguntasConstantes.playAgain,
                   style: TextStyle(fontSize: 16),
                 ),
               ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:kgaona/bloc/comentario/comentario_bloc.dart';
+import 'package:mi_proyecto/bloc/comentario/comentario_bloc.dart';
 
 class ComentarioProvider extends StatelessWidget {
   final Widget child;

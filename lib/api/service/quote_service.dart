@@ -1,6 +1,6 @@
-import 'package:kgaona/constants/constantes.dart';
-import 'package:kgaona/data/quote_repository.dart';
-import 'package:kgaona/domain/quote.dart';
+import 'package:mi_proyecto/constants/constantes.dart';
+import 'package:mi_proyecto/data/quote_repository.dart';
+import 'package:mi_proyecto/domain/quote.dart';
 
 class QuoteService {
   final QuoteRepository _repository = QuoteRepository();
@@ -18,7 +18,7 @@ class QuoteService {
   // Método para obtener cotizaciones paginadas
   Future<List<Quote>> getPaginatedQuotes({
     required int pageNumber,
-    int pageSize = Constants.pageSize
+    int pageSize = CotizacionConstantes.pageSize
   }) async {
     // Validaciones
     if (pageNumber < 1) {

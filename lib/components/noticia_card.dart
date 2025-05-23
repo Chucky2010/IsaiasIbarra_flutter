@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:kgaona/constants/constantes.dart';
-import 'package:kgaona/domain/noticia.dart';
+import 'package:mi_proyecto/constants/constantes.dart';
+import 'package:mi_proyecto/domain/noticia.dart';
 import 'package:intl/intl.dart';
-import 'package:kgaona/views/comentarios/comentarios_screen.dart';
-import 'package:kgaona/components/reporte_dialog.dart';
+import 'package:mi_proyecto/views/comentarios/comentarios_screen.dart';
+import 'package:mi_proyecto/components/reporte_dialog.dart';
 
 class NoticiaCard extends StatelessWidget {
   final Noticia noticia;
@@ -199,6 +199,6 @@ class NoticiaCard extends StatelessWidget {
   }
 
   String _formatDate(DateTime date) {
-    return DateFormat(Constants.formatoFecha).format(date);
+    return DateFormat(AppConstantes.formatoFecha).format(date);
   }
 }

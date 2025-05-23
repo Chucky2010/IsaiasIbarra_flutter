@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:kgaona/api/service/quote_service.dart';
-import 'package:kgaona/components/side_menu.dart';
-import 'package:kgaona/domain/quote.dart';
-import 'package:kgaona/constants/constantes.dart';
+import 'package:mi_proyecto/api/service/quote_service.dart';
+import 'package:mi_proyecto/components/side_menu.dart';
+import 'package:mi_proyecto/domain/quote.dart';
+import 'package:mi_proyecto/constants/constantes.dart';
 import 'package:intl/intl.dart'; // Importa el paquete intl
 
 class QuoteScreen extends StatefulWidget {
@@ -50,7 +50,7 @@ class QuoteScreenState extends State<QuoteScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text(Constants.errorMessage)),
+          const SnackBar(content: Text(CotizacionConstantes.errorMessage)),
         );
       }
     } finally {
@@ -75,7 +75,7 @@ class QuoteScreenState extends State<QuoteScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text(Constants.errorMessage)),
+          const SnackBar(content: Text(CotizacionConstantes.errorMessage)),
         );
       }     
     } finally {
@@ -95,7 +95,7 @@ class QuoteScreenState extends State<QuoteScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(Constants.titleApp),
+        title: const Text(CotizacionConstantes.titleApp),
         centerTitle: true,
         backgroundColor: Colors.blue,
       ),
@@ -103,7 +103,7 @@ class QuoteScreenState extends State<QuoteScreen> {
       backgroundColor: Colors.grey[200], // Fondo gris claro
       body: _quotes.isEmpty && _isLoading
           ? const Center(
-              child: Text(Constants.loadingMessage),
+              child: Text(CotizacionConstantes.loadingMessage),
             )
           : ListView.builder(
               controller: _scrollController,
@@ -157,6 +157,6 @@ class QuoteScreenState extends State<QuoteScreen> {
   }
 
   String _formatDate(DateTime date) {
-    return DateFormat(Constants.formatoFecha).format(date);
+    return DateFormat(AppConstantes.formatoFecha).format(date);
   }
 }

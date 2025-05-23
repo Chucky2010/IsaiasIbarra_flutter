@@ -1,13 +1,12 @@
-import 'package:kgaona/api/service/category_cache_service.dart';
-import 'package:kgaona/bloc/reporte/reporte_bloc.dart';
-import 'package:kgaona/data/auth_repository.dart';
-import 'package:kgaona/data/categoria_repository.dart';
-import 'package:kgaona/data/comentario_repository.dart';
-import 'package:kgaona/data/noticia_repository.dart';
-import 'package:kgaona/data/preferencia_repository.dart';
-import 'package:kgaona/data/reporte_repository.dart';
-import 'package:kgaona/helpers/connectivity_service.dart';
-import 'package:kgaona/helpers/secure_storage_service.dart';
+import 'package:mi_proyecto/bloc/reporte/reporte_bloc.dart';
+import 'package:mi_proyecto/data/auth_repository.dart';
+import 'package:mi_proyecto/data/categoria_repository.dart';
+import 'package:mi_proyecto/data/comentario_repository.dart';
+import 'package:mi_proyecto/data/noticia_repository.dart';
+import 'package:mi_proyecto/data/preferencia_repository.dart';
+import 'package:mi_proyecto/data/reporte_repository.dart';
+import 'package:mi_proyecto/helpers/connectivity_service.dart';
+import 'package:mi_proyecto/helpers/secure_storage_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:watch_it/watch_it.dart';
 
@@ -23,5 +22,4 @@ Future<void> initLocator() async {
   di.registerLazySingleton<ConnectivityService>(() => ConnectivityService());
   di.registerSingleton<ReporteRepository>(ReporteRepository());
   di.registerFactory<ReporteBloc>(() => ReporteBloc());
-  di.registerLazySingleton<CategoryCacheService>(() => CategoryCacheService());
 }

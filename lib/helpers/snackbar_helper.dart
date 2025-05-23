@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:kgaona/components/snackbar_component.dart';
-import 'package:kgaona/exceptions/api_exception.dart';
-import 'package:kgaona/helpers/error_helper.dart';
-import 'package:kgaona/helpers/snackbar_manager.dart';
+import 'package:mi_proyecto/components/snackbar_component.dart';
+import 'package:mi_proyecto/exceptions/api_exception.dart';
+import 'package:mi_proyecto/helpers/error_helper.dart';
+import 'package:mi_proyecto/helpers/snackbar_manager.dart';
 
 class SnackBarHelper {
   /// Muestra un mensaje de éxito
@@ -65,11 +65,9 @@ class SnackBarHelper {
   }
 
   /// Procesa y muestra errores teniendo en cuenta el tipo de error
-  /// (Unifica la funcionalidad de ErrorProcessorHelper)
   static void manejarError(
     BuildContext context,
-    Object e, {
-    String? mensajePredeterminado,
+    ApiException e, {
     Duration? duration,
     bool isConnectivityMessage =
         false, // Indica si es un mensaje de conectividad
@@ -79,18 +77,10 @@ class SnackBarHelper {
     // Si no es un mensaje de conectividad y ya hay uno mostrándose, no mostrar nada
     if (!isConnectivityMessage && !SnackBarManager().canShowSnackBar()) return;
 
-    String mensaje = e.toString();
-    Color color = Colors.red;
-
-    // Usar ErrorHelper para procesar el error si es ApiException
-    if (e is ApiException) {
-      final errorInfo = ErrorHelper.getErrorMessageAndColor(e.statusCode);
-      mensaje =
-          (mensajePredeterminado == null || mensajePredeterminado.isEmpty)
-              ? errorInfo['message']
-              : mensajePredeterminado;
-      color = errorInfo['color'] as Color;
-    }
+    // Usar ErrorHelper para procesar el error si es ApiException, 
+    //si no recibe un codigo le pasa 0
+    final color = ErrorHelper.getErrorColor(e.statusCode ?? 0);
+    final mensaje = e.message;
 
     _mostrarSnackBar(
       context,

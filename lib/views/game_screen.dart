@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:kgaona/api/service/question_service.dart';
-import 'package:kgaona/components/custom_bottom_navigation_bar.dart';
-import 'package:kgaona/components/side_menu.dart';
-import 'package:kgaona/domain/question.dart';
-import 'package:kgaona/views/result_screen.dart';
+import 'package:mi_proyecto/api/service/question_service.dart';
+import 'package:mi_proyecto/components/custom_bottom_navigation_bar.dart';
+import 'package:mi_proyecto/components/side_menu.dart';
+import 'package:mi_proyecto/domain/question.dart';
+import 'package:mi_proyecto/views/result_screen.dart';
 
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key});

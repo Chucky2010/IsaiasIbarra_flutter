@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:kgaona/domain/comentario.dart';
+import 'package:mi_proyecto/domain/comentario.dart';
 
 abstract class ComentarioEvent extends Equatable {
   @override

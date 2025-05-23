@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:kgaona/components/custom_bottom_navigation_bar.dart';
-import 'package:kgaona/components/side_menu.dart';
-import 'package:kgaona/constants/constantes.dart';
-import 'package:kgaona/views/game_screen.dart';
+import 'package:mi_proyecto/components/custom_bottom_navigation_bar.dart';
+import 'package:mi_proyecto/components/side_menu.dart';
+import 'package:mi_proyecto/constants/constantes.dart';
+import 'package:mi_proyecto/views/game_screen.dart';
 
 class StartScreen extends StatelessWidget {
   const StartScreen({super.key});
@@ -13,7 +13,7 @@ class StartScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(Constants.titleApp), 
+        title: const Text(PreguntasConstantes.titleApp), 
         centerTitle: true,
       ),
       drawer: const SideMenu(),
@@ -22,7 +22,7 @@ class StartScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text(
-              Constants.welcomeMessage, 
+              PreguntasConstantes.welcomeMessage, 
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
@@ -37,7 +37,7 @@ class StartScreen extends StatelessWidget {
                style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue, 
               ),
-              child: const Text(Constants.startGame), // Texto del botón definido en constants.dart
+              child: const Text(PreguntasConstantes.startGame), // Texto del botón definido en constants.dart
             ),
           ],
         ),

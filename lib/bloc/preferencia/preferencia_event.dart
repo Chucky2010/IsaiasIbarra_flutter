@@ -6,15 +6,13 @@ abstract class PreferenciaEvent extends Equatable {
 }
 
 // Evento para cargar las preferencias iniciales
-class LoadPreferences extends PreferenciaEvent {
-  LoadPreferences();
-}
+class LoadPreferences extends PreferenciaEvent {}
 
 // Evento para guardar las preferencias
 class SavePreferences extends PreferenciaEvent {
   final List<String> selectedCategories;
 
-  SavePreferences({required this.selectedCategories});
+  SavePreferences(this.selectedCategories);
 
   @override
   List<Object?> get props => [selectedCategories];
@@ -25,13 +23,11 @@ class ChangeCategory extends PreferenciaEvent {
   final String category;
   final bool selected;
 
-  ChangeCategory({required this.category, required this.selected});
+  ChangeCategory(this.category, this.selected);
 
   @override
   List<Object?> get props => [category, selected];
 }
 
 // Evento para restablecer todos los filtros
-class ResetFilters extends PreferenciaEvent {
-  ResetFilters();
-}
+class ResetFilters extends PreferenciaEvent {}

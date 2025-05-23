@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:kgaona/constants/constantes.dart';
-import 'package:kgaona/domain/task.dart';
+import 'package:mi_proyecto/constants/constantes.dart';
+import 'package:mi_proyecto/domain/task.dart';
 
 class CommonWidgetsHelper {
   /// Construye un título en negrita con tamaño 20
@@ -75,24 +75,6 @@ class CommonWidgetsHelper {
   }
 }
 
-
-// Widget buildTaskCard(Task task, VoidCallback onEdit,  {String? subtitulo}) {
-//   // Lógica para determinar el ícono dinámico
-//   return TaskCard(
-//     title: task.title,
-//     subtitle: subtitulo,
-//     leadingIcon: CommonWidgetsHelper.buildLeadingIcon(task.type), // Pasa el ícono dinámico al Card
-//     type: task.type,
-//     description: task.description,
-//     date: task.date,
-//     trailing: IconButton(
-//       icon: const Icon(Icons.edit, color: Colors.blue),
-//       onPressed: onEdit, // Llama al callback para editar
-//     ),
-//   );
-// }
-
-
 Widget construirTarjetaDeportiva(Task tarea, int indice, VoidCallback onEdit) {
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0), // Espaciado entre tarjetas
@@ -105,11 +87,11 @@ Widget construirTarjetaDeportiva(Task tarea, int indice, VoidCallback onEdit) {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('$Constants.tipoTarea ${tarea.type}'), // Muestra el tipo de tarea
+          Text('${TareasConstantes.tipoTarea} ${tarea.type}'), // Muestra el tipo de tarea
           CommonWidgetsHelper.buildSpacing(),
           if (tarea.pasos != null && tarea.pasos!.isNotEmpty)
               CommonWidgetsHelper.buildInfoLines(
-                '$Constants.pasosTitulo ${tarea.pasos![0]}',
+                '${TareasConstantes.pasosTitulo} ${tarea.pasos![0]}',
               ) // Muestra el primer paso
           else
             CommonWidgetsHelper.buildNoStepsText(), // Mensaje si no hay pasos

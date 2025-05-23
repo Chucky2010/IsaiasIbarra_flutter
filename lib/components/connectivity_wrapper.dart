@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:kgaona/bloc/connectivity/connectivity_bloc.dart';
-import 'package:kgaona/bloc/connectivity/connectivity_state.dart';
-import 'package:kgaona/components/connectivity_alert.dart';
-import 'package:kgaona/components/no_connectivity_screen.dart';
+import 'package:mi_proyecto/bloc/connectivity/connectivity_bloc.dart';
+import 'package:mi_proyecto/bloc/connectivity/connectivity_state.dart';
+import 'package:mi_proyecto/components/connectivity_alert.dart';
+import 'package:mi_proyecto/components/no_connectivity_screen.dart';
 
 /// Widget que envuelve la aplicación y muestra una alerta de conectividad cuando es necesario
 class ConnectivityWrapper extends StatelessWidget {

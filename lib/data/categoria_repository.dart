@@ -1,46 +1,80 @@
-import 'package:kgaona/api/service/categoria_service.dart';
-import 'package:kgaona/core/base_repository.dart';
-import 'package:kgaona/domain/categoria.dart';
+import 'package:mi_proyecto/api/service/categoria_service.dart';
+import 'package:mi_proyecto/constants/constantes.dart';
+import 'package:mi_proyecto/data/base_repository.dart';
+import 'package:mi_proyecto/domain/categoria.dart';
 
-class CategoriaRepository extends BaseRepository<Categoria> {
+/// Repositorio de categorías con capacidad de caché
+class CategoriaRepository extends CacheableRepository<Categoria> {
   final CategoriaService _categoriaService = CategoriaService();
+
+  // Timestamp de la última actualización
+  DateTime? _lastRefreshed;
 
   @override
   void validarEntidad(Categoria categoria) {
-    validarNoVacio(categoria.nombre, 'nombre de la categoría');
-    validarNoVacio(categoria.descripcion, 'descripción de la categoría');
-    validarNoVacio(categoria.imagenUrl, 'URL de la imagen');
+    validarNoVacio(categoria.nombre, ValidacionConstantes.nombreCategoria);
+    validarNoVacio(
+      categoria.descripcion,
+      ValidacionConstantes.descripcionCategoria,
+    );
+    validarNoVacio(categoria.imagenUrl, ValidacionConstantes.imagenUrl);
   }
 
-  /// Obtiene todas las categorías desde el repositorio
-  Future<List<Categoria>> obtenerCategorias() async {
-    return manejarExcepcion(
+  /// Implementación del método abstracto de CacheableRepository
+  @override
+  Future<List<Categoria>> cargarDatos() async {
+    final categorias = await manejarExcepcion(
       () => _categoriaService.obtenerCategorias(),
-      mensajeError: 'Error al obtener categorías',
+      mensajeError: CategoriaConstantes.mensajeError,
     );
+    _lastRefreshed = DateTime.now();
+    return categorias;
+  }
+
+  /// Obtiene el timestamp de la última actualización
+  DateTime? get lastRefreshed => _lastRefreshed;
+
+  /// Obtiene todas las categorías desde el repositorio
+  /// Si hay caché, devolverá los datos en caché
+  Future<List<Categoria>> obtenerCategorias({
+    bool forzarRecarga = false,
+  }) async {
+    return obtenerDatos(forzarRecarga: forzarRecarga);
   }
 
   /// Crea una nueva categoría
-  Future<void> crearCategoria(Categoria categoria) async {
-    return manejarExcepcion(() {
+  /// Retorna la categoría creada con su ID asignado por el servidor
+  Future<Categoria> crearCategoria(Categoria categoria) async {
+    return manejarExcepcion(() async {
       validarEntidad(categoria);
-      return _categoriaService.crearCategoria(categoria);
-    }, mensajeError: 'Error al crear categoría');
+      final categoriaCreada = await _categoriaService.crearCategoria(categoria);
+      invalidarCache();
+      return categoriaCreada;
+    }, mensajeError: CategoriaConstantes.errorCreated);
   }
 
   /// Edita una categoría existente
-  Future<void> actualizarCategoria(Categoria categoria) async {
-    return manejarExcepcion(() {
+  Future<Categoria> actualizarCategoria(Categoria categoria) async {
+    return manejarExcepcion(() async {
       validarEntidad(categoria);
-      return _categoriaService.editarCategoria(categoria);
-    }, mensajeError: 'Error al actualizar categoría');
+      final categoriaActualizada = await _categoriaService.editarCategoria(categoria);
+      invalidarCache();
+      return categoriaActualizada;
+    }, mensajeError: CategoriaConstantes.errorUpdated);
   }
 
   /// Elimina una categoría
   Future<void> eliminarCategoria(String id) async {
-    return manejarExcepcion(() {
+    return manejarExcepcion(() async {
       validarId(id);
-      return _categoriaService.eliminarCategoria(id);
-    }, mensajeError: 'Error al eliminar categoría');
+      await _categoriaService.eliminarCategoria(id);
+      invalidarCache();
+    }, mensajeError: CategoriaConstantes.errorDelete);
+  }
+
+  /// Limpia la caché de categorías (método público)
+  void limpiarCache() {
+    invalidarCache();
+    _lastRefreshed = null;
   }
 }

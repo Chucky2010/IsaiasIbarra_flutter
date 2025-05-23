@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:kgaona/components/task_card.dart';
-import 'package:kgaona/helpers/task_card_helper.dart';
-import 'package:kgaona/domain/task.dart';
+import 'package:mi_proyecto/components/task_card.dart';
+import 'package:mi_proyecto/helpers/task_card_helper.dart';
+import 'package:mi_proyecto/domain/task.dart';
 
 class TaskDetailsScreen extends StatelessWidget {
   final List<Task> tareas;

@@ -1,8 +1,8 @@
-import 'package:kgaona/api/service/reporte_service.dart';
-import 'package:kgaona/constants/constantes.dart';
-import 'package:kgaona/core/base_repository.dart';
-import 'package:kgaona/domain/reporte.dart';
-import 'package:kgaona/exceptions/api_exception.dart';
+import 'package:mi_proyecto/api/service/reporte_service.dart';
+import 'package:mi_proyecto/constants/constantes.dart';
+import 'package:mi_proyecto/data/base_repository.dart';
+import 'package:mi_proyecto/domain/reporte.dart';
+import 'package:mi_proyecto/exceptions/api_exception.dart';
 
 class ReporteRepository extends CacheableRepository<Reporte> {
   final ReporteService _reporteService = ReporteService();

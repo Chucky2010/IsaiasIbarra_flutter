@@ -1,9 +1,8 @@
 import 'dart:async';
-import 'package:kgaona/api/service/base_service.dart';
-import 'package:kgaona/constants/constantes.dart';
-import 'package:kgaona/core/api_config.dart';
-import 'package:kgaona/domain/reporte.dart';
-import 'package:kgaona/exceptions/api_exception.dart';
+import 'package:mi_proyecto/api/service/base_service.dart';
+import 'package:mi_proyecto/constants/constantes.dart';
+import 'package:mi_proyecto/domain/reporte.dart';
+import 'package:mi_proyecto/exceptions/api_exception.dart';
 
 /// Servicio para gestionar los reportes
 class ReporteService extends BaseService {
@@ -15,7 +14,7 @@ class ReporteService extends BaseService {
     try {
       // Usamos el método get heredado de BaseService
       await get<dynamic>(
-        '${ApiConfig.noticiasEndpoint}/$noticiaId',
+        '${ApiConstantes.noticiasEndpoint}/$noticiaId',
         errorMessage: 'Error al verificar la noticia',
       );
       return true; // Si no hay excepción, la noticia existe
@@ -37,7 +36,7 @@ class ReporteService extends BaseService {
       
       // Usamos el método post heredado de BaseService
       await post(
-        ApiConfig.reportesEndpoint,
+        ApiConstantes.reportesEndpoint,
         data: reporteData,
         errorMessage: ReporteConstantes.errorCrearReporte,
         // Si se requiere autenticación para reportar, añadir: requireAuthToken: true
@@ -55,7 +54,7 @@ class ReporteService extends BaseService {
     try {
       // Usamos el método get heredado de BaseService
       final data = await get<List<dynamic>>(
-        ApiConfig.reportesEndpoint,
+        ApiConstantes.reportesEndpoint,
         errorMessage: ReporteConstantes.errorObtenerReportes,
         // Si se requiere autenticación para ver reportes, añadir: requireAuthToken: true
       );
@@ -75,7 +74,7 @@ class ReporteService extends BaseService {
     try {
       // Usamos el método get heredado de BaseService
       final data = await get<Map<String, dynamic>>(
-        '${ApiConfig.reportesEndpoint}/estadisticas/$noticiaId',
+        '${ApiConstantes.reportesEndpoint}/estadisticas/$noticiaId',
         errorMessage: 'Error al obtener estadísticas de reportes',
         // Si se requiere autenticación para ver estadísticas, añadir: requireAuthToken: true
       );

@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:kgaona/bloc/contador/contador_event.dart';
-import 'package:kgaona/bloc/contador/contador_state.dart';
+import 'package:mi_proyecto/bloc/contador/contador_event.dart';
+import 'package:mi_proyecto/bloc/contador/contador_state.dart';
 
 
 class ContadorBloc extends Bloc<ContadorEvent, ContadorState> {

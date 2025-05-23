@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kgaona/components/dinosaur_animation.dart';
+import 'package:mi_proyecto/components/dinosaur_animation.dart';
 
 /// Pantalla completa que se muestra cuando no hay conectividad a internet
 class NoConnectivityScreen extends StatelessWidget {

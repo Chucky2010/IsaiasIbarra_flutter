@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:kgaona/bloc/contador/contador_bloc.dart';
-import 'package:kgaona/bloc/contador/contador_event.dart';
-import 'package:kgaona/bloc/contador/contador_state.dart';
-import 'package:kgaona/components/custom_bottom_navigation_bar.dart';
-import 'package:kgaona/components/side_menu.dart';
+import 'package:mi_proyecto/bloc/contador/contador_bloc.dart';
+import 'package:mi_proyecto/bloc/contador/contador_event.dart';
+import 'package:mi_proyecto/bloc/contador/contador_state.dart';
+import 'package:mi_proyecto/components/custom_bottom_navigation_bar.dart';
+import 'package:mi_proyecto/components/side_menu.dart';
 
 class ContadorScreen extends StatelessWidget {
   const ContadorScreen({super.key, required this.title});

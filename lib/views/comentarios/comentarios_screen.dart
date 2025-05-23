@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:kgaona/bloc/comentario/comentario_bloc.dart';
-import 'package:kgaona/bloc/comentario/comentario_event.dart';
-import 'package:kgaona/views/comentarios/components/comment_app_bar.dart';
-import 'package:kgaona/views/comentarios/components/comment_input_form.dart';
-import 'package:kgaona/views/comentarios/components/comment_list.dart';
-import 'package:kgaona/views/comentarios/components/comment_search_bar.dart';
+import 'package:mi_proyecto/bloc/comentario/comentario_bloc.dart';
+import 'package:mi_proyecto/bloc/comentario/comentario_event.dart';
+import 'package:mi_proyecto/views/comentarios/components/comment_app_bar.dart';
+import 'package:mi_proyecto/views/comentarios/components/comment_input_form.dart';
+import 'package:mi_proyecto/views/comentarios/components/comment_list.dart';
+import 'package:mi_proyecto/views/comentarios/components/comment_search_bar.dart';
 
 class ComentariosScreen extends StatelessWidget {
   final String noticiaId;

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:kgaona/helpers/dialog_helper.dart';
-import 'package:kgaona/views/contador_screen.dart';
-import 'package:kgaona/views/mi_app_screen.dart';
-import 'package:kgaona/views/noticia_screen.dart';
-import 'package:kgaona/views/quote_screen.dart';
-import 'package:kgaona/views/start_screen.dart';
-import 'package:kgaona/views/welcome_screen.dart';
-import 'package:kgaona/views/tareas_screen.dart';
+import 'package:mi_proyecto/helpers/dialog_helper.dart';
+import 'package:mi_proyecto/views/contador_screen.dart';
+import 'package:mi_proyecto/views/mi_app_screen.dart';
+import 'package:mi_proyecto/views/noticia_screen.dart';
+import 'package:mi_proyecto/views/quote_screen.dart';
+import 'package:mi_proyecto/views/start_screen.dart';
+import 'package:mi_proyecto/views/welcome_screen.dart';
+import 'package:mi_proyecto/views/tareas_screen.dart';
 
 class SideMenu extends StatelessWidget {
   const SideMenu({super.key});

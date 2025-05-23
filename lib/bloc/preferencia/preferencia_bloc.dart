@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:kgaona/bloc/preferencia/preferencia_event.dart';
-import 'package:kgaona/bloc/preferencia/preferencia_state.dart';
-import 'package:kgaona/data/preferencia_repository.dart';
-import 'package:kgaona/exceptions/api_exception.dart';
+import 'package:mi_proyecto/bloc/preferencia/preferencia_event.dart';
+import 'package:mi_proyecto/bloc/preferencia/preferencia_state.dart';
+import 'package:mi_proyecto/data/preferencia_repository.dart';
+import 'package:mi_proyecto/exceptions/api_exception.dart';
 import 'package:watch_it/watch_it.dart';
 
 class PreferenciaBloc extends Bloc<PreferenciaEvent, PreferenciaState> {
@@ -35,13 +35,7 @@ class PreferenciaBloc extends Bloc<PreferenciaEvent, PreferenciaState> {
       );
     } catch (e) {
       if (e is ApiException) {
-        emit(
-          PreferenciaError(
-            'Error al cargar preferencias',
-            error: e,
-            tipoOperacion: TipoOperacionPreferencia.cargar,
-          ),
-        );
+        emit(PreferenciaError(e, TipoOperacionPreferencia.cargar));
       }
     }
   }
@@ -71,13 +65,7 @@ class PreferenciaBloc extends Bloc<PreferenciaEvent, PreferenciaState> {
       );
     } catch (e) {
       if (e is ApiException) {
-        emit(
-          PreferenciaError(
-            'Error al guardar preferencias',
-            error: e,
-            tipoOperacion: TipoOperacionPreferencia.guardar,
-          ),
-        );
+        emit(PreferenciaError(e, TipoOperacionPreferencia.guardar));
       }
     }
   }
@@ -123,13 +111,7 @@ class PreferenciaBloc extends Bloc<PreferenciaEvent, PreferenciaState> {
     } catch (e) {
       // Solo emitir error si es realmente grave, para no interrumpir la experiencia
       if (e is ApiException && e.statusCode! >= 500) {
-        emit(
-          PreferenciaError(
-            'Error al actualizar la categoría',
-            error: e,
-            tipoOperacion: TipoOperacionPreferencia.cambiarCategoria,
-          ),
-        );
+        emit(PreferenciaError(e, TipoOperacionPreferencia.cambiarCategoria));
       }
     }
   }
@@ -147,19 +129,16 @@ class PreferenciaBloc extends Bloc<PreferenciaEvent, PreferenciaState> {
       // Guardar los cambios en la API inmediatamente
       await _preferenciaRepository.guardarCambiosEnAPI();
 
-      // Emitir estado de reseteo
+      // Emitir estado de reseteo con lista vacía para asegurar una UI consistente
       emit(
-        PreferenciasReset(lastUpdated: DateTime.now(), operacionExitosa: true),
+        PreferenciasSaved(
+          categoriasSeleccionadas: [],
+          lastUpdated: DateTime.now(),
+        ),
       );
     } catch (e) {
       if (e is ApiException) {
-        emit(
-          PreferenciaError(
-            'Error al reiniciar los filtros',
-            error: e,
-            tipoOperacion: TipoOperacionPreferencia.reiniciar,
-          ),
-        );
+        emit(PreferenciaError(e, TipoOperacionPreferencia.reiniciar));
       }
     }
   }

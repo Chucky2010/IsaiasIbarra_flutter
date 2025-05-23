@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:kgaona/helpers/dialog_helper.dart';
-import 'package:kgaona/views/welcome_screen.dart';
-import 'package:kgaona/views/tareas_screen.dart';
+import 'package:mi_proyecto/helpers/dialog_helper.dart';
+import 'package:mi_proyecto/views/welcome_screen.dart';
+import 'package:mi_proyecto/views/tareas_screen.dart';
 
 class CustomBottomNavigationBar extends StatelessWidget {
   final int selectedIndex;

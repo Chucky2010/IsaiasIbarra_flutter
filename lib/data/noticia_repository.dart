@@ -1,7 +1,7 @@
-import 'package:kgaona/api/service/noticia_service.dart';
-import 'package:kgaona/core/base_repository.dart';
-import 'package:kgaona/domain/noticia.dart';
-import 'package:kgaona/exceptions/api_exception.dart';
+import 'package:mi_proyecto/api/service/noticia_service.dart';
+import 'package:mi_proyecto/constants/constantes.dart';
+import 'package:mi_proyecto/data/base_repository.dart';
+import 'package:mi_proyecto/domain/noticia.dart';
 
 /// Repositorio para gestionar operaciones relacionadas con las noticias.
 /// Extiende BaseRepository para aprovechar la gestión de errores estandarizada.
@@ -10,39 +10,41 @@ class NoticiaRepository extends BaseRepository<Noticia> {
 
   @override
   void validarEntidad(Noticia noticia) {
-    validarNoVacio(noticia.titulo, 'título de la noticia');
-    validarNoVacio(noticia.descripcion, 'descripción de la noticia');
-    validarNoVacio(noticia.fuente, 'fuente de la noticia');
-    
-    // Validación adicional para la fecha
-    if (noticia.publicadaEl.isAfter(DateTime.now())) {
-      throw ApiException(
-        'La fecha de publicación no puede estar en el futuro.',
-        statusCode: 400
-      );
-    }
+    validarNoVacio(noticia.titulo, ValidacionConstantes.tituloNoticia);
+    validarNoVacio(
+      noticia.descripcion,
+      ValidacionConstantes.descripcionNoticia,
+    );
+    validarNoVacio(noticia.fuente, ValidacionConstantes.fuenteNoticia);
+
+    // Validación adicional para la fecha usando el método genérico
+    validarFechaNoFutura(
+      noticia.publicadaEl,
+      ValidacionConstantes.fechaNoticia,
+    );
   }
+
   /// Obtiene todas las noticias desde el repositorio
   Future<List<Noticia>> obtenerNoticias() async {
     return manejarExcepcion(
       () => _noticiaService.obtenerNoticias(),
-      mensajeError: 'Error al obtener noticias'
+      mensajeError: NoticiasConstantes.mensajeError,
     );
   }
-
   /// Crea una nueva noticia
-  Future<void> crearNoticia(Noticia noticia) async {
+  Future<Noticia> crearNoticia(Noticia noticia) async {
     return manejarExcepcion(() {
       validarEntidad(noticia);
       return _noticiaService.crearNoticia(noticia);
-    }, mensajeError: 'Error al crear noticia');
+    }, mensajeError: NoticiasConstantes.errorCreated);
   }
+
   /// Edita una noticia existente
-  Future<void> editarNoticia(Noticia noticia) async {
+  Future<Noticia> editarNoticia(Noticia noticia) async {
     return manejarExcepcion(() {
       validarEntidad(noticia);
       return _noticiaService.editarNoticia(noticia);
-    }, mensajeError: 'Error al editar noticia');
+    }, mensajeError: NoticiasConstantes.errorUpdated);
   }
 
   /// Elimina una noticia
@@ -50,6 +52,6 @@ class NoticiaRepository extends BaseRepository<Noticia> {
     return manejarExcepcion(() {
       validarId(id);
       return _noticiaService.eliminarNoticia(id);
-    }, mensajeError: 'Error al eliminar noticia');
+    }, mensajeError: NoticiasConstantes.errorDelete);
   }
 }

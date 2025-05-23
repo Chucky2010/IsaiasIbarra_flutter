@@ -1,7 +1,7 @@
-import 'package:kgaona/api/service/comentario_service.dart';
-import 'package:kgaona/core/base_repository.dart';
-import 'package:kgaona/domain/comentario.dart';
-import 'package:kgaona/exceptions/api_exception.dart';
+import 'package:mi_proyecto/api/service/comentario_service.dart';
+import 'package:mi_proyecto/data/base_repository.dart';
+import 'package:mi_proyecto/domain/comentario.dart';
+import 'package:mi_proyecto/exceptions/api_exception.dart';
 
 /// Repositorio para gestionar operaciones relacionadas con los comentarios.
 /// Utiliza caché para mejorar la eficiencia al obtener comentarios.

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kgaona/domain/categoria.dart';
+import 'package:mi_proyecto/domain/categoria.dart';
 
 class FormularioCategoria extends StatefulWidget {
   final Categoria? categoria; // Categoría existente para edición (null para creación)

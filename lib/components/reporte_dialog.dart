@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:kgaona/bloc/reporte/reporte_bloc.dart';
-import 'package:kgaona/bloc/reporte/reporte_event.dart';
-import 'package:kgaona/bloc/reporte/reporte_state.dart';
-import 'package:kgaona/domain/reporte.dart';
-import 'package:kgaona/helpers/snackbar_helper.dart';
+import 'package:mi_proyecto/bloc/reporte/reporte_bloc.dart';
+import 'package:mi_proyecto/bloc/reporte/reporte_event.dart';
+import 'package:mi_proyecto/bloc/reporte/reporte_state.dart';
+import 'package:mi_proyecto/domain/reporte.dart';
+import 'package:mi_proyecto/helpers/snackbar_helper.dart';
 import 'package:watch_it/watch_it.dart';
 
 /// Clase para mostrar el diálogo de reportes de noticias
