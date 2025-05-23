@@ -44,7 +44,7 @@ class TaskCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Título
-                CommonWidgetsHelper.buildBoldTitle(tarea.title),
+                CommonWidgetsHelper.buildBoldTitle(tarea.titulo),
                 CommonWidgetsHelper.buildSpacing(), // Espacio entre el título y la descripción
                 // Pasos (máximo 3 líneas)
                 if (tarea.pasos != null && tarea.pasos!.isNotEmpty)

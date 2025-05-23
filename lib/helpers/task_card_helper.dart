@@ -82,12 +82,12 @@ Widget construirTarjetaDeportiva(Task tarea, int indice, VoidCallback onEdit) {
     contentPadding: const EdgeInsets.all(16.0), // Padding interno del ListTile
     tileColor: Colors.white, // Fondo blanco para el ListTile
     shape: CommonWidgetsHelper.buildRoundedBorder(),
-    leading: CommonWidgetsHelper.buildLeadingIcon(tarea.type), // Ícono dinámico
-    title: CommonWidgetsHelper.buildBoldTitle(tarea.title), // Título en negrita
+    leading: CommonWidgetsHelper.buildLeadingIcon(tarea.tipo), // Ícono dinámico
+    title: CommonWidgetsHelper.buildBoldTitle(tarea.titulo), // Título en negrita
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('${TareasConstantes.tipoTarea} ${tarea.type}'), // Muestra el tipo de tarea
+          Text('${TareasConstantes.tipoTarea} ${tarea.tipo}'), // Muestra el tipo de tarea
           CommonWidgetsHelper.buildSpacing(),
           if (tarea.pasos != null && tarea.pasos!.isNotEmpty)
               CommonWidgetsHelper.buildInfoLines(

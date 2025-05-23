@@ -30,10 +30,10 @@ class TareasService {
      // Itera sobre cada tarea y reemplaza la fecha límite
     final tareasConFechaActualizada = tareas.map((tarea) {
       return Task(
-        title: tarea.title,
-        type: tarea.type,
-        description: tarea.description,
-        date: tarea.date,
+        titulo: tarea.titulo,
+        tipo: tarea.tipo,
+        descripcion: tarea.descripcion,
+        fecha: tarea.fecha,
         fechaLimite: DateTime.now().add(const Duration(days: 1)), // Reemplaza la fecha límite con el día actual + 1
         pasos: tarea.pasos,
       );
@@ -47,12 +47,12 @@ class TareasService {
   Future<List<Task>> _addStepsToTasks(List<Task> tareas) async {
     return await Future.wait(tareas.map((tarea) async {
       if (tarea.pasos == null || tarea.pasos!.isEmpty) {
-        final pasos = await generarPasos(tarea.title, tarea.fechaLimite);
+        final pasos = await generarPasos(tarea.titulo, tarea.fechaLimite);
         return Task(
-          title: tarea.title,
-          type: tarea.type,
-          description: tarea.description,
-          date: tarea.date,
+          titulo: tarea.titulo,
+          tipo: tarea.tipo,
+          descripcion: tarea.descripcion,
+          fecha: tarea.fecha,
           fechaLimite: tarea.fechaLimite,
           pasos: pasos,
         );
@@ -66,14 +66,14 @@ class TareasService {
     await Future.delayed(const Duration(milliseconds: 500));
 
     // Genera pasos para la tarea
-    final pasos = await generarPasos(tarea.title, tarea.fechaLimite);
+    final pasos = await generarPasos(tarea.titulo, tarea.fechaLimite);
 
     // Crea una nueva tarea con los pasos generados
     final nuevaTarea = Task(
-      title: tarea.title,
-      type: tarea.type,
-      description: tarea.description,
-      date: tarea.date,
+      titulo: tarea.titulo,
+      tipo: tarea.tipo,
+      descripcion: tarea.descripcion,
+      fecha: tarea.fecha,
       fechaLimite: tarea.fechaLimite,
       pasos: pasos,
     );
@@ -95,14 +95,14 @@ class TareasService {
     await Future.delayed(const Duration(milliseconds: 500));
 
     // Genera pasos actualizados para la tarea
-    final pasos = await generarPasos(tareaActualizada.title, tareaActualizada.fechaLimite);
+    final pasos = await generarPasos(tareaActualizada.titulo, tareaActualizada.fechaLimite);
 
     // Crea una tarea actualizada con los pasos generados
     final tareaConPasos = Task(
-      title: tareaActualizada.title,
-      type: tareaActualizada.type,
-      description: tareaActualizada.description,
-      date: tareaActualizada.date,
+      titulo: tareaActualizada.titulo,
+      tipo: tareaActualizada.tipo,
+      descripcion: tareaActualizada.descripcion,
+      fecha: tareaActualizada.fecha,
       fechaLimite: tareaActualizada.fechaLimite,
       pasos: pasos,
     );

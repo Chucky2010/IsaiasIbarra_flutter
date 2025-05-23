@@ -174,7 +174,7 @@ class TareaScreenState extends State<TareaScreen> {
           return GestureDetector(
             onTap: () => _mostrarDetallesTarea(index), // Muestra los detalles al tocar la tarjeta
             child:Dismissible(
-              key: Key(tarea.title),
+              key: Key(tarea.titulo),
               direction: DismissDirection.endToStart,
               background: Container(
                 color: Colors.red,
