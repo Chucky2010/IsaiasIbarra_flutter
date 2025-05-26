@@ -1,35 +1,29 @@
 import 'package:mi_proyecto/domain/question.dart';
 
 class QuestionRepository {
-  final List<Question> questions;
-    QuestionRepository() : questions=[] {
-    questions.addAll(
-      [
+  // Método para obtener las preguntas iniciales
+  List<Question> getInitialQuestions() {
+    return [
       Question(
         questionText: '¿Cuál es la capital de Francia?',
         answerOptions: ['Madrid', 'París', 'Roma'],
-        correctAnswerIndex: 1, // La respuesta correcta es 'París'
+        correctAnswerIndex: 1, // París
       ),
       Question(
-        questionText: '¿Qué lenguaje se usa en Flutter?',
-        answerOptions: ['Java', 'Dart', 'Python', 'C++'],
-        correctAnswerIndex: 1, // La respuesta correcta es 'Dart'
+        questionText: '¿Cuál es el lenguaje utilizado en Flutter?',
+        answerOptions: ['Java', 'Dart', 'Python'],
+        correctAnswerIndex: 1, // Dart
       ),
       Question(
-        questionText: '¿Cuántos planetas hay en el sistema solar?',
-        answerOptions: ['7', '8', '9', '10'],
-        correctAnswerIndex: 1, // La respuesta correcta es '8'
+        questionText: '¿Cuántos continentes hay en el mundo?',
+        answerOptions: ['5', '6', '7'],
+        correctAnswerIndex: 2, // 7
       ),
       Question(
         questionText: '¿Qué planeta es conocido como el planeta rojo?',
-        answerOptions:  ['Júpiter', 'Marte', 'Venus'] ,
-        correctAnswerIndex: 1, // La respuesta correcta es 'Marte'
+        answerOptions: ['Júpiter', 'Marte', 'Venus'],
+        correctAnswerIndex: 1, // Marte
       ),
-    ]
-    );
-  }
-
-  List<Question> getQuestions() {
-    return questions; // Devuelve la lista de preguntas
+    ];
   }
 }

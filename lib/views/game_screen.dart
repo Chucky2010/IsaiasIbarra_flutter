@@ -1,174 +1,190 @@
 import 'package:flutter/material.dart';
-import 'package:mi_proyecto/api/services/question_service.dart';
+import 'package:mi_proyecto/api/service/question_service.dart';
+import 'package:mi_proyecto/components/custom_bottom_navigation_bar.dart';
+import 'package:mi_proyecto/components/side_menu.dart';
 import 'package:mi_proyecto/domain/question.dart';
 import 'package:mi_proyecto/views/result_screen.dart';
-import 'package:mi_proyecto/constants/constants.dart';
 
 class GameScreen extends StatefulWidget {
-   const GameScreen({super.key});
- 
-   @override
-   GameScreenState createState() => GameScreenState();
- }
- 
- class GameScreenState extends State<GameScreen> {
-   final QuestionService _questionService = QuestionService();
-   late List<Question> questionsList;
-   int currentQuestionIndex = 0;
-   int userScore = 0;
-   String questionCounterText = '';
-   int? selectedAnswerIndex;
-   bool? respCorrecta;
- 
-   @override
-   void initState() {
-     super.initState();
-     questionsList = _questionService.getQuestions();
-     loadQuestions();
-   }
- 
-   void handleAnswer(int selectedIndex) {
-     setState(() {
-       selectedAnswerIndex = selectedIndex;
-       respCorrecta =
-           questionsList[currentQuestionIndex].correctAnswerIndex == selectedIndex;
-     });
- 
-    // Mensaje del SnackBar
-    final String snackBarMessage = 
-    respCorrecta == true ? '¡Correcto!' : 'Incorrecto';
+  const GameScreen({super.key});
+
+  @override
+  GameScreenState createState() => GameScreenState();
+}
+
+class GameScreenState extends State<GameScreen> {
+  final QuestionService _questionService = QuestionService();
+  List<Question> questionsList = [];
+  int currentQuestionIndex = 0;
+  int userScore = 0;
+  final int _selectedIndex = 0;
+  int? selectedAnswerIndex; // Índice de la respuesta seleccionada
+  bool? isCorrectAnswer; // Estado para manejar si la respuesta es correcta
+
+
+  @override
+  void initState() {
+    super.initState();
+    _loadQuestions();
+  }
+
+  Future<void> _loadQuestions() async {
+    final questions = await _questionService.getQuestions();
+    setState(() {
+      questionsList = questions;
+    });
+  }
+
+  void _onAnswerSelected(int selectedIndex) {
+    setState(() {
+      selectedAnswerIndex = selectedIndex;
+      isCorrectAnswer =
+          questionsList[currentQuestionIndex].isCorrect(selectedIndex);
+
+      if (isCorrectAnswer!) {
+        userScore++; // Incrementa el puntaje si es correcto
+      }
+    });
+
+    // Define el mensaje del SnackBar
+    final snackBarMessage = isCorrectAnswer == true
+        ? const SnackBar(
+            content: Text('¡Correcto!'),
+            backgroundColor: Colors.green,
+          )
+        : const SnackBar(
+            content: Text('Incorrecto'),
+            backgroundColor: Colors.red,
+          );
 
     // Muestra el SnackBar
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          snackBarMessage,
-          style: const TextStyle(color: Colors.white),
-        ),
-        backgroundColor: respCorrecta == true ? Colors.green : Colors.red,
-        duration: const Duration(seconds: 1), // Duración del SnackBar
-      ),
-    );
-  
-     loadNextQuestion(selectedIndex);
-   }
- 
-   void loadQuestions() {
-     setState(() {
-       questionCounterText =
-           'Pregunta ${currentQuestionIndex + 1} de ${questionsList.length}';
-     });
-   }
- 
-   void loadNextQuestion(int selectedIndex) {
+    ScaffoldMessenger.of(context).showSnackBar(snackBarMessage);
 
-     Future.delayed(const Duration(seconds: 1), () {
-       if (respCorrecta == true) {
-         userScore++;
-       }
- 
-       if (currentQuestionIndex < questionsList.length - 1) {
-         setState(() {
-           currentQuestionIndex++;
-           selectedAnswerIndex = null;
-           respCorrecta = null;
-           questionCounterText =
-               'Pregunta ${currentQuestionIndex + 1} de ${questionsList.length}';
-         });
-       } else {
-        if (!mounted) return;
-         Navigator.pushReplacement(
-           context,
-           MaterialPageRoute(builder: (context) =>  ResultScreen(
-              finalScore: userScore,
-              totalQuestions: questionsList.length,
-           )),
-         );
-       }
-     });
-   }
- 
-   @override
-   Widget build(BuildContext context) {
-     final Question currentQuestion = questionsList[currentQuestionIndex];
-     return Scaffold(
-       backgroundColor: Colors.white,
-       appBar: AppBar(
-         title: const Text(Constants.titleAppGame),
-         backgroundColor: Colors.blue,
-         centerTitle: true,
-       ),
-       body: Center(
-         child: Padding(
-           padding: const EdgeInsets.all(16),
-           child: Column(
-             mainAxisAlignment: MainAxisAlignment.center,
-             crossAxisAlignment: CrossAxisAlignment.center,
-             children: [
-               Text(
-                 questionCounterText,
-                 style: const TextStyle(fontSize: 16, color: Colors.grey),
-               ),
-                const SizedBox(height: 16),
-               Text(
-                 currentQuestion.questionText,
-                 style: const TextStyle(
-                   fontSize: 20,
-                   fontWeight: FontWeight.bold,
-                   color: Colors.black,
-                 ),
-                 textAlign: TextAlign.center,
-               ),
-               const SizedBox(height: 24),
-               Column(
-                 
-                 children: List.generate(
-                   currentQuestion.answerOptions.length,
-                   (index) => Padding(
-                     padding: const EdgeInsets.symmetric(vertical: 16),
-                     child: ElevatedButton(
-                       onPressed:
-                           selectedAnswerIndex == null
-                               ? () => handleAnswer(index)
-                               : null,
-                       style: ButtonStyle(
-                         backgroundColor: WidgetStateProperty.resolveWith<Color>(
-                           (Set<WidgetState> states) {
-                             if (selectedAnswerIndex == index) {
-                               return respCorrecta == true
-                                   ? Colors.green
-                                   : Colors.red;
-                             }
-                             return Colors.blue;
-                           },
-                         ),
-                         padding: WidgetStateProperty.all(
-                           const EdgeInsets.symmetric(
-                             vertical: 16,
-                             horizontal: 24,
-                           ),
-                         ),
-                         shape: WidgetStateProperty.all(
-                           RoundedRectangleBorder(
-                             borderRadius: BorderRadius.circular(8),
-                           ),
-                         ),
-                       ),
-                       child: Text(
-                         currentQuestion.answerOptions[index],
-                         style: const TextStyle(
-                           fontSize: 16,
-                           color: Colors.white,
-                         ),
-                       ),
-                     ),
-                   ),
-                 ),
-               ),
-             ],
-           ),
-         ),
-       ),
-     );
-   }
- }
+
+    // Retraso para mostrar el color antes de avanzar
+    Future.delayed(const Duration(seconds: 1), () {
+      if (!mounted) return; // Verifica si el widget sigue montado
+
+      // Oculta el SnackBar antes de avanzar
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+      if (currentQuestionIndex < questionsList.length - 1) {
+        setState(() {
+          currentQuestionIndex++; // Avanza a la siguiente pregunta
+          selectedAnswerIndex = null; // Reinicia el índice seleccionado
+          isCorrectAnswer = null; // Reinicia el estado de la respuesta
+        });
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ResultScreen(finalScoreGame: userScore, totalQuestions: questionsList.length,),
+          ),
+        );
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (questionsList.isEmpty) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    final questionCounterText =
+        'Pregunta ${currentQuestionIndex + 1} de ${questionsList.length}';
+    final currentQuestion = questionsList[currentQuestionIndex];
+    const double spacingHeight = 16; // Variable para el espaciado entre la pregunta y las opciones
+  
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Juego de Preguntas'),
+        centerTitle: true,
+        backgroundColor: Colors.blue,
+      ),
+      drawer: const SideMenu(),
+      backgroundColor: Colors.white,      
+      body: 
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child:Center(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              // mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  '¡Bienvenido al Juego!',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'Puntaje: $userScore',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                Text(
+                  questionCounterText,
+                  style: const TextStyle(fontSize: 16, color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  currentQuestion.questionText,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: spacingHeight), // Espaciado entre la pregunta y las opciones
+                ...currentQuestion.answerOptions.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final option = entry.value;
+                   // Si la respuesta seleccionada es correcta, todos los botones serán verdes
+                  final buttonColor = isCorrectAnswer == true
+                      ? Colors.green
+                      : (selectedAnswerIndex == index ? Colors.red : Colors.blue);
+
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: ElevatedButton(
+                       onPressed: selectedAnswerIndex == null
+                      ? () => _onAnswerSelected(index)
+                      : () {}, // Evita que el usuario seleccione otra opción
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: buttonColor,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      child: Text(
+                        option,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    ),
+                  );
+                }),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Regresa a la pantalla anterior
+                  },
+                  child: const Text('Volver al Inicio'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      bottomNavigationBar:  CustomBottomNavigationBar(selectedIndex: _selectedIndex),
+    );
+  }
+}

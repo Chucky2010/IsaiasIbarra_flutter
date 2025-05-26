@@ -1,69 +1,89 @@
 import 'package:flutter/material.dart';
-import 'package:mi_proyecto/api/services/quote_service.dart';
+import 'package:mi_proyecto/api/service/quote_service.dart';
+import 'package:mi_proyecto/components/side_menu.dart';
 import 'package:mi_proyecto/domain/quote.dart';
-import 'package:mi_proyecto/constants/constants.dart';
+import 'package:mi_proyecto/constants/constantes.dart';
 import 'package:intl/intl.dart'; // Importa el paquete intl
 
 class QuoteScreen extends StatefulWidget {
   const QuoteScreen({super.key});
 
   @override
-  State<QuoteScreen> createState() => _QuoteScreenState();
+  QuoteScreenState createState() => QuoteScreenState();
 }
 
-class _QuoteScreenState extends State<QuoteScreen> {
+class QuoteScreenState extends State<QuoteScreen> {
   final QuoteService _quoteService = QuoteService();
-  final List<Quote> _quotes = [];
   final ScrollController _scrollController = ScrollController();
-  int _currentPage = 1;
+
+  List<Quote> _quotes = [];
+  int _pageNumber = 1;
   bool _isLoading = false;
   bool _hasMore = true;
-  final double spacingHeight = 10; // Espaciado entre Cards
 
+  static const double spacingHeight = 10; // Espaciado entre Cards
 
   @override
   void initState() {
     super.initState();
-    _loadQuotes();
+    _loadInitialQuotes(); // Carga las cotizaciones iniciales
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent && !_isLoading && _hasMore) {
+      if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent && !_isLoading && _hasMore) {
         _loadQuotes();
       }
     });
   }
 
- Future<void> _loadQuotes() async {
-  if (_isLoading || !_hasMore) return;
-
-  setState(() {
-    _isLoading = true;
-  });
-
-  try {
-    // Llama al servicio para obtener cotizaciones paginadas
-    final List<Quote> newQuotes = await _quoteService.getPaginatedQuotes(pageNumber: _currentPage);
-
+  Future<void> _loadInitialQuotes() async {
     setState(() {
-      if (newQuotes.isEmpty) {
-        _hasMore = false; // No hay más cotizaciones
-      } else {
-        _quotes.addAll(newQuotes);
-        _currentPage++;
+      _isLoading = true;
+    });
+
+    try {
+      // Carga todas las cotizaciones disponibles
+      final allQuotes = await _quoteService.getAllQuotes();
+      setState(() {
+        _quotes = allQuotes;
+        _pageNumber = 1; // Configura la paginación para el scroll infinito
+        _hasMore = allQuotes.isNotEmpty;
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text(CotizacionConstantes.errorMessage)),
+        );
       }
-    });
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(Constants.errorMessage),
-        backgroundColor: Colors.red,
-      ),
-    );
-  } finally {
-    setState(() {
-      _isLoading = false;
-    });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
-}
+
+  Future<void> _loadQuotes() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final newQuotes = await _quoteService.getPaginatedQuotes(pageNumber: _pageNumber, pageSize: 5);
+      setState(() {
+        _quotes.addAll(newQuotes);
+        _pageNumber++;
+        _hasMore = newQuotes.isNotEmpty;
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text(CotizacionConstantes.errorMessage)),
+        );
+      }     
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -75,71 +95,68 @@ class _QuoteScreenState extends State<QuoteScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(Constants.titleApp),
+        title: const Text(CotizacionConstantes.titleApp),
+        centerTitle: true,
+        backgroundColor: Colors.blue,
       ),
-      body: Container(
-      color: Colors.grey[200], // Fondo gris claro
-       child: _quotes.isEmpty && !_isLoading
+      drawer: const SideMenu(),
+      backgroundColor: Colors.grey[200], // Fondo gris claro
+      body: _quotes.isEmpty && _isLoading
           ? const Center(
-              child: Text(
-                Constants.emptyList,
-                style: TextStyle(fontSize: 16),
-              ),
+              child: Text(CotizacionConstantes.loadingMessage),
             )
           : ListView.builder(
               controller: _scrollController,
               itemCount: _quotes.length + (_hasMore ? 1 : 0),
               itemBuilder: (context, index) {
                 if (index == _quotes.length) {
-                  // Muestra un indicador de carga al final de la lista
                   return const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: CircularProgressIndicator(),
-                    ),
+                    child: CircularProgressIndicator(),
                   );
                 }
 
                 final quote = _quotes[index];
                 return Column(
                   children: [
-                    Card(
-                      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                      child: ListTile(
-                        title: Text(
-          quote.companyName,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Precio: \$${quote.stockPrice.toStringAsFixed(2)}'),
-            Text(
-              'Última actualización: ${DateFormat(Constants.dateFormat).format(quote.lastUpdated)}',
-            ),
-          ],
-        ),
-        trailing: Text(
-          '${quote.changePercentage > 0 ? '+' : ''}${quote.changePercentage.toStringAsFixed(2)}%',
-          style: TextStyle(
-            color: quote.changePercentage > 0 ? Colors.green : Colors.red,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      child: Card(
+                        margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                quote.companyName,
+                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 8.0),
+                              Text('Precio: \$${quote.stockPrice.toStringAsFixed(2)}'),
+                              Text(
+                                'Cambio: ${quote.changePercentage.toStringAsFixed(2)}%',
+                                style: TextStyle(
+                                  color: quote.changePercentage >= 0 ? Colors.green : Colors.red,
+                                ),
+                              ),
+                              Text(
+                                'Última actualización: ${_formatDate(quote.lastUpdated)}',
+                                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
-                    SizedBox(height: spacingHeight), // Espaciado entre Cards
+                    const SizedBox(height: spacingHeight), // Espaciado entre Cards
                   ],
                 );
-                
               },
             ),
-      ),
     );
   }
+
+  String _formatDate(DateTime date) {
+    return DateFormat(AppConstantes.formatoFecha).format(date);
+  }
 }
-
-

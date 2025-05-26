@@ -9,8 +9,8 @@ class Question {
     required this.correctAnswerIndex,
   });
 
-  String getQuestionText() => questionText;
-  List<String> getAnswerOptions() => answerOptions;
-  int getCorrectAnswerIndex() => correctAnswerIndex;
-
+  // Método para verificar si una respuesta es correcta
+  bool isCorrect(int selectedIndex) {
+    return selectedIndex == correctAnswerIndex;
+  }
 }

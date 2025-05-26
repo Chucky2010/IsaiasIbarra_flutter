@@ -1,89 +1,47 @@
-import 'dart:math'; // Importa para generar números aleatorios
+import 'dart:async';
+import 'dart:math';
+import 'package:mi_proyecto/constants/constantes.dart';
 import 'package:mi_proyecto/domain/quote.dart';
-import 'package:mi_proyecto/constants/constants.dart';
 
 class QuoteRepository {
-  static final List<Quote> _initialQuotes = [
-    Quote(
-      companyName: 'Apple',
-      stockPrice: 150.25,
-      changePercentage: 2.5,
-      lastUpdated: DateTime.now().subtract(const Duration(hours: 1)), // Hace 1 hora
-    ),
-    Quote(
-      companyName: 'Google',
-      stockPrice: 2800.50,
-      changePercentage: -1.2,
-      lastUpdated: DateTime.now().subtract(const Duration(hours: 2)), // Hace 2 horas
-    ),
-    Quote(
-      companyName: 'Amazon',
-      stockPrice: 3400.75,
-      changePercentage: 0.8,
-      lastUpdated: DateTime.now().subtract(const Duration(hours: 3)), // Hace 3 horas
-    ),
-    Quote(
-      companyName: 'Microsoft',
-      stockPrice: 299.99,
-      changePercentage: 1.5,
-      lastUpdated: DateTime.now().subtract(const Duration(hours: 4)), // Hace 4 horas
-    ),
-    Quote(
-      companyName: 'Tesla',
-      stockPrice: 720.10,
-      changePercentage: -0.7,
-      lastUpdated: DateTime.now().subtract(const Duration(hours: 5)), // Hace 5 horas
-    ),
-
-  
+  final List<Quote> _quotes = [
+    Quote(companyName: 'Apple', stockPrice: 150.25, changePercentage: 2.5, lastUpdated: DateTime.now(),),
+    Quote(companyName: 'Microsoft', stockPrice: 280.50, changePercentage: -1.2, lastUpdated: DateTime.now(),),
+    Quote(companyName: 'Google', stockPrice: 2700.00, changePercentage: 0.8, lastUpdated: DateTime.now(),),
+    Quote(companyName: 'Amazon', stockPrice: 3400.75, changePercentage: -0.5, lastUpdated: DateTime.now(),),
+    Quote(companyName: 'Tesla', stockPrice: 700.10, changePercentage: 3.0, lastUpdated: DateTime.now(),),
   ];
 
-// Lista de nombres de empresas conocidas
-  static final List<String> _companyNames = [
-    'Apple',
-    'Google',
-    'Amazon',
-    'Microsoft',
-    'Tesla',
-    'Meta',
-    'Netflix',
-    'Samsung',
-    'Intel',
-    'NVIDIA',
-    'Adobe',
-    'IBM',
-    'Oracle',
-    'Spotify',
-    'Twitter',
-    'Coca-Cola',
-    'Pepsi',
-    'Nike',
-    'Adidas',
-    'Starbucks',
-  ];
-
-  // Método para obtener las cotizaciones iniciales
-  List<Quote> getInitialQuotes() {
-    return List.unmodifiable(_initialQuotes); // Devuelve una copia inmutable
+  // Método para obtener todas las cotizaciones
+  Future<List<Quote>> fetchAllQuotes() async {
+    await Future.delayed(const Duration(seconds: 2)); // Simula un delay de 2 segundos
+    return _quotes;
   }
 
-  // Método para generar cotizaciones aleatorias
-  List<Quote> generateRandomQuotes(int count) {
-    final random = Random();
-    return List.generate(count, (index) {
-      final companyName = _companyNames[random.nextInt(_companyNames.length)];
-      final stockPrice = random.nextDouble() * 1000 + 50; // Precio entre 50 y 1050
-      final changePercentage = random.nextDouble() * 20 - 10; // Cambio entre -10% y 10%
+  // Método para obtener una cotización aleatoria
+  Future<Quote> fetchRandomQuote() async {
+    await Future.delayed(const Duration(seconds: 1)); // Simula un delay de 1 segundo
+    final randomIndex = Random().nextInt(_quotes.length); // Genera un índice aleatorio
+    return _quotes[randomIndex];
+  }
+
+  Future<List<Quote>> getPaginatedQuotes({
+    required int pageNumber,
+    int pageSize = CotizacionConstantes.pageSize,
+  }) async {
+    // Simula un delay de 2 segundos
+    await Future.delayed(const Duration(seconds: 2));
+
+    // Genera cotizaciones aleatorias
+    final List<Quote> randomQuotes = List.generate(pageSize, (index) {
       return Quote(
-        companyName: companyName,
-        stockPrice: stockPrice,
-        changePercentage: changePercentage,
+        companyName: 'Empresa ${(pageNumber - 1) * pageSize + index + 1}',
+        stockPrice: Random().nextDouble() * 5000, // Precio aleatorio entre 0 y 5000
+        changePercentage: Random().nextDouble() * 200 - 100, // Cambio entre -100 y 100
         lastUpdated: DateTime.now(),
       );
     });
+
+    return randomQuotes;
   }
-
-  
 }
-
-

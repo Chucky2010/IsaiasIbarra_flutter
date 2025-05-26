@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:mi_proyecto/constants/constants.dart';
+import 'package:mi_proyecto/constants/constantes.dart';
 import 'package:mi_proyecto/views/start_screen.dart';
 
 class ResultScreen extends StatelessWidget {
-  final int finalScore; // Puntaje final
-  final int totalQuestions; // Total de preguntas
+  final int finalScoreGame;
+  final int totalQuestions;
 
-  const ResultScreen({
-    super.key,
-    required this.finalScore,
-    required this.totalQuestions,
-  });
+  const ResultScreen({super.key, required this.finalScoreGame, required this.totalQuestions});
 
   @override
   Widget build(BuildContext context) {
-    // Texto del puntaje
-    final String scoreText = '$Constants.finalScore $finalScore/$totalQuestions';
+
+    const double spacingHeight = 16;
+
+    // Variable para mostrar el puntaje final
+    final String scoreText = '$PreguntasConstantes.finalScore: $finalScoreGame/$totalQuestions';
 
     // Mensaje de retroalimentación
-    final String feedbackMessage = finalScore > (totalQuestions / 2)
+    final String feedbackMessage = finalScoreGame > (totalQuestions / 2)
         ? '¡Buen trabajo!'
         : '¡Sigue practicando!';
 
@@ -29,43 +28,54 @@ class ResultScreen extends StatelessWidget {
       color: Colors.black,
     );
 
-  // Espaciado entre elementos
-    const double spacingHeight = 20.0;
+    // Estilo del mensaje de retroalimentación
+    const TextStyle feedbackTextStyle = TextStyle(
+      fontSize: 18,
+      color: Colors.grey,
+    );
 
-    // Color del botón
-    final Color buttonColor = finalScore > (totalQuestions / 2)
+    // Determina el color del botón
+    final Color buttonColor = finalScoreGame > (totalQuestions / 2)
         ? Colors.blue // Azul si el puntaje es mayor a la mitad
-        : Colors.green; // Verde si es menor o igual a la mitad
-
+        : Colors.green; // Verde en caso contrario
 
     return Scaffold(
-      backgroundColor: Colors.white, // Fondo blanco
       appBar: AppBar(
-        title: const Text(Constants.titleAppGame), // Título de la aplicación
-        backgroundColor: Colors.blue,
+        title: const Text('Resultados'),
         centerTitle: true,
+        backgroundColor: Colors.blue,
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
+      backgroundColor: Colors.white,
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              const Text(
+                '¡Juego Terminado!',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 10),
               Text(
-                scoreText, // Muestra el puntaje
+                scoreText,
                 style: scoreTextStyle,
                 textAlign: TextAlign.center,
               ),
-             const SizedBox(height: spacingHeight), // Espaciado entre puntaje y mensaje
+              const SizedBox(height: spacingHeight),
               Text(
-                feedbackMessage, // Mensaje de retroalimentación
-                style: const TextStyle(fontSize: 16, color: Colors.grey),
+                feedbackMessage,
+                style: feedbackTextStyle,
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 24), // Espaciado antes del botón
+              const SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () {
-                  // Navega de vuelta a StartScreen y reinicia el juego
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(builder: (context) => const StartScreen()),
@@ -73,14 +83,14 @@ class ResultScreen extends StatelessWidget {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: buttonColor, // Botón verde
-                  foregroundColor: Colors.white, // Texto blanco
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 16.0,
-                    horizontal: 32.0,
-                  ),
+                  backgroundColor: buttonColor,// Usa la variable buttonColor
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 ),
-                child: const Text(Constants.playAgain), // Texto del botón
+                child: const Text(
+                  PreguntasConstantes.playAgain,
+                  style: TextStyle(fontSize: 16),
+                ),
               ),
             ],
           ),
