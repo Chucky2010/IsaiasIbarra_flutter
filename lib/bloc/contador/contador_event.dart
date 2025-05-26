@@ -1,11 +1,14 @@
-// Clase base para los eventos del contador
-abstract class ContadorEvento {}
+import 'package:equatable/equatable.dart';
 
-// Evento para incrementar el contador
-class IncrementEvent extends ContadorEvento {}
+abstract class ContadorEvent extends Equatable {
+  const ContadorEvent();
 
-// Evento para decrementar el contador
-class DecrementEvent extends ContadorEvento {}
+  @override
+  List<Object?> get props => [];
+}
 
-// Evento para reiniciar el contador
-class ResetEvent extends ContadorEvento {}
+class ContadorIncrementEvent extends ContadorEvent {}
+
+class ContadorDecrementEvent extends ContadorEvent {}
+
+class ContadorResetEvent extends ContadorEvent {}

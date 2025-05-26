@@ -2,6 +2,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mi_proyecto/data/auth_repository.dart';
 import 'package:mi_proyecto/bloc/auth/auth_event.dart';
 import 'package:mi_proyecto/bloc/auth/auth_state.dart';
+import 'package:mi_proyecto/data/preferencia_repository.dart';
+import 'package:mi_proyecto/exceptions/api_exception.dart';
 import 'package:watch_it/watch_it.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
@@ -20,7 +22,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     try {
       if (event.email.isEmpty || event.password.isEmpty) {
-        emit(const AuthFailure(error: 'El usuario y la contraseña son obligatorios'));
+        emit(AuthFailure(ApiException('El usuario y la contraseña son obligatorios')));
         return;
       }
       
@@ -31,10 +33,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (success) {
         emit(AuthAuthenticated());
       } else {
-        emit(const AuthFailure(error: 'Credenciales inválidas'));
+        emit(AuthFailure(ApiException('Credenciales inválidas')));
       }
     } catch (e) {
-      emit(AuthFailure(error: e.toString()));
+      emit( AuthFailure(ApiException('Error al iniciar sesión')));
     }
   }
 
@@ -45,9 +47,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     try {
       await _authRepository.logout();
-      emit(AuthUnauthenticated());
+      // Limpiar la caché de preferencias
+      di<PreferenciaRepository>().invalidarCache();      
+      emit(AuthInitial());
     } catch (e) {
-      emit(AuthFailure(error: e.toString()));
+      emit(AuthFailure(ApiException('Error al cerrar sesión')));
     }
   }
 
@@ -64,7 +68,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(AuthUnauthenticated());
       }
     } catch (e) {
-      emit(AuthFailure(error: e.toString()));
+      emit(AuthFailure(ApiException('Error al realizar la verificación de sesión')));
     }
   }
 }

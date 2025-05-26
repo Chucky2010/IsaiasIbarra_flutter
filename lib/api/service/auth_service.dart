@@ -1,7 +1,6 @@
-import 'dart:async';
+import 'package:mi_proyecto/api/service/base_service.dart';
 import 'package:mi_proyecto/domain/login_request.dart';
 import 'package:mi_proyecto/domain/login_response.dart';
-import 'package:mi_proyecto/api/service/base_service.dart';
 import 'package:mi_proyecto/exceptions/api_exception.dart';
 
 class AuthService extends BaseService {
@@ -23,7 +22,7 @@ class AuthService extends BaseService {
       if (e is ApiException) {
         rethrow;
       } else {
-        throw ApiException('Error de conexión: ${e.toString()}');
+        throw ApiException('Error en login');
       }
     }
   }

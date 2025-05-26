@@ -1,167 +1,145 @@
-import 'package:mi_proyecto/exceptions/api_exception.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mi_proyecto/bloc/preferencia/preferencia_event.dart';
 import 'package:mi_proyecto/bloc/preferencia/preferencia_state.dart';
 import 'package:mi_proyecto/data/preferencia_repository.dart';
+import 'package:mi_proyecto/exceptions/api_exception.dart';
 import 'package:watch_it/watch_it.dart';
 
 class PreferenciaBloc extends Bloc<PreferenciaEvent, PreferenciaState> {
-  final PreferenciaRepository _preferenciasRepository = di<PreferenciaRepository>(); // Obtenemos el repositorio del locator
+  final PreferenciaRepository _preferenciaRepository =
+      di<PreferenciaRepository>();
 
-  PreferenciaBloc() : super(const PreferenciaState()) {
-    on<CargarPreferencias>(_onCargarPreferencias);
-    on<CambiarCategoria>(_onCambiarCategoria);
-    on<CambiarMostrarFavoritos>(_onCambiarMostrarFavoritos);
-    on<SavePreferencias>(_onSavePreferencias);
-    on<BuscarPorPalabraClave>(_onBuscarPorPalabraClave);
-    on<FiltrarPorFecha>(_onFiltrarPorFecha);
-    on<CambiarOrdenamiento>(_onCambiarOrdenamiento);
-    on<ReiniciarFiltros>(_onReiniciarFiltros);
+  PreferenciaBloc() : super(PreferenciaInitial()) {
+    on<LoadPreferences>(_onLoadPreferences);
+    on<SavePreferences>(_onSavePreferences);
+    on<ChangeCategory>(_onChangeCategory);
+    on<ResetFilters>(_onResetFilters);
   }
 
-  Future<void> _onCargarPreferencias(
-    CargarPreferencias event,
+  Future<void> _onLoadPreferences(
+    LoadPreferences event,
     Emitter<PreferenciaState> emit,
   ) async {
-    try {
-      // Obtener solo las categorías seleccionadas del repositorio existente
-      final categoriasSeleccionadas = await _preferenciasRepository.obtenerCategoriasSeleccionadas();
+    emit(PreferenciaLoading());
 
-      // Como el repositorio original solo almacena categorías, el resto de valores serían por defecto
-      emit(PreferenciaState(
-        categoriasSeleccionadas: categoriasSeleccionadas,
-        // Valores por defecto para el resto de propiedades
-        mostrarFavoritos: false,
-        palabraClave: '',
-        fechaDesde: null,
-        fechaHasta: null,
-        ordenarPor: 'fecha',
-        ascendente: false,
-      ));
+    try {
+      // Obtener las categorías seleccionadas del repositorio
+      final categoriasSeleccionadas =
+          await _preferenciaRepository.obtenerCategoriasSeleccionadas();
+
+      emit(
+        PreferenciasLoaded(
+          categoriasSeleccionadas: categoriasSeleccionadas,
+          lastUpdated: DateTime.now(),
+        ),
+      );
     } catch (e) {
-      final int? statusCode = e is ApiException ? e.statusCode : null;
-      emit(PreferenciaError('Error al cargar preferencias: ${e.toString()}', statusCode: statusCode));
+      if (e is ApiException) {
+        emit(PreferenciaError(e, TipoOperacionPreferencia.cargar));
+      }
     }
   }
 
-  void _onCambiarCategoria(
-    CambiarCategoria event,
+  Future<void> _onSavePreferences(
+    SavePreferences event,
     Emitter<PreferenciaState> emit,
   ) async {
     try {
-      // 1. Crear una copia de las categorías actuales para modificar
-      final List<String> categoriasActualizadas = [...state.categoriasSeleccionadas];
+      // Emitir un estado de carga para mostrar al usuario que está procesando
+      emit(PreferenciaLoading());
 
-      // 2. Actualizar localmente primero para feedback inmediato
-      if (event.seleccionada) {
-        if (!categoriasActualizadas.contains(event.categoria)) {
-          categoriasActualizadas.add(event.categoria);
-        }
+      // Primero guardamos en la caché local (si es necesario)
+      await _preferenciaRepository.guardarCategoriasSeleccionadas(
+        event.selectedCategories,
+      );
+
+      // Luego sincronizamos con la API (esto es lo importante)
+      await _preferenciaRepository.guardarCambiosEnAPI();
+
+      // Emitir estado de éxito
+      emit(
+        PreferenciasSaved(
+          categoriasSeleccionadas: event.selectedCategories,
+          lastUpdated: DateTime.now(),
+        ),
+      );
+    } catch (e) {
+      if (e is ApiException) {
+        emit(PreferenciaError(e, TipoOperacionPreferencia.guardar));
+      }
+    }
+  }
+
+  Future<void> _onChangeCategory(
+    ChangeCategory event,
+    Emitter<PreferenciaState> emit,
+  ) async {
+    // Obtener el estado actual
+    if (state is! PreferenciasLoaded) {
+      return;
+    }
+
+    final currentState = state as PreferenciasLoaded;
+    List<String> updatedCategories = List.from(
+      currentState.categoriasSeleccionadas,
+    );
+
+    // Primero emitir el cambio local (inmediato)
+    if (event.selected) {
+      if (!updatedCategories.contains(event.category)) {
+        updatedCategories.add(event.category);
+      }
+    } else {
+      updatedCategories.remove(event.category);
+    }
+
+    // Emitir el nuevo estado inmediatamente
+    emit(
+      PreferenciasLoaded(
+        categoriasSeleccionadas: updatedCategories,
+        lastUpdated: DateTime.now(),
+      ),
+    );
+
+    // Luego realizar la operación de persistencia en segundo plano
+    try {
+      if (event.selected) {
+        await _preferenciaRepository.agregarCategoriaFiltro(event.category);
       } else {
-        categoriasActualizadas.remove(event.categoria);
-      }
-
-      // 3. Emitir estado actualizado inmediatamente para UI responsiva
-      emit(state.copyWith(categoriasSeleccionadas: categoriasActualizadas));
-
-      // 4. Luego intentar persistir el cambio (sin bloquear la UI)
-      try {
-        if (event.seleccionada) {
-          await _preferenciasRepository.agregarCategoriaFiltro(event.categoria);
-        } else {
-          await _preferenciasRepository.eliminarCategoriaFiltro(event.categoria);
-        }
-      } catch (e) {
-        // Si falla la persistencia, no interrumpir la experiencia del usuario
-        // pero registrar el error para depuración
-        print('Error al persistir cambio de categoría: $e');
-
-        // Opcionalmente, podrías emitir un estado de "sincronización pendiente"
-        // para indicar que los cambios locales no se han guardado aún
+        await _preferenciaRepository.eliminarCategoriaFiltro(event.category);
       }
     } catch (e) {
-      final int? statusCode = e is ApiException ? e.statusCode : null;
-      // Este catch solo atraparía errores graves en la lógica del bloc
-      emit(PreferenciaError('Error al cambiar categoría: ${e.toString()}', statusCode: statusCode));
+      // Solo emitir error si es realmente grave, para no interrumpir la experiencia
+      if (e is ApiException && e.statusCode! >= 500) {
+        emit(PreferenciaError(e, TipoOperacionPreferencia.cambiarCategoria));
+      }
     }
   }
 
-  void _onCambiarMostrarFavoritos(
-    CambiarMostrarFavoritos event,
-    Emitter<PreferenciaState> emit,
-  ) {
-    // Como el repositorio original no maneja esta preferencia,
-    // solo actualizamos el estado en memoria
-    final nuevoEstado = state.copyWith(mostrarFavoritos: event.mostrarFavoritos);
-    emit(nuevoEstado);
-  }
-
-  void _onBuscarPorPalabraClave(
-    BuscarPorPalabraClave event,
-    Emitter<PreferenciaState> emit,
-  ) {
-    // Como el repositorio original no maneja esta preferencia,
-    // solo actualizamos el estado en memoria
-    final nuevoEstado = state.copyWith(palabraClave: event.palabraClave);
-    emit(nuevoEstado);
-  }
-
-  void _onFiltrarPorFecha(
-    FiltrarPorFecha event,
-    Emitter<PreferenciaState> emit,
-  ) {
-    // Como el repositorio original no maneja esta preferencia,
-    // solo actualizamos el estado en memoria
-    final nuevoEstado = state.copyWith(
-      fechaDesde: event.fechaDesde,
-      fechaHasta: event.fechaHasta,
-    );
-    emit(nuevoEstado);
-  }
-
-  void _onCambiarOrdenamiento(
-    CambiarOrdenamiento event,
-    Emitter<PreferenciaState> emit,
-  ) {
-    // Como el repositorio original no maneja esta preferencia,
-    // solo actualizamos el estado en memoria
-    final nuevoEstado = state.copyWith(
-      ordenarPor: event.ordenarPor,
-      ascendente: event.ascendente,
-    );
-    emit(nuevoEstado);
-  }
-
-  void _onReiniciarFiltros(
-    ReiniciarFiltros event,
+  Future<void> _onResetFilters(
+    ResetFilters event,
     Emitter<PreferenciaState> emit,
   ) async {
+    emit(PreferenciaLoading());
+
     try {
-      // Limpiar las categorías seleccionadas usando el método del repositorio
-      await _preferenciasRepository.limpiarFiltrosCategorias();
+      // Limpiar todas las categorías seleccionadas (solo modifica la caché)
+      await _preferenciaRepository.limpiarFiltrosCategorias();
 
-      // Emitir un estado inicial
-      const estadoInicial = PreferenciaState();
-      emit(estadoInicial);
+      // Guardar los cambios en la API inmediatamente
+      await _preferenciaRepository.guardarCambiosEnAPI();
+
+      // Emitir estado de reseteo con lista vacía para asegurar una UI consistente
+      emit(
+        PreferenciasSaved(
+          categoriasSeleccionadas: [],
+          lastUpdated: DateTime.now(),
+        ),
+      );
     } catch (e) {
-      final int? statusCode = e is ApiException ? e.statusCode : null;
-      emit(PreferenciaError('Error al reiniciar filtros: ${e.toString()}', statusCode: statusCode));
-    }
-  }
-
-  Future<void> _onSavePreferencias(
-    SavePreferencias event,
-    Emitter<PreferenciaState> emit,
-  ) async {
-    try {
-      // Más eficiente: guardar todas las categorías a la vez
-      await _preferenciasRepository.guardarCategoriasSeleccionadas(event.categoriasSeleccionadas);
-
-      // Emitir el estado actualizado
-      emit(state.copyWith(categoriasSeleccionadas: event.categoriasSeleccionadas));
-    } catch (e) {
-      final int? statusCode = e is ApiException ? e.statusCode : null;
-      emit(PreferenciaError('Error al guardar preferencias: ${e.toString()}', statusCode: statusCode));
+      if (e is ApiException) {
+        emit(PreferenciaError(e, TipoOperacionPreferencia.reiniciar));
+      }
     }
   }
 }

@@ -1,144 +1,44 @@
 import 'dart:async';
-import 'package:mi_proyecto/exceptions/api_exception.dart';
-import 'package:mi_proyecto/domain/reporte.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:mi_proyecto/api/service/base_service.dart';
+import 'package:mi_proyecto/constants/constantes.dart';
+import 'package:mi_proyecto/domain/reporte.dart';
+
 
 class ReporteService extends BaseService {
-  // Constructor
-  ReporteService() : super();
-
-  /// Obtiene todos los reportes
-  Future<List<Reporte>> getReportes() async {
-    try {      final data = await get('/reportes', requireAuthToken: false);
-      
-      if (data is List) {
-        debugPrint('📊 Procesando ${data.length} reportes');
-        
-        return data.map((json) {
-          try {
-            if (json is Map<String, dynamic>) {
-              return ReporteMapper.fromMap(json);
-            } else {
-              return ReporteMapper.fromJson(json.toString());
-            }
-          } catch (e) {
-            debugPrint('❌ Error al deserializar reporte: $e');
-            // Retornar null y luego filtrar los nulos
-            return null;
-          }
-        }).where((reporte) => reporte != null).cast<Reporte>().toList();
-      } else {
-        debugPrint('❌ La respuesta no es una lista: $data');
-        throw ApiException('Formato de respuesta inválido');
-      }
-    } on DioException catch (e) {
-      debugPrint('❌ DioException en getReportes: ${e.toString()}');
-      handleError(e);
-      return []; // Retornar lista vacía en caso de error
-    } catch (e) {
-      if (e is ApiException) {
-        rethrow;
-      }
-      debugPrint('❌ Error inesperado: ${e.toString()}');
-      throw ApiException('Error inesperado: $e');
-    }
+  /// Envía un reporte
+  Future<void> enviarReporte(Reporte reporte) async {
+    await post(
+      ApiConstantes.reportesEndpoint,
+      data: reporte.toMap(),
+      errorMessage: ReporteConstantes.errorCrear,
+    );
   }
 
-  /// Crea un nuevo reporte
-  Future<Reporte?> crearReporte({
-    required String noticiaId,
-    required MotivoReporte motivo,
-  }) async {
-    try {
-      final fecha = DateTime.now().toIso8601String();      final data = await post(
-        '/reportes',
-        data: {
-          'noticiaId': noticiaId,
-          'fecha': fecha,
-          'motivo': motivo.toValue(), // Método para serializar el enum correctamente
-        },
-        requireAuthToken: true, // Operación de escritura
-      );
-      
-      debugPrint('✅ Reporte creado correctamente');
-      
-      if (data is Map<String, dynamic>) {
-        return ReporteMapper.fromMap(data);
-      } else if (data != null) {
-        return ReporteMapper.fromJson(data.toString());
-      }
-      return null;
-    } on DioException catch (e) {
-      debugPrint('❌ DioException en crearReporte: ${e.toString()}');
-      handleError(e);
-      return null;
-    } catch (e) {
-      debugPrint('❌ Error inesperado en crearReporte: ${e.toString()}');
-      if (e is ApiException) {
-        rethrow;
-      }
-      throw ApiException('Error inesperado: $e');
-    }
+  /// Obtiene todos los reportes de una noticia específica
+  Future<List<Reporte>> obtenerReportes(noticiaId) async {
+    final List<dynamic> reportesJson = await get<List<dynamic>>(
+      '${ApiConstantes.reportesEndpoint}?noticiaId=$noticiaId',
+      errorMessage: ReporteConstantes.errorObtenerReportes,
+    );
+    return reportesJson
+        .map<Reporte>(
+          (json) => ReporteMapper.fromMap(json as Map<String, dynamic>),
+        )
+        .toList();
   }
-
-  /// Obtiene reportes por ID de noticia
-  Future<List<Reporte>> getReportesPorNoticia(String noticiaId) async {
-    try {
-      final reportes = await getReportes();
-      return reportes.where((reporte) => reporte.noticiaId == noticiaId).toList();
-    } catch (e) {
-      debugPrint('❌ Error en getReportesPorNoticia: ${e.toString()}');
-      if (e is ApiException) {
-        rethrow;
+  /// Elimina todos los reportes asociados a una noticia
+  Future<void> eliminarReportesPorNoticia(String noticiaId) async {
+    // 1. Primero obtenemos todos los reportes de la noticia
+    final reportes = await obtenerReportes(noticiaId);
+    
+    // 2. Eliminamos cada reporte individualmente
+    for (final reporte in reportes) {
+      if (reporte.id != null) {
+        await delete(
+          '${ApiConstantes.reportesEndpoint}/${reporte.id}',
+          errorMessage: ReporteConstantes.errorEliminarReportes,
+        );
       }
-      throw ApiException('Error al obtener reportes por noticia: $e');
-    }
-  }
-
-  /// Elimina un reporte
-  Future<void> eliminarReporte(String reporteId) async {
-    try {      await delete('/reportes/$reporteId', requireAuthToken: true);
-      debugPrint('✅ Reporte eliminado correctamente');
-    } on DioException catch (e) {
-      debugPrint('❌ DioException en eliminarReporte: ${e.toString()}');
-      handleError(e);
-    } catch (e) {
-      debugPrint('❌ Error inesperado en eliminarReporte: ${e.toString()}');
-      if (e is ApiException) {
-        rethrow;
-      }
-      throw ApiException('Error inesperado: $e');
-    }
-  }
-
-  /// Actualiza un reporte existente
-  Future<Reporte?> actualizarReporte(String reporteId, Map<String, dynamic> datosActualizados) async {
-    try {      final data = await put(
-        '/reportes/$reporteId',
-        data: datosActualizados,
-        requireAuthToken: true, // Operación de escritura
-      );
-      
-      debugPrint('✅ Reporte actualizado correctamente');
-      
-      if (data is Map<String, dynamic>) {
-        return ReporteMapper.fromMap(data);
-      } else if (data != null) {
-        return ReporteMapper.fromJson(data.toString());
-      }
-      return null;
-    } on DioException catch (e) {
-      debugPrint('❌ DioException en actualizarReporte: ${e.toString()}');
-      handleError(e);
-      return null;
-    } catch (e) {
-      debugPrint('❌ Error inesperado en actualizarReporte: ${e.toString()}');
-      if (e is ApiException) {
-        rethrow;
-      }
-      throw ApiException('Error inesperado: $e');
     }
   }
 }

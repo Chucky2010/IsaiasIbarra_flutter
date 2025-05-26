@@ -1,30 +1,29 @@
 import 'package:mi_proyecto/domain/question.dart';
-class QuestionRepository {
 
-  Future<List<Question>> getQuestions() async {
-    await Future.delayed(const Duration(seconds: 2));
+class QuestionRepository {
+  // Método para obtener las preguntas iniciales
+  List<Question> getInitialQuestions() {
     return [
       Question(
         questionText: '¿Cuál es la capital de Francia?',
         answerOptions: ['Madrid', 'París', 'Roma'],
-        correctAnswerIndex: 1,
+        correctAnswerIndex: 1, // París
       ),
       Question(
-        questionText: '¿Cuál es la capital de España?',
-        answerOptions: ['Madrid', 'Barcelona', 'Valencia'],
-        correctAnswerIndex: 0,
+        questionText: '¿Cuál es el lenguaje utilizado en Flutter?',
+        answerOptions: ['Java', 'Dart', 'Python'],
+        correctAnswerIndex: 1, // Dart
       ),
       Question(
-        questionText: '¿Cuál es la capital de Italia?',
-        answerOptions: ['Roma', 'Milán', 'Nápoles'],
-        correctAnswerIndex: 0,
+        questionText: '¿Cuántos continentes hay en el mundo?',
+        answerOptions: ['5', '6', '7'],
+        correctAnswerIndex: 2, // 7
       ),
       Question(
         questionText: '¿Qué planeta es conocido como el planeta rojo?',
         answerOptions: ['Júpiter', 'Marte', 'Venus'],
-        correctAnswerIndex: 2,
+        correctAnswerIndex: 1, // Marte
       ),
     ];
   }
-
 }

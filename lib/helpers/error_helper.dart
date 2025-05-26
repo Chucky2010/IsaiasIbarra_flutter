@@ -1,42 +1,66 @@
 import 'package:flutter/material.dart';
-import 'package:mi_proyecto/constants.dart';
+
 class ErrorHelper {
   /// Devuelve un mensaje y un color basado en el código HTTP
-  static Map<String, dynamic> getErrorMessageAndColor(int? statusCode) {
-    String message;
+  static Color getErrorColor(int statusCode) {
     Color color;
-
     switch (statusCode) {
-      case 200:
-        message = 'Operación exitosa';
-        color = Colors.green;
-        break;
       case 400:
-        message = NoticiaConstantes.mensajeError;
-        color = Colors.orange;
-        break;
-      case 401:
-        message = ErrorConstantes.errorUnauthorized;
         color = Colors.red;
         break;
+      case 401:
+        color = Colors.orange;
+        break;
       case 403:
-        message = ErrorConstantes.errorUnauthorized;
+      case 562:
         color = Colors.redAccent;
         break;
       case 404:
-        message = ErrorConstantes.errorNotFound;
         color = Colors.grey;
         break;
+      case 429:
+        // Límite de tasa alcanzado (Rate Limit) - Color amarillo ámbar
+        color = Colors.amber;
+        break;
       case 500:
-        message = ErrorConstantes.errorServer;
+        // Error interno del servidor (Internal Server Error) - Color rojo
         color = Colors.red;
         break;
+      case 503:
+        // Servicio no disponible (Service Unavailable) - Color rojo
+        color = Colors.red;
+        break;
+      case 561:
+        // Error en plantilla de respuesta Beeceptor - Color rosa
+        color = Colors.pink;
+        break;
+      case 571:
+      case 572:
+      case 573:
+      case 574:
+      case 575:
+      case 576:
+      case 577:
+      case 578:
+        // Errores de conexión proxy Beeceptor - Color cian
+        color = Colors.cyan;
+        break;
+      case 580:
+        // Cliente desconectado (socket hang up) - Color azul
+        color = Colors.blue;
+        break;
+      case 581:
+        // Error al recuperar archivo Beeceptor - Color verde lima
+        color = Colors.lime;
+        break;
+      case 599:
+        // Error crítico en Beeceptor - Color rojo oscuro
+        color = Colors.red[900]!;
+        break;
       default:
-        message = 'Ocurrió un error desconocido.';
-        color = Colors.black;
+        color = Colors.purple;
         break;
     }
-
-    return {'message': message, 'color': color};
+    return  color;
   }
 }

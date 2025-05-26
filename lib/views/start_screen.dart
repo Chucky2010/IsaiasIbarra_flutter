@@ -1,46 +1,48 @@
 import 'package:flutter/material.dart';
-import 'package:mi_proyecto/views/game_screen.dart'; 
-import 'package:mi_proyecto/constants.dart';
+import 'package:mi_proyecto/components/custom_bottom_navigation_bar.dart';
+import 'package:mi_proyecto/components/side_menu.dart';
+import 'package:mi_proyecto/constants/constantes.dart';
+import 'package:mi_proyecto/views/game_screen.dart';
 
 class StartScreen extends StatelessWidget {
+  const StartScreen({super.key});
 
-  const StartScreen({super.key}); 
+  final int _selectedIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bienvenido'),
+        title: const Text(PreguntasConstantes.titleApp), 
+        centerTitle: true,
       ),
+      drawer: const SideMenu(),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
+          children: [
             const Text(
-              AppConstants.welcomeMessage,
-              style: TextStyle(fontSize: 20),
+              PreguntasConstantes.welcomeMessage, 
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-              ),
               onPressed: () {
-              
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => const GameScreen(), 
-                  ),
+                  MaterialPageRoute(builder: (context) => const GameScreen()),
                 );
               },
-              child: const Text(
-                  AppConstants.startGame,
-                  style: TextStyle(color: Colors.white),
-                ),  
+               style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue, 
+              ),
+              child: const Text(PreguntasConstantes.startGame), // Texto del botón definido en constants.dart
             ),
           ],
         ),
       ),
+      bottomNavigationBar:  CustomBottomNavigationBar(selectedIndex: _selectedIndex),
     );
   }
 }

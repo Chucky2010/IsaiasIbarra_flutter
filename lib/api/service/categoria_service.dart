@@ -1,169 +1,47 @@
-import 'package:mi_proyecto/domain/categoria.dart';
-import 'package:mi_proyecto/exceptions/api_exception.dart';
-import 'package:flutter/foundation.dart';
-import 'package:dio/dio.dart';
 import 'package:mi_proyecto/api/service/base_service.dart';
+import 'package:mi_proyecto/constants/constantes.dart';
+import 'package:mi_proyecto/domain/categoria.dart';
 
 class CategoriaService extends BaseService {
-  CategoriaService() : super();
-    /// Obtiene todas las categorías desde la API
-  Future<List<Categoria>> getCategorias() async {
-    try {
-      final data = await get('/categorias', requireAuthToken: false);
-      
-      if (data is List) {
-        final List<dynamic> categoriasJson = data;
-        debugPrint('📊 Procesando ${categoriasJson.length} categorías');
-        debugPrint('📄 Primer elemento de muestra: ${categoriasJson.isNotEmpty ? categoriasJson.first : "ninguno"}');
+  /// Obtiene todas las categorías desde la API
+  Future<List<Categoria>> obtenerCategorias() async {
+    final List<dynamic> categoriasJson = await get<List<dynamic>>(
+      ApiConstantes.categoriaEndpoint,
+      errorMessage: CategoriaConstantes.mensajeError,
+    );
 
-        // Filtrar cualquier categoría que no se pueda deserializar correctamente
-        List<Categoria> categorias = [];
-        for (var json in categoriasJson) {
-          try {
-            if (json != null && json is Map<String, dynamic>) {
-              // CAMBIO IMPORTANTE: Verificar tanto 'id' como '_id' para manejar diferentes formatos de API
-              if (json['id'] != null || json['_id'] != null) {
-                // Asegurarse de que siempre haya un 'id' para deserializar correctamente
-                if (json['_id'] != null && json['id'] == null) {
-                  json['id'] = json['_id']; // Copiar '_id' a 'id' si solo existe '_id'
-                }
-                categorias.add(CategoriaMapper.ensureInitialized().decodeMap<Categoria>(
-                    json,));
-              } else {
-                debugPrint('⚠️ Categoría sin ID ni _id, ignorando: $json');
-              }
-            }
-          } catch (e) {
-            debugPrint(' Error al deserializar categoría: $e');
-            debugPrint('Datos problemáticos: $json');
-            // Ignoramos esta categoría y continuamos con la siguiente
-          }
-        }
-        return categorias;
-      } else {
-        debugPrint('❌ La respuesta no es una lista: $data');
-        throw ApiException('Formato de respuesta inválido');
-      }
-    } on DioException catch (e) {
-      debugPrint('❌ DioException en getCategorias: ${e.toString()}');
-      handleError(e);
-      return []; // En caso de error, devolvemos una lista vacía
-    } catch (e) {
-      if (e is ApiException) {
-        rethrow;
-      }
-      debugPrint('❌ Error inesperado en getCategorias: ${e.toString()}');
-      throw ApiException('Error al obtener categorías: $e');
-    }
-  }
-
-  /// Obtiene una categoría por su ID desde la API
-  Future<Categoria> obtenerCategoriaPorId(String id) async {
-    try {
-      // Validar que el ID no sea nulo o vacío
-      if (id.isEmpty) {
-        throw ApiException('ID de categoría inválido', statusCode: 400);
-      }
-        debugPrint('🔍 Buscando categoría con ID: $id');
-      
-      final data = await get('/categorias/$id', requireAuthToken: false);
-      
-      if (data != null && data is Map<String, dynamic>) {
-        try {
-          // CAMBIO IMPORTANTE: Verificar tanto 'id' como '_id' para manejar diferentes formatos de API
-          if (data['id'] != null || data['_id'] != null) {
-            // Asegurarse de que siempre haya un 'id' para deserializar correctamente
-            if (data['_id'] != null && data['id'] == null) {
-              data['id'] = data['_id']; // Copiar '_id' a 'id' si solo existe '_id'
-            }
-            return CategoriaMapper.ensureInitialized().decodeMap<Categoria>(
-              data,
-            );
-          } else {
-            throw ApiException('Categoría sin identificador válido');
-          }
-        } catch (e) {
-          debugPrint('❌ Error al deserializar categoría: $e');
-          throw ApiException('Error al procesar los datos de la categoría');
-        }
-      } else {
-        debugPrint('❌ Respuesta no es un objeto: $data');
-        throw ApiException('Formato de respuesta inválido');
-      }
-    } on DioException catch (e) {
-      debugPrint('❌ DioException en obtenerCategoriaPorId: ${e.toString()}');
-      handleError(e);
-      throw ApiException('Error al obtener la categoría');
-    } catch (e) {
-      if (e is ApiException) {
-        rethrow;
-      }
-      debugPrint('❌ Error inesperado en obtenerCategoriaPorId: ${e.toString()}');
-      throw ApiException('Error inesperado: $e');
-    }
+    return categoriasJson
+        .map<Categoria>(
+          (json) => CategoriaMapper.fromMap(json as Map<String, dynamic>),
+        )
+        .toList();
   }
 
   /// Crea una nueva categoría en la API
-  Future<void> crearCategoria(Map<String, dynamic> categoria) async {
-    try {      debugPrint('➕ Creando nueva categoría');
-      debugPrint('📤 Datos a enviar: $categoria');
-      
-      await post('/categorias', data: categoria, requireAuthToken: true);
-      
-      debugPrint('✅ Categoría creada con éxito');
-    } on DioException catch (e) {
-      debugPrint('❌ DioException en crearCategoria: ${e.toString()}');
-      handleError(e);
-    } catch (e) {
-      if (e is ApiException) {
-        rethrow;
-      }
-      debugPrint('❌ Error inesperado en crearCategoria: ${e.toString()}');
-      throw ApiException('Error inesperado: $e');
-    }
+  /// Retorna el objeto categoria con los datos actualizados desde el servidor (incluyendo ID)
+  Future<Categoria> crearCategoria(Categoria categoria) async {
+    final response = await post(
+      ApiConstantes.categoriaEndpoint,
+      data: categoria.toMap(),
+      errorMessage: CategoriaConstantes.errorCreated,
+    );
+    return CategoriaMapper.fromMap(response);
   }
 
   /// Edita una categoría existente en la API
-  Future<void> editarCategoria(String id, Map<String, dynamic> categoria) async {
-    try {
-      // Validar que el ID no sea nulo o vacío
-      if (id.isEmpty) {
-        throw ApiException('ID de categoría inválido', statusCode: 400);
-      }      debugPrint('🔄 Editando categoría con ID: $id');
-      await put('/categorias/$id', data: categoria, requireAuthToken: true);
-      
-      debugPrint('✅ Categoría editada correctamente');
-    } on DioException catch (e) {
-      debugPrint('❌ DioException en editarCategoria: ${e.toString()}');
-      handleError(e);
-    } catch (e) {
-      if (e is ApiException) {
-        rethrow;
-      }
-      debugPrint('❌ Error inesperado en editarCategoria: ${e.toString()}');
-      throw ApiException('Error inesperado: $e');
-    }
+  Future<Categoria> editarCategoria(Categoria categoria) async {
+    final url = '${ApiConstantes.categoriaEndpoint}/${categoria.id}';
+    final response = await put(
+      url,
+      data: categoria.toMap(),
+      errorMessage: CategoriaConstantes.errorUpdated,
+    );
+    return CategoriaMapper.fromMap(response);
   }
 
   /// Elimina una categoría de la API
   Future<void> eliminarCategoria(String id) async {
-    try {
-      // Validar que el ID no sea nulo o vacío
-      if (id.isEmpty) {
-        throw ApiException('ID de categoría inválido', statusCode: 400);
-      }      debugPrint('🗑️ Eliminando categoría con ID: $id');
-      await delete('/categorias/$id', requireAuthToken: true);
-
-      debugPrint('✅ Categoría eliminada correctamente');
-    } on DioException catch (e) {
-      debugPrint('❌ DioException en eliminarCategoria: ${e.toString()}');
-      handleError(e);
-    } catch (e) {
-      if (e is ApiException) {
-        rethrow;
-      }
-      debugPrint('❌ Error inesperado en eliminarCategoria: ${e.toString()}');
-      throw ApiException('Error inesperado: $e');
-    }
+    final url = '${ApiConstantes.categoriaEndpoint}/$id';
+    await delete(url, errorMessage: CategoriaConstantes.errorDelete);
   }
 }
