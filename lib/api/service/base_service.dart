@@ -10,7 +10,7 @@ import 'package:watch_it/watch_it.dart' show di;
 /// Clase base para servicios API que proporciona funcionalidad común
 class BaseService {
   late final Dio _dio;
-  final SecureStorageService _secureStorage = SecureStorageService();
+  final  _secureStorage = di<SecureStorageService>();
 
   
   /// Constructor que inicializa la configuración de Dio con los parámetros base
@@ -221,6 +221,26 @@ class BaseService {
     return _executeRequest<dynamic>(
       () => _dio.delete(
         endpoint,
+        queryParameters: queryParameters,
+        options: options,
+      ),
+      errorMessage,
+    );
+  }
+
+  /// Método genérico para realizar solicitudes PATCH (actualización parcial)
+  Future<dynamic> patch(
+    String endpoint, {
+    required dynamic data,
+    Map<String, dynamic>? queryParameters,
+    String errorMessage = AppConstantes.errorUpdateDefault,
+    bool requireAuthToken = false,
+  }) async {
+    final options = await _getRequestOptions(requireAuthToken: requireAuthToken);
+    return _executeRequest<dynamic>(
+      () => _dio.patch(
+        endpoint,
+        data: data,
         queryParameters: queryParameters,
         options: options,
       ),

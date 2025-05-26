@@ -247,11 +247,10 @@ class _NoticiaScreenContent extends StatelessWidget {
                   context.read<NoticiaBloc>().add(DeleteNoticiaEvent(noticia.id!));
                 },                child: NoticiaCard(
                   noticia: noticia,
-                  onReport: () {
-                    // Mostrar el diálogo de reportes
+                  onReport: () {                    // Mostrar el diálogo de reportes
                     ReporteDialog.mostrarDialogoReporte(
                       context: context, 
-                      noticiaId: noticia.id!,
+                      noticia: noticia,
                     );
                   },
                   onEdit: () async {

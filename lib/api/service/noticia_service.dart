@@ -43,4 +43,25 @@ class NoticiaService extends BaseService {
     final url = '${ApiConstantes.noticiasEndpoint}/$id';
     await delete(url, errorMessage: NoticiasConstantes.errorDelete);
   }
+  /// Verifica si una noticia existe en la API
+  Future<void> verificarNoticiaExiste(String noticiaId) async {
+    await get(
+      '${ApiConstantes.noticiasEndpoint}?noticiaId=$noticiaId',
+      errorMessage: NoticiasConstantes.errorVerificarNoticiaExiste,
+    );
+  }
+  /// Incrementa el contador de reportes de una noticia
+  Future<Map<String, dynamic>> incrementarContadorReportes(String noticiaId, int valor) async {
+    final url = '${ApiConstantes.noticiasEndpoint}/$noticiaId';
+
+    // Usamos PATCH para actualizar parcialmente solo el contador de reportes
+    final response = await patch(
+      url,
+      data: {'contadorReportes': valor}, 
+      errorMessage: NoticiasConstantes.errorActualizarContadorReportes,
+    );
+
+    return response as Map<String, dynamic>;
+  }
+
 }

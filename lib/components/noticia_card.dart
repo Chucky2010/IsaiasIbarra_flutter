@@ -158,22 +158,51 @@ class NoticiaCard extends StatelessWidget {
                     onPressed: () {
                       // Acción para compartir
                     },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.flag),
-                    onPressed: () {
-                      // Acción para reportar noticia
-                      if (onReport != null) {
-                        onReport!();
-                      } else {
-                        // Si no se proporcionó un callback, usar el diálogo de reportes directamente
-                        ReporteDialog.mostrarDialogoReporte(
-                          context: context,
-                          noticiaId: noticia.id!,
-                        );
-                      }
-                    },
-                    tooltip: 'Reportar noticia',
+                  ),                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.flag),
+                        onPressed: () {
+                          // Acción para reportar noticia
+                          if (onReport != null) {
+                            onReport!();
+                          } else {
+                            // Si no se proporcionó un callback, usar el diálogo de reportes directamente
+                            ReporteDialog.mostrarDialogoReporte(
+                              context: context,
+                              noticia: noticia,
+                            );
+                          }
+                        },
+                        tooltip: 'Reportar noticia',
+                      ),
+                      if (noticia.contadorReportes != null && noticia.contadorReportes! > 0)
+                        Positioned(
+                          right: 8,
+                          top: 8,
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 16,
+                              minHeight: 16,
+                            ),
+                            child: Text(
+                              noticia.contadorReportes! > 99 ? '99+' : noticia.contadorReportes.toString(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 8,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                   IconButton(
                     icon: const Icon(Icons.edit),

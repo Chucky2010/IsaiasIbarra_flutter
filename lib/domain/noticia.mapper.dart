@@ -38,6 +38,12 @@ class NoticiaMapper extends ClassMapperBase<Noticia> {
   static String? _$categoriaId(Noticia v) => v.categoriaId;
   static const Field<Noticia, String> _f$categoriaId =
       Field('categoriaId', _$categoriaId, opt: true);
+  static int? _$contadorReportes(Noticia v) => v.contadorReportes;
+  static const Field<Noticia, int> _f$contadorReportes =
+      Field('contadorReportes', _$contadorReportes, opt: true);
+  static int? _$contadorComentarios(Noticia v) => v.contadorComentarios;
+  static const Field<Noticia, int> _f$contadorComentarios =
+      Field('contadorComentarios', _$contadorComentarios, opt: true);
 
   @override
   final MappableFields<Noticia> fields = const {
@@ -48,6 +54,8 @@ class NoticiaMapper extends ClassMapperBase<Noticia> {
     #publicadaEl: _f$publicadaEl,
     #urlImagen: _f$urlImagen,
     #categoriaId: _f$categoriaId,
+    #contadorReportes: _f$contadorReportes,
+    #contadorComentarios: _f$contadorComentarios,
   };
 
   static Noticia _instantiate(DecodingData data) {
@@ -58,7 +66,9 @@ class NoticiaMapper extends ClassMapperBase<Noticia> {
         fuente: data.dec(_f$fuente),
         publicadaEl: data.dec(_f$publicadaEl),
         urlImagen: data.dec(_f$urlImagen),
-        categoriaId: data.dec(_f$categoriaId));
+        categoriaId: data.dec(_f$categoriaId),
+        contadorReportes: data.dec(_f$contadorReportes),
+        contadorComentarios: data.dec(_f$contadorComentarios));
   }
 
   @override
@@ -118,7 +128,9 @@ abstract class NoticiaCopyWith<$R, $In extends Noticia, $Out>
       String? fuente,
       DateTime? publicadaEl,
       String? urlImagen,
-      String? categoriaId});
+      String? categoriaId,
+      int? contadorReportes,
+      int? contadorComentarios});
   NoticiaCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(Then<$Out2, $R2> t);
 }
 
@@ -138,7 +150,9 @@ class _NoticiaCopyWithImpl<$R, $Out>
           String? fuente,
           DateTime? publicadaEl,
           String? urlImagen,
-          Object? categoriaId = $none}) =>
+          Object? categoriaId = $none,
+          Object? contadorReportes = $none,
+          Object? contadorComentarios = $none}) =>
       $apply(FieldCopyWithData({
         if (id != $none) #id: id,
         if (titulo != null) #titulo: titulo,
@@ -146,7 +160,10 @@ class _NoticiaCopyWithImpl<$R, $Out>
         if (fuente != null) #fuente: fuente,
         if (publicadaEl != null) #publicadaEl: publicadaEl,
         if (urlImagen != null) #urlImagen: urlImagen,
-        if (categoriaId != $none) #categoriaId: categoriaId
+        if (categoriaId != $none) #categoriaId: categoriaId,
+        if (contadorReportes != $none) #contadorReportes: contadorReportes,
+        if (contadorComentarios != $none)
+          #contadorComentarios: contadorComentarios
       }));
   @override
   Noticia $make(CopyWithData data) => Noticia(
@@ -156,7 +173,11 @@ class _NoticiaCopyWithImpl<$R, $Out>
       fuente: data.get(#fuente, or: $value.fuente),
       publicadaEl: data.get(#publicadaEl, or: $value.publicadaEl),
       urlImagen: data.get(#urlImagen, or: $value.urlImagen),
-      categoriaId: data.get(#categoriaId, or: $value.categoriaId));
+      categoriaId: data.get(#categoriaId, or: $value.categoriaId),
+      contadorReportes:
+          data.get(#contadorReportes, or: $value.contadorReportes),
+      contadorComentarios:
+          data.get(#contadorComentarios, or: $value.contadorComentarios));
 
   @override
   NoticiaCopyWith<$R2, Noticia, $Out2> $chain<$R2, $Out2>(Then<$Out2, $R2> t) =>

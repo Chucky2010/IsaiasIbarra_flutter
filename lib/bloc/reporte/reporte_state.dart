@@ -1,6 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
+import 'package:mi_proyecto/domain/noticia.dart';
 import 'package:mi_proyecto/domain/reporte.dart';
+import 'package:mi_proyecto/exceptions/api_exception.dart';
 
 @immutable
 abstract class ReporteState extends Equatable {
@@ -12,7 +14,14 @@ abstract class ReporteState extends Equatable {
 
 class ReporteInitial extends ReporteState {}
 
-class ReporteLoading extends ReporteState {}
+class ReporteLoading extends ReporteState {
+  final MotivoReporte? motivoActual;
+  
+  const ReporteLoading({this.motivoActual});
+  
+  @override
+  List<Object?> get props => [motivoActual];
+}
 
 class ReporteSuccess extends ReporteState {
   final String mensaje;
@@ -24,44 +33,35 @@ class ReporteSuccess extends ReporteState {
 }
 
 class ReporteError extends ReporteState {
-  final String errorMessage;
-  final int? statusCode;
+  final ApiException error;
   
-  const ReporteError({
-    required this.errorMessage,
-    this.statusCode,
-  });
-  
+  const ReporteError(this.error);  
   @override
-  List<Object?> get props => [errorMessage, statusCode];
+  List<Object?> get props => [error];
 }
 
-// Nuevo estado para estadísticas de reportes
 class ReporteEstadisticasLoaded extends ReporteState {
-  final String noticiaId;
+  final Noticia noticia;
   final Map<MotivoReporte, int> estadisticas;
   
   const ReporteEstadisticasLoaded({
-    required this.noticiaId,
+    required this.noticia,
     required this.estadisticas,
   });
   
   @override
-  List<Object?> get props => [noticiaId, estadisticas];
+  List<Object?> get props => [noticia, estadisticas];
 }
 
-// Nuevo estado para verificación de reportes del usuario
-class ReporteUsuarioVerificado extends ReporteState {
-  final String noticiaId;
-  final MotivoReporte motivo;
-  final bool reportado;
+class NoticiaReportesActualizada extends ReporteState {
+  final Noticia noticia;
+  final int contadorReportes;
   
-  const ReporteUsuarioVerificado({
-    required this.noticiaId,
-    required this.motivo,
-    required this.reportado,
+  const NoticiaReportesActualizada({
+    required this.noticia,
+    required this.contadorReportes,
   });
   
   @override
-  List<Object?> get props => [noticiaId, motivo, reportado];
+  List<Object?> get props => [noticia, contadorReportes];
 }

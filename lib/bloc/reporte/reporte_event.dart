@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:mi_proyecto/domain/noticia.dart';
 import 'package:mi_proyecto/domain/reporte.dart';
 
 abstract class ReporteEvent extends Equatable {
@@ -9,38 +10,36 @@ abstract class ReporteEvent extends Equatable {
 }
 
 class EnviarReporte extends ReporteEvent {
-  final String noticiaId;
+  final Noticia noticia;
   final MotivoReporte motivo;
 
   const EnviarReporte({
-    required this.noticiaId,
+    required this.noticia,
     required this.motivo,
   });
 
   @override
-  List<Object?> get props => [noticiaId, motivo];
+  List<Object?> get props => [noticia, motivo];
 }
 
-// Nuevo evento para cargar estadísticas de reportes para una noticia específica
+class ActualizarContadorNoticia extends ReporteEvent {
+  final Noticia noticia;
+  final Map<MotivoReporte, int> estadisticas;
+
+  const ActualizarContadorNoticia({
+    required this.noticia,
+    required this.estadisticas,
+  });
+
+  @override
+  List<Object?> get props => [noticia, estadisticas];
+}
+
 class CargarEstadisticasReporte extends ReporteEvent {
-  final String noticiaId;
+  final Noticia noticia;
 
-  const CargarEstadisticasReporte({required this.noticiaId});
-
-  @override
-  List<Object?> get props => [noticiaId];
-}
-
-// Nuevo evento para verificar si el usuario ha reportado una noticia
-class VerificarReporteUsuario extends ReporteEvent {
-  final String noticiaId;
-  final MotivoReporte motivo;
-
-  const VerificarReporteUsuario({
-    required this.noticiaId,
-    required this.motivo,
-  });
+  const CargarEstadisticasReporte({required this.noticia});
 
   @override
-  List<Object?> get props => [noticiaId, motivo];
+  List<Object?> get props => [noticia];
 }

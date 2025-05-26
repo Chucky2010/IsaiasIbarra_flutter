@@ -6,7 +6,7 @@ import 'package:mi_proyecto/views/noticia_screen.dart';
 import 'package:mi_proyecto/views/quote_screen.dart';
 import 'package:mi_proyecto/views/start_screen.dart';
 import 'package:mi_proyecto/views/welcome_screen.dart';
-import 'package:mi_proyecto/views/tareas_screen.dart';
+import 'package:mi_proyecto/views/tarea_screen.dart';
 
 class SideMenu extends StatelessWidget {
   const SideMenu({super.key});

@@ -9,7 +9,6 @@ import 'package:mi_proyecto/bloc/noticia/noticia_state.dart';
 
 class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
   final NoticiaRepository _noticiaRepository = di<NoticiaRepository>();
-
   NoticiaBloc() : super(NoticiaInitial()) {
     on<FetchNoticiasEvent>(_onFetchNoticias);
     on<AddNoticiaEvent>(_onAddNoticia);
@@ -17,6 +16,7 @@ class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
     on<DeleteNoticiaEvent>(_onDeleteNoticia);
     on<FilterNoticiasByPreferenciasEvent>(_onFilterNoticiasByPreferencias);
     on<ResetNoticiaEvent>(_onResetNoticias);
+    on<ActualizarContadorReportesEvent>(_onActualizarContadorReportes);
   }
 
   Future<void> _onFetchNoticias(
@@ -157,6 +157,47 @@ class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
   ) async {
     // Reiniciar el estado a inicial
     emit(NoticiaInitial());
+  }
+
+  Future<void> _onActualizarContadorReportes(
+    ActualizarContadorReportesEvent event,
+    Emitter<NoticiaState> emit,
+  ) async {
+    List<Noticia> noticiasActuales = [];
+    if (state is NoticiaLoaded) {
+      noticiasActuales = [...(state as NoticiaLoaded).noticias];
+    }
+
+    // Buscar la noticia que necesitamos actualizar
+    final index = noticiasActuales.indexWhere(
+      (noticia) => noticia.id == event.noticiaId,
+    );
+
+    // Si encontramos la noticia, actualizamos su contador
+    if (index >= 0) {
+      try {
+        // Persistir el cambio en la API
+        await _noticiaRepository.incrementarContadorReportes(
+          event.noticiaId,
+          event.nuevoContador,
+        );
+
+        // Crear una copia de la noticia con el contador actualizado
+        final noticiaActualizada = noticiasActuales[index].copyWith(
+          contadorReportes: event.nuevoContador,
+        );
+
+        // Reemplazar la noticia en la lista
+        noticiasActuales[index] = noticiaActualizada;
+
+        // Emitir nuevo estado con la lista actualizada
+        emit(NoticiaLoaded(noticiasActuales, DateTime.now()));
+      } catch (e) {
+        if (e is ApiException) {
+          emit(NoticiaError(e, TipoOperacionNoticia.actualizar));
+        }
+      }
+    }
   }
 
   List<Noticia> _filtrarNoticiasPorCategorias(
