@@ -19,6 +19,7 @@ class TareaService extends BaseService {
   }
 
   /// Crea una nueva tarea
+  /// crea la tarea nueva
   Future<Tarea> crearTarea(Tarea tarea) async {
     final json = await post(
       _endpoint,
