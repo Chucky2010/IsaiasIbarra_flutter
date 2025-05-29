@@ -61,3 +61,21 @@ class TareaUpdated extends TareaOperationSuccess {
 class TareaDeleted extends TareaOperationSuccess {
   TareaDeleted(super.tareas, super.tipoOperacion, super.mensaje);
 }
+
+
+
+class TareaCompletada extends TareaOperationSuccess {
+  final String id;
+  final bool isCompleted;
+
+  TareaCompletada(
+    super.tareas, 
+    super.tipoOperacion, 
+    super.mensaje, 
+    this.id, 
+    this.isCompleted,
+  );
+  
+  @override
+  List<Object?> get props => [...super.props, id, isCompleted];
+}

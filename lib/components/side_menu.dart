@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mi_proyecto/helpers/dialog_helper.dart';
+import 'package:mi_proyecto/views/acerca_de_screen.dart';
 import 'package:mi_proyecto/views/contador_screen.dart';
 import 'package:mi_proyecto/views/mi_app_screen.dart';
 import 'package:mi_proyecto/views/noticia_screen.dart';
@@ -93,8 +94,7 @@ class SideMenu extends StatelessWidget {
                 ),
               );
             },
-          ),
-          ListTile(
+          ),          ListTile(
             leading: const Icon(Icons.stars), // Ícono para el contador
             title: const Text('Juego'),
             onTap: () {
@@ -102,6 +102,18 @@ class SideMenu extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const StartScreen(),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.info_outline), // Ícono para Acerca de
+            title: const Text('Acerca de'),
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AcercaDeScreen(),
                 ),
               );
             },

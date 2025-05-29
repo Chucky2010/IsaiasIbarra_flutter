@@ -52,3 +52,17 @@ class DeleteTareaEvent extends TareaEvent {
   @override
   List<Object?> get props => [id];
 }
+
+// Añadir este evento a los existentes
+class ToggleCompletadoTareaEvent extends TareaEvent {
+  final String id;
+  final bool isCompleted;
+  
+  ToggleCompletadoTareaEvent({
+    required this.id, 
+    required this.isCompleted,
+  });
+  
+  @override
+  List<Object?> get props => [id, isCompleted];
+}

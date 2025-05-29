@@ -10,6 +10,7 @@ class Tarea with TareaMappable{
   final String? descripcion;
   final DateTime? fecha;
   final DateTime? fechaLimite; // Nueva fecha límite
+  final bool isCompleted; // Estado de la tarea
 
   Tarea({
     this.id,
@@ -19,5 +20,6 @@ class Tarea with TareaMappable{
     this.descripcion,
     this.fecha,
     this.fechaLimite,
+    this.isCompleted = false,
   });
 }
