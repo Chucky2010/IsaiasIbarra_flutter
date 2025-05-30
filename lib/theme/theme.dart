@@ -77,7 +77,7 @@ class AppTheme {
           },
         ),
         side: const BorderSide(color: AppColors.gray05)),
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: AppColors.gray01,
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -95,7 +95,7 @@ class AppTheme {
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       ),
     ),
-    tabBarTheme: TabBarTheme(
+    tabBarTheme: TabBarThemeData(
       indicatorSize: TabBarIndicatorSize.tab,
       dividerColor: Colors.transparent,
       labelStyle: AppTextStyles.bodyLgSemiBold,
