@@ -62,20 +62,21 @@ class TareaDeleted extends TareaOperationSuccess {
   TareaDeleted(super.tareas, super.tipoOperacion, super.mensaje);
 }
 
+class TareaCompletada extends TareaState {
+  final Tarea tarea;
+  final bool completada;
+  final String mensaje;
+  final List<Tarea> tareas; // Agregamos la lista completa de tareas
 
+  TareaCompletada({
+    required this.tarea,
+    required this.completada,
+    required this.tareas,
+    this.mensaje = '',
+  });
 
-class TareaCompletada extends TareaOperationSuccess {
-  final String id;
-  final bool isCompleted;
-
-  TareaCompletada(
-    super.tareas, 
-    super.tipoOperacion, 
-    super.mensaje, 
-    this.id, 
-    this.isCompleted,
-  );
-  
-  @override
-  List<Object?> get props => [...super.props, id, isCompleted];
+ 
+  int get totalTareas => tareas.length;
+  int get tareasCompletadas => tareas.where((t) => t.completado).length;
+  double get progreso => totalTareas > 0 ? tareasCompletadas / totalTareas : 0.0;
 }

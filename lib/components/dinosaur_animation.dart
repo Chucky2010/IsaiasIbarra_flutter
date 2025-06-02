@@ -40,51 +40,23 @@ class _DinosaurAnimationState extends State<DinosaurAnimation> with SingleTicker
   void dispose() {
     _controller.dispose();
     super.dispose();
-  }  @override
+  }  
+  
+  @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Animación del dinosaurio
-          AnimatedBuilder(
-            animation: _controller,
-            builder: (context, child) {
-              return Transform.translate(
-                offset: Offset(0, _bounceAnimation.value / 1.5), // Más salto
-                child: FadeTransition(
-                  opacity: _animation,
-                  child: child,
-                ),
-              );
-            },
-            child: const DinosaurFigure(),
-          ),
-          const SizedBox(height: 5), // Espacio reducido          // Mensaje de error compacto
-          const Column(
-            children: [
-              Text(
-                'Sin conexión',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.red,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 2),
-              Text(
-                'Modo offline',
-                style: TextStyle(
-                  fontSize: 10,
-                  fontStyle: FontStyle.italic,
-                  color: Colors.grey,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ],
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          return Transform.translate(
+            offset: Offset(0, _bounceAnimation.value), // Rebote natural
+            child: FadeTransition(
+              opacity: _animation,
+              child: child,
+            ),
+          );
+        },
+        child: const DinosaurFigure(),
       ),
     );
   }
@@ -93,15 +65,11 @@ class _DinosaurAnimationState extends State<DinosaurAnimation> with SingleTicker
 /// Figura del dinosaurio dibujada con CustomPaint
 class DinosaurFigure extends StatelessWidget {
   const DinosaurFigure({super.key});
-
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 80,  // Tamaño reducido
-      height: 80, // Tamaño reducido
-      child: CustomPaint(
-        painter: DinosaurPainter(),
-      ),
+    return CustomPaint(
+      size: const Size(130, 100), // Tamaño ajustado para mostrar mejor el dinosaurio
+      painter: DinosaurPainter(),
     );
   }
 }
@@ -110,79 +78,59 @@ class DinosaurFigure extends StatelessWidget {
 class DinosaurPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
+    // Color principal del dinosaurio
     final paint = Paint()
-      ..color = Colors.grey.shade800
+      ..color = const Color(0xFF333333) // Color gris oscuro como en Chrome
       ..style = PaintingStyle.fill;
 
-    // Definir la forma mejorada del dinosaurio T-Rex
-    final path = Path();
+    // Matriz que representa píxeles del dinosaurio (1 = píxel visible, 0 = espacio vacío)
+    final List<List<int>> pixels = [
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+      [1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+      [1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0],
+      [1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    ];
+
+    final int rows = pixels.length;
+    final int cols = pixels[0].length;
     
-    // Cuerpo
-    path.moveTo(size.width * 0.35, size.height * 0.55);
-    path.lineTo(size.width * 0.65, size.height * 0.55);
-    path.lineTo(size.width * 0.65, size.height * 0.4);
-    path.lineTo(size.width * 0.35, size.height * 0.4);
-    path.close();
+    // Calcular tamaño de cada píxel
+    final double pixelWidth = size.width / cols;
+    final double pixelHeight = size.height / rows;
     
-    // Cabeza más detallada
-    path.moveTo(size.width * 0.65, size.height * 0.45);
-    path.lineTo(size.width * 0.8, size.height * 0.45);
-    path.lineTo(size.width * 0.8, size.height * 0.35);
-    path.lineTo(size.width * 0.75, size.height * 0.32); // Forma de la cabeza
-    path.lineTo(size.width * 0.65, size.height * 0.35);
-    path.close();
-    
-    // Boca
-    path.moveTo(size.width * 0.75, size.height * 0.45);
-    path.lineTo(size.width * 0.8, size.height * 0.45);
-    path.lineTo(size.width * 0.8, size.height * 0.42);
-    path.lineTo(size.width * 0.75, size.height * 0.42);
-    path.close();
-    
-    // Ojo
-    paint.color = Colors.white;
-    canvas.drawCircle(
-      Offset(size.width * 0.73, size.height * 0.37),
-      size.width * 0.025,
-      paint
-    );
-    
-    paint.color = Colors.black;
-    canvas.drawCircle(
-      Offset(size.width * 0.73, size.height * 0.37),
-      size.width * 0.01,
-      paint
-    );
-    
-    paint.color = Colors.grey.shade800;
-    
-    // Brazo pequeño
-    path.moveTo(size.width * 0.55, size.height * 0.5);
-    path.lineTo(size.width * 0.57, size.height * 0.47);
-    path.lineTo(size.width * 0.53, size.height * 0.47);
-    path.close();
-    
-    // Patas traseras (más anchas)
-    path.moveTo(size.width * 0.45, size.height * 0.55);
-    path.lineTo(size.width * 0.45, size.height * 0.7);
-    path.lineTo(size.width * 0.38, size.height * 0.7);
-    path.lineTo(size.width * 0.38, size.height * 0.55);
-    path.close();
-    
-    // Cola
-    path.moveTo(size.width * 0.35, size.height * 0.48);
-    path.lineTo(size.width * 0.2, size.height * 0.48);
-    path.lineTo(size.width * 0.2, size.height * 0.42);
-    path.lineTo(size.width * 0.35, size.height * 0.42);
-    path.close();
-    
-    // Cresta (opcional)
-    path.moveTo(size.width * 0.5, size.height * 0.4);
-    path.lineTo(size.width * 0.52, size.height * 0.35);
-    path.lineTo(size.width * 0.48, size.height * 0.35);
-    path.close();
-    
-    canvas.drawPath(path, paint);
+    // Dibujar la matriz de píxeles
+    for (int y = 0; y < rows; y++) {
+      for (int x = 0; x < cols; x++) {
+        if (pixels[y][x] == 1) {
+          final rect = Rect.fromLTWH(
+            x * pixelWidth, 
+            y * pixelHeight, 
+            pixelWidth, 
+            pixelHeight
+          );
+          canvas.drawRect(rect, paint);
+        }
+      }
+    }
   }
 
   @override

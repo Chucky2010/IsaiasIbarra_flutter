@@ -1,14 +1,17 @@
 import 'package:mi_proyecto/api/service/noticia_service.dart';
 import 'package:mi_proyecto/constants/constantes.dart';
 import 'package:mi_proyecto/data/base_repository.dart';
+import 'package:mi_proyecto/data/comentario_repository.dart';
 import 'package:mi_proyecto/data/reporte_repository.dart';
 import 'package:mi_proyecto/domain/noticia.dart';
+import 'package:watch_it/watch_it.dart';
 
 /// Repositorio para gestionar operaciones relacionadas con las noticias.
 /// Extiende BaseRepository para aprovechar la gestión de errores estandarizada.
 class NoticiaRepository extends BaseRepository<Noticia> {
-  final NoticiaService _noticiaService = NoticiaService();
-  final reporteRepo = ReporteRepository();
+  final NoticiaService _noticiaService = di<NoticiaService>();
+  final reporteRepo = di<ReporteRepository>();
+  final _comentarioRepositorio = di<ComentarioRepository>();
 
   @override
   void validarEntidad(Noticia noticia) {
@@ -55,15 +58,30 @@ class NoticiaRepository extends BaseRepository<Noticia> {
     return manejarExcepcion(() async {
       validarId(id);
       await reporteRepo.eliminarReportesPorNoticia(id);
+      await _comentarioRepositorio.eliminarComentariosPorNoticia(id);
       await _noticiaService.eliminarNoticia(id);
     }, mensajeError: NoticiasConstantes.errorDelete);
   }
 
   /// Incrementa el contador de reportes de una noticia y devuelve solo los campos actualizados
-  Future<Map<String, dynamic>> incrementarContadorReportes(String noticiaId, int valor) async {
+  Future<Map<String, dynamic>> incrementarContadorReportes(
+    String noticiaId,
+    int valor,
+  ) async {
     return manejarExcepcion(() {
       validarId(noticiaId);
       return _noticiaService.incrementarContadorReportes(noticiaId, valor);
     }, mensajeError: NoticiasConstantes.errorActualizarContadorReportes);
+  }
+
+  /// Incrementa el contador de comentarios de una noticia y devuelve solo los campos actualizados
+  Future<Map<String, dynamic>> incrementarContadorComentarios(
+    String noticiaId,
+    int valor,
+  ) async {
+    return manejarExcepcion(() {
+      validarId(noticiaId);
+      return _noticiaService.incrementarContadorComentarios(noticiaId, valor);
+    }, mensajeError: NoticiasConstantes.errorActualizarContadorComentarios);
   }
 }

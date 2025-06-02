@@ -38,9 +38,9 @@ class TareaMapper extends ClassMapperBase<Tarea> {
   static DateTime? _$fechaLimite(Tarea v) => v.fechaLimite;
   static const Field<Tarea, DateTime> _f$fechaLimite =
       Field('fechaLimite', _$fechaLimite, opt: true);
-  static bool _$isCompleted(Tarea v) => v.isCompleted;
-  static const Field<Tarea, bool> _f$isCompleted =
-      Field('isCompleted', _$isCompleted, opt: true, def: false);
+  static bool _$completado(Tarea v) => v.completado;
+  static const Field<Tarea, bool> _f$completado =
+      Field('completado', _$completado, opt: true, def: false);
 
   @override
   final MappableFields<Tarea> fields = const {
@@ -51,7 +51,7 @@ class TareaMapper extends ClassMapperBase<Tarea> {
     #descripcion: _f$descripcion,
     #fecha: _f$fecha,
     #fechaLimite: _f$fechaLimite,
-    #isCompleted: _f$isCompleted,
+    #completado: _f$completado,
   };
 
   static Tarea _instantiate(DecodingData data) {
@@ -63,7 +63,7 @@ class TareaMapper extends ClassMapperBase<Tarea> {
         descripcion: data.dec(_f$descripcion),
         fecha: data.dec(_f$fecha),
         fechaLimite: data.dec(_f$fechaLimite),
-        isCompleted: data.dec(_f$isCompleted));
+        completado: data.dec(_f$completado));
   }
 
   @override
@@ -120,7 +120,7 @@ abstract class TareaCopyWith<$R, $In extends Tarea, $Out>
       String? descripcion,
       DateTime? fecha,
       DateTime? fechaLimite,
-      bool? isCompleted});
+      bool? completado});
   TareaCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(Then<$Out2, $R2> t);
 }
 
@@ -139,7 +139,7 @@ class _TareaCopyWithImpl<$R, $Out> extends ClassCopyWithBase<$R, Tarea, $Out>
           Object? descripcion = $none,
           Object? fecha = $none,
           Object? fechaLimite = $none,
-          bool? isCompleted}) =>
+          bool? completado}) =>
       $apply(FieldCopyWithData({
         if (id != $none) #id: id,
         if (usuario != null) #usuario: usuario,
@@ -148,7 +148,7 @@ class _TareaCopyWithImpl<$R, $Out> extends ClassCopyWithBase<$R, Tarea, $Out>
         if (descripcion != $none) #descripcion: descripcion,
         if (fecha != $none) #fecha: fecha,
         if (fechaLimite != $none) #fechaLimite: fechaLimite,
-        if (isCompleted != null) #isCompleted: isCompleted
+        if (completado != null) #completado: completado
       }));
   @override
   Tarea $make(CopyWithData data) => Tarea(
@@ -159,7 +159,7 @@ class _TareaCopyWithImpl<$R, $Out> extends ClassCopyWithBase<$R, Tarea, $Out>
       descripcion: data.get(#descripcion, or: $value.descripcion),
       fecha: data.get(#fecha, or: $value.fecha),
       fechaLimite: data.get(#fechaLimite, or: $value.fechaLimite),
-      isCompleted: data.get(#isCompleted, or: $value.isCompleted));
+      completado: data.get(#completado, or: $value.completado));
 
   @override
   TareaCopyWith<$R2, Tarea, $Out2> $chain<$R2, $Out2>(Then<$Out2, $R2> t) =>

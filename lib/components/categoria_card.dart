@@ -4,13 +4,11 @@ import 'package:mi_proyecto/domain/categoria.dart';
 class CategoriaCard extends StatelessWidget {
   final Categoria categoria;
   final VoidCallback onEdit;
-  final VoidCallback onDelete;
 
   const CategoriaCard({
     super.key,
     required this.categoria,
     required this.onEdit,
-    required this.onDelete,
   });
 
   @override
@@ -18,9 +16,9 @@ class CategoriaCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      child: Tooltip(
+        message: 'Editar categoría',
         child: ListTile(
           contentPadding: const EdgeInsets.all(12),
           leading: ClipRRect(
@@ -53,10 +51,7 @@ class CategoriaCard extends StatelessWidget {
           ),
           title: Text(
             categoria.nombre,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
           subtitle: Text(
             categoria.descripcion,
@@ -70,17 +65,11 @@ class CategoriaCard extends StatelessWidget {
                 icon: const Icon(Icons.edit, color: Colors.blue),
                 onPressed: onEdit,
               ),
-              IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: onDelete,
-              ),
             ],
           ),
-          onTap: () {
-            // Aquí podríamos navegar a un detalle de la categoría
-            // o mostrar las noticias filtradas por esta categoría
-          },
+          onTap: onEdit 
         ),
+      ),
     );
   }
 }

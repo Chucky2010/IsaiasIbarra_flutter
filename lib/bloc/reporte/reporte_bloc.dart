@@ -34,9 +34,6 @@ class ReporteBloc extends Bloc<ReporteEvent, ReporteState> {
 
       // 1. Enviar el reporte
       await _reporteRepository.enviarReporte(noticiaActual.id!, event.motivo);
-
-      // Emitir un estado de éxito
-      emit(const ReporteSuccess(mensaje: ReporteConstantes.reporteCreado));
       // 2. Actualizar estadísticas locales
       estadisticasActuales[event.motivo] =
           (estadisticasActuales[event.motivo] ?? 0) + 1;
@@ -55,6 +52,8 @@ class ReporteBloc extends Bloc<ReporteEvent, ReporteState> {
           contadorReportes: totalReportes,
         ),
       );
+      // Emitir un estado de éxito
+      emit(const ReporteSuccess(mensaje: ReporteConstantes.reporteCreado));
     } catch (e) {
       if (e is ApiException) {
         emit(ReporteError(e));

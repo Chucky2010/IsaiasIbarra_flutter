@@ -1,3 +1,5 @@
+import 'package:mi_proyecto/api/service/comentario_service.dart';
+import 'package:mi_proyecto/api/service/noticia_service.dart';
 import 'package:mi_proyecto/api/service/tarea_service.dart';
 import 'package:mi_proyecto/bloc/reporte/reporte_bloc.dart';
 import 'package:mi_proyecto/data/auth_repository.dart';
@@ -23,6 +25,8 @@ Future<void> initLocator() async {
   
   // Servicios de API
   di.registerLazySingleton<TareaService>(() => TareaService());
+  di.registerLazySingleton<ComentarioService>(() => ComentarioService());
+  di.registerLazySingleton<NoticiaService>(() => NoticiaService());
   
   // Repositorios
   di.registerSingleton<CategoriaRepository>(CategoriaRepository());
@@ -32,6 +36,8 @@ Future<void> initLocator() async {
   di.registerLazySingleton<AuthRepository>(() => AuthRepository());
   di.registerSingleton<ReporteRepository>(ReporteRepository());
   di.registerLazySingleton<TareasRepository>(() => TareasRepository());
+
+
   
   // BLoCs
   di.registerFactory<ReporteBloc>(() => ReporteBloc());

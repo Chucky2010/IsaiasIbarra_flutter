@@ -21,7 +21,7 @@ class CommentAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: Text(titulo != null ? 'Comentarios: $titulo' : 'Comentarios'),
       leading: IconButton(
         icon: const Icon(Icons.arrow_back),
-        onPressed: () => Navigator.pop(context),
+        onPressed: () => Navigator.of(context).pop(),
       ),
       actions: [
         Tooltip(

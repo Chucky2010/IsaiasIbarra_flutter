@@ -113,9 +113,13 @@ class _FormularioNoticiaState extends State<FormularioNoticia> {
 
   @override
   Widget build(BuildContext context) {
+
+    final bottomPadding = MediaQuery.of(context).viewInsets.bottom + 
+                        MediaQuery.of(context).padding.bottom + 32;
+
     return SingleChildScrollView(
       padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+        bottom: bottomPadding,
         left: 16,
         right: 16,
         top: 16,
@@ -241,21 +245,39 @@ class _FormularioNoticiaState extends State<FormularioNoticia> {
                 }
               },
             ),
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Cancelar'),
-                ),
-                ElevatedButton(
-                  onPressed: _guardarNoticia,
-                  child: Text(
-                    widget.noticia == null ? 'Agregar' : 'Guardar',
+            const SizedBox(height: 32),
+            SafeArea(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: TextButton( // Cambiar a OutlinedButton para más claridad
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      child: const Text('Cancelar'),
+                    ),
                   ),
                 ),
-              ],
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 8),
+                    child: ElevatedButton(
+                      onPressed: _guardarNoticia,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      child: Text(
+                        widget.noticia == null ? 'Agregar' : 'Guardar',
+                      ),
+                    ),
+                  ),
+                ),
+                ],
+              ),
             ),
           ],
         ),

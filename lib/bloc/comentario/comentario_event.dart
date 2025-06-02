@@ -25,15 +25,6 @@ class AddComentario extends ComentarioEvent {
   List<Object> get props => [comentario];
 }
 
-class GetNumeroComentarios extends ComentarioEvent {
-  final String noticiaId;
-
-  GetNumeroComentarios(this.noticiaId);
-
-  @override
-  List<Object> get props => [noticiaId];
-}
-
 class AddReaccion extends ComentarioEvent {
   final String comentarioId;
   final String tipoReaccion;
@@ -77,4 +68,14 @@ class AddSubcomentario extends ComentarioEvent {
 
   @override
   List<Object> get props => [subcomentario];
+}
+
+class ActualizarContadorComentarios extends ComentarioEvent {
+  final String noticiaId;
+  final int cantidad;
+
+  ActualizarContadorComentarios(this.noticiaId, this.cantidad);
+
+  @override
+  List<Object> get props => [noticiaId, cantidad];
 }

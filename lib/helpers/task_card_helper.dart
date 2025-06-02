@@ -74,14 +74,28 @@ class CommonWidgetsHelper {
   }
 }
 
-Widget construirTarjetaDeportiva(Tarea tarea, String tareaId, VoidCallback onEdit) {
+Widget construirTarjetaDeportiva(Tarea tarea, String tareaId, VoidCallback onEdit,  ValueChanged<bool> onCompletadoChanged,) {
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0), // Espaciado entre tarjetas
     child:ListTile(
+      
     contentPadding: const EdgeInsets.all(16.0), // Padding interno del ListTile
     tileColor: Colors.white, // Fondo blanco para el ListTile
     shape: CommonWidgetsHelper.buildRoundedBorder(),
-    leading: CommonWidgetsHelper.buildLeadingIcon(tarea.tipo), // Ícono dinámico
+    leading: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Checkbox(
+          value: tarea.completado,
+          onChanged: (bool? value) {
+            if (value != null) {
+              onCompletadoChanged(value);
+            }
+          },
+        ),
+        CommonWidgetsHelper.buildLeadingIcon(tarea.tipo),
+      ],
+    ), // Ícono dinámico
     title: CommonWidgetsHelper.buildBoldTitle(tarea.titulo), // Título en negrita
       trailing: IconButton(
         onPressed: onEdit, // Llama a la función de edición
