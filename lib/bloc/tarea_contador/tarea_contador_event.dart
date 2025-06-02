@@ -1,20 +1,15 @@
-import 'package:equatable/equatable.dart';
+abstract class TareaContadorEvent {}
 
-abstract class TareaContadorEvent extends Equatable {
-  @override
-  List<Object?> get props => [];
+class IncrementarContador extends TareaContadorEvent {}
+
+class DecrementarContador extends TareaContadorEvent {}
+
+class SetTotalTareas extends TareaContadorEvent {
+  final int total;
+  SetTotalTareas(this.total);
 }
 
-class TareaContadorIncrementEvent extends TareaContadorEvent {}
-
-class TareaContadorDecrementEvent extends TareaContadorEvent {}
-
-class TareaContadorResetEvent extends TareaContadorEvent {
-  final int total;
+class SetCompletadas extends TareaContadorEvent {
   final int completadas;
-
-  TareaContadorResetEvent({required this.total, required this.completadas});
-
-  @override
-  List<Object?> get props => [total, completadas];
+  SetCompletadas(this.completadas);
 }

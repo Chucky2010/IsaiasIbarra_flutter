@@ -1,81 +1,73 @@
 import 'package:flutter/material.dart';
 import 'package:mi_proyecto/components/dinosaur_animation.dart';
+import 'package:mi_proyecto/components/responsive_container.dart';
+import 'package:mi_proyecto/helpers/common_widgets_helper.dart';
+import 'package:mi_proyecto/theme/colors.dart';
 
-/// Pantalla completa que se muestra cuando no hay conectividad a internet
 class NoConnectivityScreen extends StatelessWidget {
   const NoConnectivityScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Icono de wifi con una línea cruzada
-            Icon(
-              Icons.wifi_off,
-              size: 64,
-              color: Colors.red.shade300,
-            ),
-            const SizedBox(height: 40),
-            
-            // Animación del dinosaurio
-            const SizedBox(
-              height: 200,
-              width: 200,
-              child: DinosaurAnimation(),
-            ),
-            
-            const SizedBox(height: 40),
-            
-            // Mensaje de error principal
-            Text(
-              '¡Sin conexión a Internet!',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey.shade800,
-              ),
-            ),
-            
-            const SizedBox(height: 16),
-            
-            // Mensaje secundario
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Text(
-                'Por favor, verifica tu conexión a internet e inténtalo nuevamente.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey.shade600,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: IntrinsicHeight(
+                  child: ResponsiveContainer(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CommonWidgetsHelper.paddingContainer32(
+                          color: theme.colorScheme.surface,
+                          child: Column(
+                            children: [CommonWidgetsHelper.iconoNoConexion()],
+                          ),
+                        ),
+                        CommonWidgetsHelper.mensaje(
+                          titulo: '¡Sin conexión a Internet!',
+                          mensaje:
+                              'Por favor, verifica tu conexión a internet e inténtalo nuevamente.',
+                        ),
+                        CommonWidgetsHelper.buildSpacing16(),
+                                                      const SizedBox(
+                                height: 80,
+                                width: 80,
+                                child: DinosaurAnimation(),
+                              ),
+                        CommonWidgetsHelper.buildSpacing16(),
+                        FilledButton.icon(
+                          onPressed: () {
+                            // Aquí se podría agregar lógica para verificar manualmente la conectividad
+                            final snackBar = SnackBar(
+                              content: Text(
+                                'Verificando conexión...',
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: AppColors.gray01,
+                                ),
+                              ),
+                              backgroundColor: theme.colorScheme.primary,
+                              duration: const Duration(seconds: 2),
+                            );
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(snackBar);
+                          },
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('Reintentar'),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
-            
-            const SizedBox(height: 40),
-            
-            // Botón para reintentar (opcional)
-            ElevatedButton.icon(
-              onPressed: () {
-                // Aquí se podría agregar lógica para verificar manualmente la conectividad
-                final snackBar = const SnackBar(
-                  content: Text('Verificando conexión...'),
-                  duration: Duration(seconds: 2),
-                );
-                ScaffoldMessenger.of(context).showSnackBar(snackBar);
-              },
-              icon: const Icon(Icons.refresh),
-              label: const Text('Reintentar'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );

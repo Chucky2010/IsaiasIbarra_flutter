@@ -102,7 +102,8 @@ class CommentCard extends StatelessWidget {
               child: ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: comentario.subcomentarios!.length,                itemBuilder: (context, index) => SubcommentCard(
+                itemCount: comentario.subcomentarios!.length,
+                itemBuilder: (context, index) => SubcommentCard(
                   subcomentario: comentario.subcomentarios![index],
                   noticiaId: noticiaId,
                 ),
@@ -112,9 +113,7 @@ class CommentCard extends StatelessWidget {
       ),
     );
   }  void _handleReaction(BuildContext context, String tipoReaccion) {
-    // Capturamos una referencia al bloc fuera del Future.delayed
     final comentarioBloc = context.read<ComentarioBloc>();
-    final String currentNoticiaId = noticiaId;
     
     // Primero enviamos el evento de reacción
     comentarioBloc.add(
@@ -126,12 +125,6 @@ class CommentCard extends StatelessWidget {
       ),
     );
     
-    // Luego forzamos la recarga de comentarios para actualizar la UI
-    // No usamos context dentro del Future.delayed
-    Future.delayed(const Duration(milliseconds: 500), () {
-      comentarioBloc.add(
-        LoadComentarios(currentNoticiaId),
-      );
-    });
+
   }
 }

@@ -1,27 +1,25 @@
-import 'package:equatable/equatable.dart';
-
-class TareaContadorState extends Equatable {
+class TareaContadorState {
   final int completadas;
   final int total;
+  final double progreso;
 
-  const TareaContadorState({
+  TareaContadorState({
     this.completadas = 0,
     this.total = 0,
+    this.progreso = 0.0,
   });
-
-  double get porcentajeCompletado => 
-      total == 0 ? 0.0 : completadas / total;
 
   TareaContadorState copyWith({
     int? completadas,
     int? total,
   }) {
+    final newCompletadas = completadas ?? this.completadas;
+    final newTotal = total ?? this.total;
+    
     return TareaContadorState(
-      completadas: completadas ?? this.completadas,
-      total: total ?? this.total,
+      completadas: newCompletadas,
+      total: newTotal,
+      progreso: newTotal > 0 ? newCompletadas / newTotal : 0.0,
     );
   }
-
-  @override
-  List<Object?> get props => [completadas, total];
 }

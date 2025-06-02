@@ -65,7 +65,8 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
-        theme: AppTheme.bootcampTheme,
+        theme:  AppTheme.bootcampTheme, // Usamos nuestro tema personalizado
+
         debugShowCheckedModeBanner: false,
         builder: (context, child) {
           // Envolvemos con nuestro ConnectivityWrapper

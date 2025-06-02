@@ -1,24 +1,20 @@
-import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:mi_proyecto/api/service/base_service.dart';
 import 'package:mi_proyecto/constants/constantes.dart';
 import 'package:mi_proyecto/domain/comentario.dart';
-import 'package:mi_proyecto/exceptions/api_exception.dart';
 
 class ComentarioService extends BaseService {
+  final _url = ApiConstantes.comentariosEndpoint;
+
   /// Obtiene todos los comentarios de una noticia específica
   Future<List<Comentario>> obtenerComentariosPorNoticia(
     String noticiaId,
   ) async {
-    final endpoint = ApiConstantes.comentariosEndpoint;
     final List<dynamic> comentariosJson = await get<List<dynamic>>(
-      endpoint,
+      '$_url?noticiaId=$noticiaId',
       errorMessage: ComentarioConstantes.mensajeError,
     );
-
-    // Filtrar solo los comentarios para la noticia específica
     return comentariosJson
-        .where((json) => json['noticiaId'] == noticiaId)
         .map<Comentario>(
           (json) => ComentarioMapper.fromMap(json as Map<String, dynamic>),
         )
@@ -26,252 +22,158 @@ class ComentarioService extends BaseService {
   }
 
   /// Agrega un nuevo comentario a una noticia
-  Future<void> agregarComentario(Comentario comentario) async {
-    await post(
-      ApiConstantes.comentariosEndpoint,
+  Future<Comentario> agregarComentario(Comentario comentario) async {
+    final response = await post(
+      _url,
       data: comentario.toMap(),
       errorMessage: 'Error al agregar el comentario',
     );
+    return ComentarioMapper.fromMap(response);
   }
 
   /// Calcula el número de comentarios para una noticia específica
+  /// Suma también los subcomentarios
   Future<int> obtenerNumeroComentarios(String noticiaId) async {
-    // Obtenemos todos los comentarios de la noticia
     final comentarios = await obtenerComentariosPorNoticia(noticiaId);
-
     int contador = comentarios.length;
-
-    // Sumamos también los subcomentarios
     for (var comentario in comentarios) {
       if (comentario.subcomentarios != null) {
         contador += comentario.subcomentarios!.length;
       }
     }
-
     return contador;
   }
 
-  /// Registra una reacción (like o dislike) a un comentario o subcomentario
-  Future<void> reaccionarComentario({
+  Future<Comentario> obtenerComentarioPorId({
+    required String comentarioId,
+  }) async {
+    final response = await get(
+      '$_url/$comentarioId',
+      errorMessage: "Error al obtener el comentario",
+    );
+    return MapperContainer.globals.fromMap<Comentario>(response);
+  }
+
+  Future<Comentario> reaccionarComentarioPrincipal({
     required String comentarioId,
     required String tipoReaccion,
   }) async {
-    try {
-      // Obtenemos todos los comentarios
-      final data = await get('/comentarios', requireAuthToken: false);
+    final comentario = await obtenerComentarioPorId(comentarioId: comentarioId);
 
-      if (data is! List) {
-        throw ApiException('Formato de respuesta inválido');
-      }
+    final comentarioActualizado = _actualizarContadores(
+      tipoReaccion: tipoReaccion,
+      comentario: comentario,
+    );
 
-      final List<dynamic> comentarios = data;
+      final response = await put(
+      '$_url/$comentarioId',
+      data: comentarioActualizado.toMap(),
+      errorMessage: "Error al reaccionar al comentario",
+    );
+    return ComentarioMapper.fromMap(response);
+  }
 
-      // Primero, buscamos si es un comentario principal
-      final comentarioIndex = comentarios.indexWhere(
-        (c) => c['id'] == comentarioId,
+  /// Busca un subcomentario específico por su ID
+  /// Retorna el subcomentario encontrado o null si no existe
+  Future<Comentario?> buscarPorSubComentarioId({
+    required String subcomentarioId,
+  }) async {
+    final response = await get(
+      '$_url?subcomentarios.id=$subcomentarioId',
+      errorMessage: "Error al buscar el subcomentario",
+    );
+
+    return ComentarioMapper.fromMap(response[0] as Map<String, dynamic>);
+  }
+
+  Future<Comentario> reaccionarSubComentario({
+    required String subComentarioId,
+    required String tipoReaccion,
+  }) async {
+    Comentario? comentario = await buscarPorSubComentarioId(
+      subcomentarioId: subComentarioId,
+    );
+
+    Comentario subComentario;
+
+    if (comentario?.subcomentarios != null) {
+      subComentario = (comentario?.subcomentarios)!.firstWhere(
+        (sub) => sub.id == subComentarioId,
+      );
+      subComentario = _actualizarContadores(
+        tipoReaccion: tipoReaccion,
+        comentario: subComentario,
       );
 
-      // Si lo encontramos como comentario principal
-      if (comentarioIndex != -1) {
-        Map<String, dynamic> comentarioActualizado = Map<String, dynamic>.from(
-          comentarios[comentarioIndex],
-        );
-
-        int currentLikes = comentarioActualizado['likes'] ?? 0;
-        int currentDislikes = comentarioActualizado['dislikes'] ?? 0;
-
-        // Actualizar contadores
-        if (tipoReaccion == 'like') {
-          currentLikes += 1;
-        } else if (tipoReaccion == 'dislike') {
-          currentDislikes += 1;
-        }
-
-        // Enviar actualización
-        await put(
-          '/comentarios/$comentarioId',
-          data: {
-            'noticiaId': comentarioActualizado['noticiaId'],
-            'texto': comentarioActualizado['texto'],
-            'fecha': comentarioActualizado['fecha'],
-            'autor': comentarioActualizado['autor'],
-            'likes': currentLikes,
-            'dislikes': currentDislikes,
-            'subcomentarios': comentarioActualizado['subcomentarios'] ?? [],
-            'isSubComentario':
-                comentarioActualizado['isSubComentario'] ?? false,
-          },
-          requireAuthToken: true,
-        );
-
-        // Respuesta exitosa, retornamos
-        return;
-      }      // Recorrer todos los comentarios principales
-      for (int i = 0; i < comentarios.length; i++) {
-        final comentarioPrincipal = comentarios[i];
-
-        // Verificar si tiene subcomentarios
-        if (comentarioPrincipal['subcomentarios'] != null &&
-            comentarioPrincipal['subcomentarios'] is List &&
-            (comentarioPrincipal['subcomentarios'] as List).isNotEmpty) {
-          final List<dynamic> subcomentarios =
-              comentarioPrincipal['subcomentarios'];
-
-          // Buscar en los subcomentarios si alguno coincide con el ID
-          for (int j = 0; j < subcomentarios.length; j++) {
-            final subcomentario = subcomentarios[j];            // Si encontramos el ID en el subcomentario
-            if (subcomentario['id'] == comentarioId ||
-                subcomentario['idSubComentario'] == comentarioId) {
-              // Crear una copia del subcomentario para actualizarlo
-              Map<String, dynamic> subcomentarioActualizado =
-                  Map<String, dynamic>.from(subcomentario);
-
-              // Actualizar los contadores según el tipo de reacción
-              int currentLikes = subcomentarioActualizado['likes'] ?? 0;
-              int currentDislikes = subcomentarioActualizado['dislikes'] ?? 0;
-              
-              // Incrementar el contador adecuado
-              if (tipoReaccion == 'like') {
-                currentLikes += 1;
-              } else if (tipoReaccion == 'dislike') {
-                currentDislikes += 1;
-              }
-              
-              // Asignar los valores actualizados
-              subcomentarioActualizado['likes'] = currentLikes;
-              subcomentarioActualizado['dislikes'] = currentDislikes;
-              // Actualizar la lista de subcomentarios
-              subcomentarios[j] = subcomentarioActualizado;
-              // Actualizar el comentario principal con la nueva lista de subcomentarios
-              await put(
-                '/comentarios/${comentarioPrincipal['id']}',
-                data: {
-                  'noticiaId': comentarioPrincipal['noticiaId'],
-                  'texto': comentarioPrincipal['texto'],
-                  'fecha': comentarioPrincipal['fecha'],
-                  'autor': comentarioPrincipal['autor'],
-                  'likes': comentarioPrincipal['likes'] ?? 0,
-                  'dislikes': comentarioPrincipal['dislikes'] ?? 0,
-                  'subcomentarios': subcomentarios,
-                  'isSubComentario':
-                      comentarioPrincipal['isSubComentario'] ?? false,
-                },
-                requireAuthToken: true,
-              );
-
-              return;
+      comentario = comentario?.copyWith(
+        subcomentarios: [
+          ...comentario.subcomentarios!.map((sub) {
+            if (sub.id == subComentarioId) {
+              return subComentario;
             }
-          }
-        }
-      }
-
-      throw ApiException(ComentarioConstantes.errorServer, statusCode: 404);
-    } on DioException catch (e) {
-      debugPrint('❌ DioException en reaccionarComentario: ${e.toString()}');
-    } catch (e) {
-      if (e is ApiException) {
-        rethrow;
-      }
-      debugPrint('❌ Error inesperado en reaccionarComentario: ${e.toString()}');
-      throw ApiException('Error inesperado: $e');
+            return sub;
+          }),
+        ],
+      );
     }
+    final response = await put(
+      '$_url/${comentario?.id}',
+      data: comentario?.toMap(),
+      errorMessage: "Error al reaccionar al subcomentario",
+    );
+    return ComentarioMapper.fromMap(response);
+  }
+
+  Comentario _actualizarContadores({
+    Comentario? comentario,
+    required String tipoReaccion,
+  }) {
+    int currentLikes = comentario!.likes;
+    int currentDislikes = comentario.dislikes;
+    if (tipoReaccion == 'like') {
+      currentLikes++;
+    } else if (tipoReaccion == 'dislike') {
+      currentDislikes++;
+    }
+    return comentario = comentario.copyWith(
+      likes: currentLikes,
+      dislikes: currentDislikes,
+    );
   }
 
   /// Agrega un subcomentario a un comentario existente
-  /// Agrega un subcomentario a un comentario existente
   /// Los subcomentarios no pueden tener a su vez subcomentarios
-  Future<Map<String, dynamic>> agregarSubcomentario({
+  Future<Comentario> agregarSubcomentario({
     required String comentarioId, // ID del comentario principal
-    required String texto,
-    required String autor,
+    required Comentario subComentario, // Datos del comentario principal
   }) async {
-    try {
-      final subcomentarioId =
-          'sub_${DateTime.now().millisecondsSinceEpoch}_${texto.hashCode}'; // Primero, obtener el comentario al que queremos añadir un subcomentario
-      final data = await get(
-        '/comentarios/$comentarioId',
-        requireAuthToken: false,
-      );
+    final comentario = await obtenerComentarioPorId(comentarioId: comentarioId);
+    final subComentariosActualizados = [
+      ...?comentario.subcomentarios,
+      subComentario,
+    ];
+    final comentarioActualizado =comentario.copyWith(subcomentarios: subComentariosActualizados);
 
-      if (data is! Map<String, dynamic>) {
-        return {'success': false, 'message': 'Formato de respuesta inválido'};
+    final response = await put(
+     '$_url/$comentarioId',
+      data: comentarioActualizado.toMap(),
+      errorMessage: "Error al agregar el subcomentario",
+    );
+    return ComentarioMapper.fromMap(response);
+  }
+
+  Future<void> eliminarComentariosPorNoticia(String noticiaId) async {
+    // 1. Primero obtenemos todos los reportes de la noticia
+    final comentarios = await obtenerComentariosPorNoticia(noticiaId);
+    
+    // 2. Eliminamos cada reporte individualmente
+    for (final comentario in comentarios) {
+      if (comentario.id != null) {
+        await delete(
+          '$_url/${comentario.id}',
+          errorMessage: ReporteConstantes.errorEliminarReportes,
+        );
       }
-
-      final comentarioData = data;
-
-      // Verificar si estamos intentando añadir un subcomentario a otro subcomentario
-      if (comentarioData['isSubComentario'] == true) {
-        // Si no tiene campo de subcomentarios, es probable que estemos intentando
-        // añadir un subcomentario a otro subcomentario, lo cual no está permitido
-        return {
-          'success': false,
-          'message':
-              'No se pueden añadir subcomentarios a otros subcomentarios',
-        };
-      }
-
-      // Verificar si ya existe un subcomentario (opcional, puedes permitir múltiples subcomentarios)
-      if ((comentarioData['subcomentarios'] as List).isNotEmpty) {
-        // Si quieres permitir varios subcomentarios, comenta o elimina esta verificación
-        // return {
-        //   'success': false,
-        //   'message': 'Este comentario ya contiene un subcomentario, no es posible agregar otro'
-        // };
-      }      // Crear el nuevo subcomentario explícitamente SIN campo de subcomentarios
-      final nuevoSubcomentario = Comentario(
-        id: subcomentarioId, // Asignamos un ID único para este subcomentario
-        noticiaId: comentarioData['noticiaId'],
-        texto: texto,
-        fecha: DateTime.now().toIso8601String(),
-        autor: autor,
-        likes: 0,
-        dislikes: 0,
-        subcomentarios: [],
-        isSubComentario: true,
-        idSubComentario: comentarioId, // Referencia al comentario padre
-      );
-
-      // Obtener la lista actual de subcomentarios o inicializarla
-      final List<dynamic> subcomentariosActuales =
-          comentarioData['subcomentarios'] as List<dynamic>? ?? [];
-
-      // Añadir el nuevo subcomentario a la lista existente
-      final subcomentariosActualizados = [
-        ...subcomentariosActuales,
-        nuevoSubcomentario.toMap(),
-      ]; // Actualizar el comentario con todos sus subcomentarios
-      await put(
-        '/comentarios/$comentarioId',
-        data: {
-          'noticiaId': comentarioData['noticiaId'],
-          'texto': comentarioData['texto'],
-          'fecha': comentarioData['fecha'],
-          'autor': comentarioData['autor'],
-          'likes': comentarioData['likes'] ?? 0,
-          'dislikes': comentarioData['dislikes'] ?? 0,
-          'subcomentarios': subcomentariosActualizados,
-          'isSubComentario':
-              false, // Asegurarse de que el comentario principal no sea un subcomentario
-        },
-        requireAuthToken: true,
-      );
-
-      return {
-        'success': true,
-        'message': 'Subcomentario agregado correctamente',
-      };
-    } on DioException catch (e) {
-      debugPrint('❌ DioException en agregarSubcomentario: ${e.toString()}');
-      String mensaje;
-      try {
-        mensaje = 'Error desconocido';
-      } on ApiException catch (apiError) {
-        mensaje = apiError.message;
-      }
-
-      return {'success': false, 'message': mensaje};
-    } catch (e) {
-      return {'success': false, 'message': 'Error inesperado: ${e.toString()}'};
     }
   }
 }

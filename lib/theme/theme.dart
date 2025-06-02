@@ -8,75 +8,59 @@ class AppTheme {
     brightness: Brightness.light,
     primaryColor: AppColors.primary,
     scaffoldBackgroundColor: AppColors.surface,
-    disabledColor: AppColors.neutralGray,     // Gris neutro corporativo
+    disabledColor: AppColors.neutralGray,
+    //Barra de navegación
     appBarTheme: const AppBarTheme(
       backgroundColor: AppColors.primaryDarkBlue,
       scrolledUnderElevation: 0,
       foregroundColor: AppColors.gray01,
       titleTextStyle: TextStyle(
-        color: Colors.white,
-        fontSize: 16, 
+        fontSize: 16,
         fontWeight: FontWeight.w600,
-        fontFamily: 'Inter', 
+        fontFamily: 'Inter',
       ),
     ),
-    navigationBarTheme: NavigationBarThemeData(
-      indicatorColor: Colors.transparent,
-      backgroundColor: AppColors.gray01,
-      elevation: 0,
-      labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>(
-            (Set<WidgetState> states) {
-          if (states.contains(WidgetState.selected)) {
-            return AppTextStyles.bodyXs.copyWith(color: AppColors.primary);
-          }
-          return AppTextStyles.bodyXs.copyWith(color: AppColors.disabled);
-        },
-      ),
-      iconTheme: WidgetStateProperty.resolveWith<IconThemeData>(
-            (Set<WidgetState> states) {
-          if (states.contains(WidgetState.selected)) {
-            return const IconThemeData(color: AppColors.primary);
-          }
-          return const IconThemeData(color: AppColors.disabled);
-        },
-      ),
-    ),
-    radioTheme:
-    RadioThemeData(fillColor: WidgetStateProperty.resolveWith<Color>(
-          (Set<WidgetState> states) {
+    //botones de radio y checkbox
+    radioTheme: RadioThemeData(
+      fillColor: WidgetStateProperty.resolveWith<Color>((
+        Set<WidgetState> states,
+      ) {
         if (states.contains(WidgetState.selected)) {
           return AppColors.primary;
         } else if (states.contains(WidgetState.disabled)) {
-          return AppColors.gray07;
+          return AppColors.disabled;
         }
         return AppColors.gray05;
-      },
-    ), overlayColor: WidgetStateProperty.resolveWith<Color>(
-          (Set<WidgetState> states) {
+      }),
+      overlayColor: WidgetStateProperty.resolveWith<Color>((
+        Set<WidgetState> states,
+      ) {
         if (states.contains(WidgetState.selected)) {
           return AppColors.primary;
         } else if (states.contains(WidgetState.pressed)) {
-          return AppColors.red07;
+          return AppColors.primaryActive;
         } else if (states.contains(WidgetState.hovered)) {
-          return AppColors.red03;
+          return AppColors.primaryHover;
         } else if (states.contains(WidgetState.focused)) {
           return AppColors.primary;
         }
         return AppColors.gray05;
-      },
-    )),
+      }),
+    ),
     checkboxTheme: CheckboxThemeData(
-        fillColor: WidgetStateProperty.resolveWith<Color>(
-              (Set<WidgetState> states) {
-            if (states.contains(WidgetState.selected)) {
-              return AppColors.primary;
-            } else if (states.contains(WidgetState.disabled)) {
-              return AppColors.gray07;
-            }
-            return AppColors.gray01;
-          },
-        ),
-        side: const BorderSide(color: AppColors.gray05)),
+      fillColor: WidgetStateProperty.resolveWith<Color>((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.selected)) {
+          return AppColors.primary;
+        } else if (states.contains(WidgetState.disabled)) {
+          return AppColors.disabled;
+        }
+        return AppColors.gray01;
+      }),
+      side: const BorderSide(color: AppColors.gray05),
+    ),
+    //cards
     cardTheme: CardThemeData(
       color: AppColors.gray01,
       elevation: 0,
@@ -85,6 +69,7 @@ class AppTheme {
         side: const BorderSide(color: AppColors.gray05),
       ),
     ),
+    //botones
     filledButtonTheme: FilledButtonThemeData(
       style: TextButton.styleFrom(
         backgroundColor: AppColors.primary,
@@ -93,8 +78,12 @@ class AppTheme {
         disabledForegroundColor: AppColors.gray08,
         textStyle: AppTextStyles.bodyLgMedium.copyWith(color: AppColors.gray01),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)), // Esto quita completamente el redondeo
+        ),
       ),
     ),
+    //pestañas
     tabBarTheme: TabBarThemeData(
       indicatorSize: TabBarIndicatorSize.tab,
       dividerColor: Colors.transparent,
@@ -104,16 +93,19 @@ class AppTheme {
       unselectedLabelColor: AppColors.gray14,
       indicator: const BoxDecoration(
         color: AppColors.blue02,
-        borderRadius: BorderRadius.all(Radius.circular(80)),
+        borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
     ),
+    //botones de texto
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        textStyle:
-        AppTextStyles.bodyLgMedium.copyWith(color: AppColors.primary),
+        textStyle: AppTextStyles.bodyLgMedium.copyWith(
+          color: AppColors.primary,
+        ),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       ),
     ),
+    //texto
     textTheme: TextTheme(
       // Display styles
       displayLarge: AppTextStyles.heading3xl,
@@ -140,22 +132,21 @@ class AppTheme {
       labelMedium: AppTextStyles.bodyMdSemiBold,
       labelSmall: AppTextStyles.bodyXsSemiBold,
     ),
+
+
     colorScheme: const ColorScheme.light(
-      primary: AppColors.primaryDarkBlue,    // Azul oscuro corporativo
-      secondary: AppColors.primaryLightBlue, 
-      tertiary: AppColors.neutralGray, // Azul claro corporativo
-      error: AppColors.destructive,
-      // background: AppColors.gray01,
+      primary: AppColors.primaryDarkBlue, 
+      secondary: AppColors.primaryLightBlue,
+      error: AppColors.error,
       surface: AppColors.surface,
       onPrimary: AppColors.gray01,
-      // Text color on primary elements
       onSecondary: AppColors.gray01,
-      // Text color on secondary elements
-      onError: AppColors.gray01, // Text color on error elements
+      onError: AppColors.gray01,
     ),
   );
+  //decoraciones reutilizables
   static final BoxDecoration sectionBorderGray05 = BoxDecoration(
-    borderRadius: BorderRadius.circular(5),
+    borderRadius: BorderRadius.circular(10),
     border: Border.all(color: AppColors.gray05),
     color: Colors.white, // Fondo blanco
     boxShadow: [
@@ -166,4 +157,27 @@ class AppTheme {
       ),
     ],
   );
+
+  // Estilo para iconos con fondo pequeño
+  static BoxDecoration iconDecoration(BuildContext context) {
+    return BoxDecoration(
+      color: Theme.of(context).colorScheme.primary.withAlpha(51),
+      borderRadius: BorderRadius.circular(10),
+    );
+  }
+  
+  // Estilo para iconos sin fondo pequeños 
+  static IconThemeData infoIconTheme(BuildContext context) {
+    return IconThemeData(
+      color: Theme.of(context).colorScheme.primary,
+      size: 24,
+    );
+  }
+
+  // Estilo para copyright
+  static Color copyrightColor(BuildContext context) {
+    return Theme.of(context).colorScheme.onSurface.withAlpha(51);
+  }
 }
+
+

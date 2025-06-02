@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mi_proyecto/bloc/noticia/noticia_bloc.dart';
+import 'package:mi_proyecto/bloc/noticia/noticia_event.dart';
 import 'package:mi_proyecto/constants/constantes.dart';
 import 'package:mi_proyecto/domain/noticia.dart';
 import 'package:intl/intl.dart';
@@ -138,27 +141,59 @@ class NoticiaCard extends StatelessWidget {
                       // Acción para marcar como favorito
                     },
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.comment),
-                    onPressed: () {
-                      // Navegar a la vista de comentarios
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder:
-                              (context) => ComentariosScreen(
-                                noticiaId: noticia.id!,
-                                noticiaTitulo: noticia.titulo,
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.comment),
+                        onPressed: () async {
+                          // Navegar a la vista de comentarios
+                          await Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => ComentariosScreen(
+                                    noticiaId: noticia.id!,
+                                    noticiaTitulo: noticia.titulo,
+                                  ),
+                            ),
+                          );
+                          // Al volver, actualiza las noticias
+                          if (context.mounted) {
+                            context.read<NoticiaBloc>().add(FetchNoticiasEvent());
+                          }
+                        },
+                        tooltip: 'Ver comentarios',
+                      ),
+                      if ((noticia.contadorComentarios ?? 0) > 0)
+                        Positioned(
+                          right: 8,
+                          top: 8,
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              color: Colors.blue,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 16,
+                              minHeight: 16,
+                            ),
+                            child: Text(
+                              (noticia.contadorComentarios ?? 0) > 99
+                                  ? '99+'
+                                  : (noticia.contadorComentarios ?? 0).toString(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 8,
+                                fontWeight: FontWeight.bold,
                               ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
                         ),
-                      );
-                    },
-                    tooltip: 'Ver comentarios',
-                  ),                  IconButton(
-                    icon: const Icon(Icons.share),
-                    onPressed: () {
-                      // Acción para compartir
-                    },
-                  ),                  Stack(
+                    ],
+                  ),
+                  Stack(
                     alignment: Alignment.center,
                     children: [
                       IconButton(
@@ -192,7 +227,9 @@ class NoticiaCard extends StatelessWidget {
                               minHeight: 16,
                             ),
                             child: Text(
-                              noticia.contadorReportes! > 99 ? '99+' : noticia.contadorReportes.toString(),
+                              noticia.contadorReportes! > 99
+                                  ? '99+'
+                                  : noticia.contadorReportes.toString(),
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 8,

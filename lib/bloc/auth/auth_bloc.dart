@@ -12,7 +12,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc(): super(AuthInitial()) {
     on<AuthLoginRequested>(_onAuthLoginRequested);
     on<AuthLogoutRequested>(_onAuthLogoutRequested);
-    on<AuthCheckRequested>(_onAuthCheckRequested);
   }
 
   Future<void> _onAuthLoginRequested(
@@ -47,28 +46,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     try {
       await _authRepository.logout();
-      // Limpiar la caché de preferencias
       di<PreferenciaRepository>().invalidarCache();      
       emit(AuthInitial());
     } catch (e) {
       emit(AuthFailure(ApiException('Error al cerrar sesión')));
-    }
-  }
-
-  Future<void> _onAuthCheckRequested(
-    AuthCheckRequested event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(AuthLoading());
-    try {
-      final isAuthenticated = await _authRepository.isAuthenticated();
-      if (isAuthenticated) {
-        emit(AuthAuthenticated());
-      } else {
-        emit(AuthUnauthenticated());
-      }
-    } catch (e) {
-      emit(AuthFailure(ApiException('Error al realizar la verificación de sesión')));
     }
   }
 }

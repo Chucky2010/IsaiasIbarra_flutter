@@ -294,7 +294,7 @@ class AcercaDeScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: colorScheme.onPrimary.withOpacity(0.2),
+                color: colorScheme.onPrimary,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -321,7 +321,7 @@ class AcercaDeScreen extends StatelessWidget {
                     description,
                     style: TextStyle(
                       fontSize: 12,
-                      color: colorScheme.onPrimary.withOpacity(0.9),
+                      color: colorScheme.onPrimary,
                     ),
                   ),
                 ],

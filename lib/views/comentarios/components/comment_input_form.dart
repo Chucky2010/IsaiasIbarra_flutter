@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mi_proyecto/bloc/comentario/comentario_bloc.dart';
 import 'package:mi_proyecto/bloc/comentario/comentario_event.dart';
+import 'package:mi_proyecto/bloc/comentario/comentario_state.dart';
 import 'package:mi_proyecto/domain/comentario.dart';
 import 'package:mi_proyecto/helpers/snackbar_helper.dart';
 
@@ -31,9 +32,10 @@ class CommentInputForm extends StatelessWidget {
         TextField(
           controller: comentarioController,
           decoration: InputDecoration(
-            hintText: respondingToId == null 
-                ? 'Escribe tu comentario' 
-                : 'Escribe tu respuesta...',
+            hintText:
+                respondingToId == null
+                    ? 'Escribe tu comentario'
+                    : 'Escribe tu respuesta...',
             border: const OutlineInputBorder(),
           ),
           maxLines: 2,
@@ -42,11 +44,16 @@ class CommentInputForm extends StatelessWidget {
         ElevatedButton.icon(
           onPressed: () => _handleSubmit(context),
           icon: const Icon(Icons.send),
-          label: Text(respondingToId == null 
-              ? 'Publicar comentario' 
-              : 'Enviar respuesta'),
+          label: Text(
+            respondingToId == null ? 'Publicar comentario' : 'Enviar respuesta',
+          ),
           style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.only(left: 15,right: 15,top: 10, bottom: 10),
+            padding: const EdgeInsets.only(
+              left: 15,
+              right: 15,
+              top: 10,
+              bottom: 10,
+            ),
           ),
         ),
       ],
@@ -84,12 +91,14 @@ class CommentInputForm extends StatelessWidget {
   }
 
   void _handleSubmit(BuildContext context) {
-    if (comentarioController.text.trim().isEmpty) {      SnackBarHelper.mostrarInfo(
-        context, 
-        mensaje: 'El comentario no puede estar vacío'
+    if (comentarioController.text.trim().isEmpty) {
+      SnackBarHelper.mostrarInfo(
+        context,
+        mensaje: 'El comentario no puede estar vacío',
       );
       return;
-    }    final fecha = DateTime.now().toIso8601String();
+    }
+    final fecha = DateTime.now().toIso8601String();
     final bloc = context.read<ComentarioBloc>();
 
     if (respondingToId == null) {
@@ -103,10 +112,11 @@ class CommentInputForm extends StatelessWidget {
         likes: 0,
         dislikes: 0,
         subcomentarios: [],
-        isSubComentario: false
+        isSubComentario: false,
       );
-      
-      bloc.add(AddComentario(noticiaId, nuevoComentario));    } else {
+
+      bloc.add(AddComentario(noticiaId, nuevoComentario));
+    } else {
       // Crear un subcomentario
       final nuevoSubComentario = Comentario(
         id: '', // El ID real se generará en el backend
@@ -116,21 +126,42 @@ class CommentInputForm extends StatelessWidget {
         autor: 'Usuario anónimo',
         likes: 0,
         dislikes: 0,
-        subcomentarios: [], // Un subcomentario no puede tener sus propios subcomentarios
+        subcomentarios:
+            [], // Un subcomentario no puede tener sus propios subcomentarios
         isSubComentario: true,
-        idSubComentario: respondingToId // Este es el ID del comentario padre al que estamos respondiendo
+        idSubComentario:
+            respondingToId, // Este es el ID del comentario padre al que estamos respondiendo
       );
-      
+
       bloc.add(AddSubcomentario(nuevoSubComentario));
     }
 
-    bloc.add(GetNumeroComentarios(noticiaId));
+    // Actualizar el contador de comentarios
+    int totalComentariosActuales = 0;
+    if (bloc.state is ComentarioLoaded) {
+      final comentariosActuales = (bloc.state as ComentarioLoaded).comentarios;
+      
+      // Contar comentarios principales
+      totalComentariosActuales = comentariosActuales.length;
+      
+      // Contar subcomentarios
+      for (var comentario in comentariosActuales) {
+        if (comentario.subcomentarios != null) {
+          totalComentariosActuales += comentario.subcomentarios!.length;
+        }
+      }
+    }
+    
+    // Sumamos 1 por el nuevo comentario
+    final nuevoTotal = totalComentariosActuales + 1;
+    bloc.add(ActualizarContadorComentarios(noticiaId, nuevoTotal));
+    
     comentarioController.clear();
     onCancelarRespuesta();
 
     SnackBarHelper.mostrarExito(
       context,
-      mensaje: 'Comentario agregado con éxito'
+      mensaje: 'Comentario agregado con éxito',
     );
   }
 }

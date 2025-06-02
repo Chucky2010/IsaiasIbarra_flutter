@@ -46,7 +46,7 @@ class AppTextStyles {
     return GoogleFonts.inter(
       fontSize: 14,
       fontWeight: FontWeight.w600,
-      color: Colors.white,
+      color:  Colors.black,
     );
   }
 
@@ -96,7 +96,7 @@ class AppTextStyles {
   static TextStyle get bodyMd {
     return GoogleFonts.inter(
       fontSize: 13,
-      fontWeight: FontWeight.w400,
+      fontWeight: FontWeight.w500,
       color: Colors.black,
     );
   }
