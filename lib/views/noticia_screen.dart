@@ -129,9 +129,7 @@ class _NoticiaScreenContent extends StatelessWidget {
                 },
               ),
             ],
-          ),
-          drawer: const SideMenu(),
-          backgroundColor: Colors.white,
+          ),          drawer: const SideMenu(),
           body: Column(
             children: [
               LastUpdatedHeader(lastUpdated: lastUpdated),

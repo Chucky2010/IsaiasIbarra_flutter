@@ -9,12 +9,12 @@ class SnackBarComponent {
     required Duration duracion,
     VoidCallback? onAction,
     String? actionLabel,
-  }) {
-    return SnackBar(      content: Text(
+  }) {    return SnackBar(
+      content: Text(
         mensaje,
         style: const TextStyle(
           fontSize: 14,
-          color: Colors.white,
+          color: Colors.white, // El texto en un SnackBar siempre debe ser visible
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -23,10 +23,10 @@ class SnackBarComponent {
       action: onAction != null && actionLabel != null
           ? SnackBarAction(
               label: actionLabel,
-              textColor: Colors.white,
+              textColor: Colors.white, // El texto de las acciones siempre debe ser visible
               onPressed: onAction,
             )
-          : null,      behavior: SnackBarBehavior.fixed,
+          : null,behavior: SnackBarBehavior.fixed,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
       elevation: 0, // Sin sombra

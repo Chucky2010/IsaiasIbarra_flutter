@@ -20,10 +20,11 @@ class StartScreen extends StatelessWidget {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
+          children: [            Text(
               PreguntasConstantes.welcomeMessage, 
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
@@ -34,8 +35,9 @@ class StartScreen extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => const GameScreen()),
                 );
               },
-               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue, 
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context).colorScheme.onPrimary,
               ),
               child: const Text(PreguntasConstantes.startGame), // Texto del botón definido en constants.dart
             ),

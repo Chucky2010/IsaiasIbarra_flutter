@@ -13,6 +13,9 @@ class CategoriaCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 2,
@@ -32,8 +35,11 @@ class CategoriaCard extends StatelessWidget {
                 return Container(
                   width: 60,
                   height: 60,
-                  color: Colors.grey[300],
-                  child: const Icon(Icons.broken_image, color: Colors.grey),
+                  color: isDark ? Colors.grey[800] : Colors.grey[300],
+                  child: Icon(
+                    Icons.broken_image,
+                    color: isDark ? Colors.grey[600] : Colors.grey,
+                  ),
                 );
               },
               loadingBuilder: (context, child, loadingProgress) {
@@ -41,9 +47,12 @@ class CategoriaCard extends StatelessWidget {
                 return Container(
                   width: 60,
                   height: 60,
-                  color: Colors.grey[200],
-                  child: const Center(
-                    child: CircularProgressIndicator(strokeWidth: 2),
+                  color: isDark ? Colors.grey[700] : Colors.grey[200],
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: theme.colorScheme.primary,
+                    ),
                   ),
                 );
               },
@@ -51,18 +60,28 @@ class CategoriaCard extends StatelessWidget {
           ),
           title: Text(
             categoria.nombre,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            style: TextStyle(
+              fontWeight: FontWeight.bold, 
+              fontSize: 16,
+              color: theme.textTheme.titleLarge?.color,
+            ),
           ),
           subtitle: Text(
             categoria.descripcion,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: theme.textTheme.bodyMedium?.color,
+            ),
           ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
-                icon: const Icon(Icons.edit, color: Colors.blue),
+                icon: Icon(
+                  Icons.edit, 
+                  color: theme.colorScheme.primary,
+                ),
                 onPressed: onEdit,
               ),
             ],

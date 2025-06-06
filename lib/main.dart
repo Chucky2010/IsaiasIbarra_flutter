@@ -5,6 +5,9 @@ import 'package:mi_proyecto/bloc/auth/auth_bloc.dart';
 import 'package:mi_proyecto/bloc/comentario/comentario_bloc.dart';
 import 'package:mi_proyecto/bloc/reporte/reporte_bloc.dart';
 import 'package:mi_proyecto/bloc/tarea/tarea_bloc.dart';
+import 'package:mi_proyecto/bloc/theme/theme_bloc.dart';
+import 'package:mi_proyecto/bloc/theme/theme_event.dart';
+import 'package:mi_proyecto/bloc/theme/theme_state.dart';
 import 'package:mi_proyecto/di/locator.dart';
 import 'package:mi_proyecto/bloc/contador/contador_bloc.dart';
 import 'package:mi_proyecto/bloc/connectivity/connectivity_bloc.dart';
@@ -31,8 +34,11 @@ void main() async {
     final secureStorage = di<SecureStorageService>();
     await secureStorage.clearJwt();
     await secureStorage.clearUserEmail();
+    
+    // Inicializar ThemeBloc y cargar preferencia de tema
+    final themeBloc = ThemeBloc()..add(InitializeThemeEvent());
 
-    runApp(const MyApp());
+    runApp(MyApp(themeBloc: themeBloc));
   } catch (e) {
     debugPrint('Error durante la inicialización: $e');
     runApp(MaterialApp(
@@ -46,7 +52,10 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final ThemeBloc themeBloc;
+  
+  const MyApp({super.key, required this.themeBloc});
+  
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -58,21 +67,28 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => AuthBloc()),
         // Agregamos NoticiaBloc como un provider global para mantener el estado entre navegaciones
         BlocProvider<NoticiaBloc>(create: (context) => NoticiaBloc()),
-                BlocProvider<TareaBloc>(
+        BlocProvider<TareaBloc>(
           create: (context) => TareaBloc(),
           lazy: false, // Esto asegura que el bloc se cree inmediatamente
         ),
+        // Proveedor para el ThemeBloc
+        BlocProvider<ThemeBloc>.value(value: themeBloc),
       ],
-      child: MaterialApp(
-        title: 'Flutter Demo',
-        theme:  AppTheme.bootcampTheme, // Usamos nuestro tema personalizado
-
-        debugShowCheckedModeBanner: false,
-        builder: (context, child) {
-          // Envolvemos con nuestro ConnectivityWrapper
-          return ConnectivityWrapper(child: child ?? const SizedBox.shrink());
-        },
-        home: LoginScreen(), // Pantalla inicial
+      child: BlocBuilder<ThemeBloc, ThemeState>(
+        builder: (context, themeState) {
+          return MaterialApp(
+            title: 'Flutter Demo',
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: themeState.themeMode,
+            debugShowCheckedModeBanner: false,
+            builder: (context, child) {
+              // Envolvemos con nuestro ConnectivityWrapper
+              return ConnectivityWrapper(child: child ?? const SizedBox.shrink());
+            },
+            home: LoginScreen(), // Pantalla inicial
+          );
+        }
       ),
     );
   }

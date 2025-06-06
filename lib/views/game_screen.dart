@@ -99,61 +99,57 @@ class GameScreenState extends State<GameScreen> {
         'Pregunta ${currentQuestionIndex + 1} de ${questionsList.length}';
     final currentQuestion = questionsList[currentQuestionIndex];
     const double spacingHeight = 16; // Variable para el espaciado entre la pregunta y las opciones
-  
     return Scaffold(
       appBar: AppBar(
         title: const Text('Juego de Preguntas'),
         centerTitle: true,
-        backgroundColor: Colors.blue,
       ),
       drawer: const SideMenu(),
-      backgroundColor: Colors.white,      
-      body: 
+      body:
         Padding(
           padding: const EdgeInsets.all(16.0),
           child:Center(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               // mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
+              children: [                Text(
                   '¡Bienvenido al Juego!',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 20),
                 Text(
                   'Puntaje: $userScore',
-                  style: const TextStyle(
-                    fontSize: 18,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 Text(
                   questionCounterText,
-                  style: const TextStyle(fontSize: 16, color: Colors.grey),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 20),
-                Text(
+                const SizedBox(height: 20),                Text(
                   currentQuestion.questionText,
-                  style: const TextStyle(
-                    fontSize: 20,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: spacingHeight), // Espaciado entre la pregunta y las opciones
                 ...currentQuestion.answerOptions.asMap().entries.map((entry) {
                   final index = entry.key;
-                  final option = entry.value;
-                   // Si la respuesta seleccionada es correcta, todos los botones serán verdes
+                  final option = entry.value;                  // Si la respuesta seleccionada es correcta, todos los botones serán verdes
                   final buttonColor = isCorrectAnswer == true
                       ? Colors.green
-                      : (selectedAnswerIndex == index ? Colors.red : Colors.blue);
+                      : (selectedAnswerIndex == index 
+                          ? Theme.of(context).colorScheme.error 
+                          : Theme.of(context).colorScheme.primary);
 
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),

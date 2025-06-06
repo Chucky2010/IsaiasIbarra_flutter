@@ -59,20 +59,26 @@ class _FormularioNoticiaState extends State<FormularioNoticia> {
   Future<void> _seleccionarFecha() async {
     if (!context.mounted) return;
     
-    try {
-      final DateTime? fechaSeleccionada = await showDatePicker(
+    try {      final DateTime? fechaSeleccionada = await showDatePicker(
         context: context,
         initialDate: _fechaSeleccionada,
         firstDate: DateTime(2000),
         lastDate: DateTime.now().add(const Duration(days: 1)),
         builder: (context, child) {
+          final isDarkMode = Theme.of(context).brightness == Brightness.dark;
           return Theme(
             data: Theme.of(context).copyWith(
-              colorScheme: ColorScheme.light(
-                primary: Theme.of(context).primaryColor,
-                onPrimary: Colors.white,
-                onSurface: Colors.black,
-              ),
+              colorScheme: isDarkMode 
+                  ? ColorScheme.dark(
+                      primary: Theme.of(context).colorScheme.primary,
+                      onPrimary: Theme.of(context).colorScheme.onPrimary,
+                      onSurface: Theme.of(context).colorScheme.onSurface,
+                    )
+                  : ColorScheme.light(
+                      primary: Theme.of(context).primaryColor,
+                      onPrimary: Colors.white,
+                      onSurface: Colors.black,
+                    ),
             ),
             child: child!,
           );
@@ -102,10 +108,12 @@ class _FormularioNoticiaState extends State<FormularioNoticia> {
         descripcion: _descripcionController.text,
         fuente: _fuenteController.text,
         publicadaEl: _fechaSeleccionada,
-        urlImagen: _imagenUrlController.text.isEmpty 
-            ? "https://picsum.photos/200/300" 
-            : _imagenUrlController.text,
+          urlImagen: _imagenUrlController.text.isEmpty 
+          ? "https://picsum.photos/500/300?random=${DateTime.now().millisecondsSinceEpoch}" 
+          : _imagenUrlController.text,
         categoriaId: _selectedCategoriaId,
+        contadorComentarios: widget.noticia?.contadorComentarios ?? 0,
+        contadorReportes: widget.noticia?.contadorReportes ?? 0,
       );
       Navigator.of(context).pop(noticia);
     }
@@ -187,11 +195,12 @@ class _FormularioNoticiaState extends State<FormularioNoticia> {
               decoration: const InputDecoration(
                 labelText: 'URL de la imagen',
                 border: OutlineInputBorder(),
+                hintText: 'Deja vacio para usar una imagen aleatoria',
               ),
               validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Por favor ingrese la URL de una imagen';
-                }
+                // if (value == null || value.isEmpty) {
+                //   return 'Por favor ingrese la URL de una imagen';
+                // }
                 // Podríamos validar que es una URL válida
                 return null;
               },

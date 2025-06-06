@@ -111,13 +111,12 @@ class _FormularioCategoriaState extends State<FormularioCategoria> {
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
-              // Vista previa de la imagen
+              const SizedBox(height: 16),              // Vista previa de la imagen
               if (_imagenUrlController.text.isNotEmpty)
                 Container(
                   height: 120,
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
+                    border: Border.all(color: Theme.of(context).colorScheme.outline),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: ClipRRect(
@@ -126,32 +125,38 @@ class _FormularioCategoriaState extends State<FormularioCategoria> {
                       _imagenUrlController.text,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
-                        return const Center(
-                          child: Text('Error al cargar la imagen', style: TextStyle(color: Colors.red)),
+                        return Center(
+                          child: Text(
+                            'Error al cargar la imagen', 
+                            style: TextStyle(color: Theme.of(context).colorScheme.error),
+                          ),
                         );
                       },
                       loadingBuilder: (context, child, loadingProgress) {
                         if (loadingProgress == null) return child;
-                        return const Center(child: CircularProgressIndicator());
+                        return Center(
+                          child: CircularProgressIndicator(
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        );
                       },
                     ),
                   ),
                 ),
-              const SizedBox(height: 20),
-              SizedBox(
+              const SizedBox(height: 20),              SizedBox(
                 height: 48,
                 child: ElevatedButton(
                   onPressed: _guardarCategoria,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
-                    foregroundColor: Colors.white,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                   child: Text(
                     widget.categoria == null ? 'CREAR CATEGORÍA' : 'GUARDAR CAMBIOS',
-                    style: const TextStyle(fontSize: 16),
+                    style: TextStyle(fontSize: 16),
                   ),
                 ),
               ),

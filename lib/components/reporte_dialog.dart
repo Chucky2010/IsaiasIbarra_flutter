@@ -5,18 +5,22 @@ import 'package:mi_proyecto/bloc/noticia/noticia_event.dart';
 import 'package:mi_proyecto/bloc/reporte/reporte_bloc.dart';
 import 'package:mi_proyecto/bloc/reporte/reporte_event.dart';
 import 'package:mi_proyecto/bloc/reporte/reporte_state.dart';
+import 'package:mi_proyecto/components/limite_reporte_dialog.dart';
 import 'package:mi_proyecto/domain/reporte.dart';
 import 'package:mi_proyecto/domain/noticia.dart';
 import 'package:mi_proyecto/helpers/snackbar_helper.dart';
 import 'package:watch_it/watch_it.dart';
+//import 'package:shared_preferences/shared_preferences.dart';
 
-/// Clase para mostrar el diálogo de reportes de noticias
 class ReporteDialog {
-  /// Muestra un diálogo de reporte para una noticia
   static Future<void> mostrarDialogoReporte({
     required BuildContext context,
     required Noticia noticia,
   }) async {
+    final int? totalReportes = noticia.contadorReportes;
+    if (totalReportes! >= 3) {
+      return LimiteReportesDialog.mostrar(context);
+    }
     return showDialog(
       context: context,
       builder: (context) {
@@ -25,11 +29,6 @@ class ReporteDialog {
           child: _ReporteDialogContent(
             noticiaId: noticia.id!,
             noticia: noticia,
-            estadisticas: {
-              'NoticiaInapropiada': 0,
-              'InformacionFalsa': 0,
-              'Otro': 0,
-            },
           ),
         );
       },
@@ -40,25 +39,17 @@ class ReporteDialog {
 class _ReporteDialogContent extends StatefulWidget {
   final String noticiaId;
   final Noticia noticia;
-  final Map<String, int> estadisticas;
 
-  const _ReporteDialogContent({required this.noticiaId, required this.noticia, required this.estadisticas});
+  const _ReporteDialogContent({required this.noticiaId, required this.noticia});
 
   @override
   State<_ReporteDialogContent> createState() => _ReporteDialogContentState();
 }
 
 class _ReporteDialogContentState extends State<_ReporteDialogContent> {
-  // Mantenemos una copia mutable de las estadísticas en el state
-  late Map<String, int> _estadisticas;
-  
   @override
   void initState() {
     super.initState();
-    // Inicializamos con los valores proporcionados al widget
-    _estadisticas = Map.from(widget.estadisticas);
-    
-    // Cargar estadísticas al iniciar
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ReporteBloc>().add(
         CargarEstadisticasReporte(noticia: widget.noticia),
@@ -70,60 +61,51 @@ class _ReporteDialogContentState extends State<_ReporteDialogContent> {
   Widget build(BuildContext context) {
     return BlocConsumer<ReporteBloc, ReporteState>(
       listener: (context, state) {
-        if (state is ReporteLoading && state.motivoActual == null) {
-          // Mostrar diálogo de carga
-          showDialog(
-            context: context,
-            barrierDismissible: true,
-            builder: (context) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            },
-          );
-        } else if (state is ReporteSuccess) {
-          // Mostrar mensaje de éxito
+        if (state is ReporteSuccess) {
           SnackBarHelper.mostrarExito(context, mensaje: state.mensaje);
-
-          // cerramos el diálogo después de un tiempo
-          if (context.mounted) {
-            Navigator.of(context).pop();
-          }
+          Future.delayed(const Duration(seconds: 1), () {
+            if (context.mounted) {
+              Navigator.of(context).pop();
+            }
+          });
         } else if (state is ReporteError) {
-          // Mostrar mensaje de error
           SnackBarHelper.mostrarError(context, mensaje: state.error.message);
         } else if (state is NoticiaReportesActualizada &&
             state.noticia.id == widget.noticiaId) {
-          // Actualizar directamente el contador en NoticiaBloc sin hacer petición GET
           context.read<NoticiaBloc>().add(
             ActualizarContadorReportesEvent(
               state.noticia.id!,
               state.contadorReportes,
             ),
           );
-        } else if (state is ReporteEstadisticasLoaded) {
-          if (state.noticia.id == widget.noticiaId) {
-          setState(() {
-            _estadisticas = {
-              'NoticiaInapropiada': state.estadisticas[MotivoReporte.noticiaInapropiada] ?? 0,
-              'InformacionFalsa': state.estadisticas[MotivoReporte.informacionFalsa] ?? 0,
-              'Otro': state.estadisticas[MotivoReporte.otro] ?? 0,
-            };
-          });
         }
-          if (Navigator.of(context).canPop()) {
-            Navigator.of(context).pop();
-          }
-        }
-      },      builder: (context, state) {
-        // Verificar si estamos en estado de carga y obtener el motivo actual
+      },
+      builder: (context, state) {
         final bool isLoading = state is ReporteLoading;
         final motivoActual = isLoading ? (state).motivoActual : null;
 
-        
+        Map<String, int> estadisticas = {
+          'NoticiaInapropiada': 0,
+          'InformacionFalsa': 0,
+          'Otro': 0,
+        };
+
+        if (state is ReporteEstadisticasLoaded &&
+            state.noticia.id == widget.noticiaId) {
+          estadisticas = {
+            'NoticiaInapropiada':
+                state.estadisticas[MotivoReporte.noticiaInapropiada] ?? 0,
+            'InformacionFalsa':
+                state.estadisticas[MotivoReporte.informacionFalsa] ?? 0,
+            'Otro': state.estadisticas[MotivoReporte.otro] ?? 0,
+          };
+        }
+
         return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          backgroundColor: const Color(0xFFFCEAE8), // Color rosa suave
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          backgroundColor: const Color(0xFFFCEAE8),
           insetPadding: const EdgeInsets.symmetric(
             horizontal: 70.0,
             vertical: 24.0,
@@ -135,10 +117,7 @@ class _ReporteDialogContentState extends State<_ReporteDialogContent> {
               children: [
                 const Text(
                   'Reportar Noticia',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),
@@ -148,7 +127,6 @@ class _ReporteDialogContentState extends State<_ReporteDialogContent> {
                   style: TextStyle(fontSize: 14),
                 ),
                 const SizedBox(height: 16),
-                // Opciones de reporte con íconos y contadores
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -158,8 +136,10 @@ class _ReporteDialogContentState extends State<_ReporteDialogContent> {
                       icon: Icons.warning,
                       color: Colors.red,
                       label: 'Inapropiada',
-                      iconNumber: '${_estadisticas['NoticiaInapropiada']}',
-                      isLoading: isLoading && motivoActual == MotivoReporte.noticiaInapropiada,
+                      iconNumber: '${estadisticas['NoticiaInapropiada']}',
+                      isLoading:
+                          isLoading &&
+                          motivoActual == MotivoReporte.noticiaInapropiada,
                       smallSize: true,
                     ),
                     _buildMotivoButton(
@@ -168,8 +148,10 @@ class _ReporteDialogContentState extends State<_ReporteDialogContent> {
                       icon: Icons.info,
                       color: Colors.amber,
                       label: 'Falsa',
-                      iconNumber: '${_estadisticas['InformacionFalsa']}',
-                      isLoading: isLoading && motivoActual == MotivoReporte.informacionFalsa,
+                      iconNumber: '${estadisticas['InformacionFalsa']}',
+                      isLoading:
+                          isLoading &&
+                          motivoActual == MotivoReporte.informacionFalsa,
                       smallSize: true,
                     ),
                     _buildMotivoButton(
@@ -178,8 +160,9 @@ class _ReporteDialogContentState extends State<_ReporteDialogContent> {
                       icon: Icons.flag,
                       color: Colors.blue,
                       label: 'Otro',
-                      iconNumber: '${_estadisticas['Otro']}',
-                      isLoading: isLoading && motivoActual == MotivoReporte.otro,
+                      iconNumber: '${estadisticas['Otro']}',
+                      isLoading:
+                          isLoading && motivoActual == MotivoReporte.otro,
                       smallSize: true,
                     ),
                   ],
@@ -188,13 +171,11 @@ class _ReporteDialogContentState extends State<_ReporteDialogContent> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed: isLoading ? null : () => Navigator.of(context).pop(),
+                    onPressed:
+                        isLoading ? null : () => Navigator.of(context).pop(),
                     child: const Text(
                       'Cerrar',
-                      style: TextStyle(
-                        color: Colors.brown,
-                        fontSize: 14,
-                      ),
+                      style: TextStyle(color: Colors.brown, fontSize: 14),
                     ),
                   ),
                 ),
@@ -216,7 +197,6 @@ class _ReporteDialogContentState extends State<_ReporteDialogContent> {
     bool isLoading = false,
     bool smallSize = false,
   }) {
-    // Definir tamaños según el parámetro smallSize
     final buttonSize = smallSize ? 50.0 : 60.0;
     final iconSize = smallSize ? 24.0 : 30.0;
     final badgeSize = smallSize ? 16.0 : 18.0;
@@ -237,7 +217,6 @@ class _ReporteDialogContentState extends State<_ReporteDialogContent> {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                // Mostrar un indicador de carga si este botón está en proceso
                 if (isLoading)
                   SizedBox(
                     width: iconSize,
@@ -261,7 +240,7 @@ class _ReporteDialogContentState extends State<_ReporteDialogContent> {
                     ),
                     child: Center(
                       child: Text(
-                        isLoading ? (int.parse(iconNumber) + 1).toString() : iconNumber,
+                        iconNumber,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: fontSize,
@@ -279,8 +258,9 @@ class _ReporteDialogContentState extends State<_ReporteDialogContent> {
         Text(label, style: TextStyle(fontSize: fontSize)),
       ],
     );
-  }  void _enviarReporte(BuildContext context, MotivoReporte motivo) {
-    // Enviar el reporte usando el bloc directamente
+  }
+
+  void _enviarReporte(BuildContext context, MotivoReporte motivo) {
     context.read<ReporteBloc>().add(
       EnviarReporte(noticia: widget.noticia, motivo: motivo),
     );
