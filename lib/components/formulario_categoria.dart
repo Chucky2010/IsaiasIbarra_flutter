@@ -156,7 +156,7 @@ class _FormularioCategoriaState extends State<FormularioCategoria> {
                   ),
                   child: Text(
                     widget.categoria == null ? 'CREAR CATEGORÍA' : 'GUARDAR CAMBIOS',
-                    style: TextStyle(fontSize: 16),
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ),
               ),

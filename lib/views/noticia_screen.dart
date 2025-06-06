@@ -45,6 +45,7 @@ class NoticiaScreen extends StatelessWidget {
 class _NoticiaScreenContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return BlocConsumer<NoticiaBloc, NoticiaState>(
       listener: (context, state) {
         if (state is NoticiaError) {
@@ -94,7 +95,9 @@ class _NoticiaScreenContent extends StatelessWidget {
         return Scaffold(
           appBar: AppBar(
             title: const Text(NoticiasConstantes.tituloApp),
-            centerTitle: true,
+            // centerTitle: true,
+              backgroundColor: colorScheme.primary,
+              foregroundColor: colorScheme.onPrimary,
             actions: [              
               IconButton(
                 icon: const Icon(Icons.filter_list),

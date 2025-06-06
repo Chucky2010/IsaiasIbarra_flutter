@@ -38,9 +38,13 @@ class MiAppScreenState extends State<MiAppScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mi App'),
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
       ),
       drawer: const SideMenu(),
       body: Center(

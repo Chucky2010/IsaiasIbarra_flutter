@@ -87,6 +87,7 @@ class GameScreenState extends State<GameScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // final colorScheme = Theme.of(context).colorScheme;
     if (questionsList.isEmpty) {
       return const Scaffold(
         body: Center(
@@ -102,7 +103,9 @@ class GameScreenState extends State<GameScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Juego de Preguntas'),
-        centerTitle: true,
+        // backgroundColor: colorScheme.primary,
+        // foregroundColor: colorScheme.onPrimary,
+
       ),
       drawer: const SideMenu(),
       body:

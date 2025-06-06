@@ -28,7 +28,7 @@ class CommonWidgetsHelper {  /// Construye un título en negrita con tamaño 20
                     line,
                     style: TextStyle(
                       fontSize: 14, 
-                      color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7)
+                      color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha:0.7)
                     ),
                   ))
               .toList(),
@@ -86,7 +86,7 @@ class CommonWidgetsHelper {  /// Construye un título en negrita con tamaño 20
           'No hay pasos disponibles',
           style: TextStyle(
             fontSize: 16, 
-            color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7),
+            color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha:0.7),
           ),
         );
       }

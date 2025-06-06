@@ -49,8 +49,13 @@ class WelcomeScreenState extends State<WelcomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+      final colorScheme = Theme.of(context).colorScheme;
+    
     return Scaffold(
-      appBar: AppBar(title: const Text('Bienvenido')),
+      appBar: AppBar(title: const Text('Bienvenido'),
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
+      ),
       drawer: const SideMenu(),
       body: Center(
         child: Column(
