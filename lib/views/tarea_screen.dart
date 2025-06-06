@@ -75,6 +75,7 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return BlocConsumer<TareaBloc, TareaState>(
       listener: (context, state) {
         if (state is TareaError) {
@@ -120,7 +121,9 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
                   ? '${TareasConstantes.tituloAppBar} - Total: ${state.tareas.length}'
                   : TareasConstantes.tituloAppBar,
             ),
-            centerTitle: true,
+            
+              backgroundColor: colorScheme.primary,
+              foregroundColor: colorScheme.onPrimary,
             actions: [
               IconButton(
                 icon: const Icon(Icons.refresh),
@@ -189,7 +192,7 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
               'Cargando tareas...',
               style: theme.textTheme.bodyLarge?.copyWith(
                 color: theme.brightness == Brightness.dark
-                    ? theme.colorScheme.onSurface.withOpacity(0.9)
+                    ? theme.colorScheme.onSurface.withValues(alpha: 0.9)
                     : theme.colorScheme.onSurface,
               ),
             ),
@@ -244,16 +247,16 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
                         Icons.assignment_outlined,
                         size: 48,
                         color: isDark
-                            ? theme.colorScheme.primary.withOpacity(0.7)
-                            : theme.colorScheme.primary.withOpacity(0.5),
+                            ? theme.colorScheme.primary.withValues(alpha: 0.7)
+                            : theme.colorScheme.primary.withValues(alpha: 0.5),
                       ),
                       const SizedBox(height: 16),
                       Text(
                         TareasConstantes.listaVacia,
                         style: TextStyle(
                           color: isDark
-                              ? theme.colorScheme.onSurface.withOpacity(0.8)
-                              : theme.textTheme.bodyLarge?.color?.withOpacity(0.7),
+                              ? theme.colorScheme.onSurface.withValues(alpha:0.8)
+                              : theme.textTheme.bodyLarge?.color?.withValues(alpha: 0.7),
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                         ),
@@ -274,7 +277,7 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
                   padding: const EdgeInsets.all(16.0),
                   decoration: BoxDecoration(
                     color: theme.brightness == Brightness.dark
-                        ? theme.colorScheme.surface.withOpacity(0.3)
+                        ? theme.colorScheme.surface.withValues(alpha: 0.3)
                         : theme.scaffoldBackgroundColor,
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -369,11 +372,11 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
       // Mostrar mensaje de error
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('No puedes crear más de 3 tareas.'),
+          content: const Text('No puedes crear más de 3 tareas.'),
           backgroundColor: Theme.of(context).colorScheme.error,
           behavior: SnackBarBehavior.floating,
-          margin: EdgeInsets.all(16),
-          duration: Duration(seconds: 3),
+          margin:const EdgeInsets.all(16),
+          duration: const Duration(seconds: 3),
           action: SnackBarAction(
             label: 'Entendido',
             textColor: Theme.of(context).colorScheme.onError,
@@ -411,13 +414,13 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
         borderRadius: BorderRadius.circular(8),
         side: BorderSide(
           color: isDark 
-              ? theme.colorScheme.outline.withOpacity(0.4) // Mayor opacidad para mejor contraste
-              : theme.colorScheme.outline.withOpacity(0.1),
+              ? theme.colorScheme.outline.withValues(alpha: 0.4) // Mayor opacidad para mejor contraste
+              : theme.colorScheme.outline.withValues(alpha: 0.1),
           width: isDark ? 1.0 : 0.5, // Borde más grueso en modo oscuro
         ),
       ),
       color: isDark 
-          ? theme.cardTheme.color?.withOpacity(0.9) // Ajuste para mejor visualización
+          ? theme.cardTheme.color?.withValues(alpha: 0.9) // Ajuste para mejor visualización
           : theme.cardTheme.color,
       child: ListTile(
         leading: Checkbox(
@@ -435,7 +438,7 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
           tarea.titulo,
           style: TextStyle(
             color: tarea.completado && isDark
-                ? theme.textTheme.titleMedium?.color?.withOpacity(0.7)
+                ? theme.textTheme.titleMedium?.color?.withValues(alpha: 0.7)
                 : theme.textTheme.titleMedium?.color,
             decoration: tarea.completado ? TextDecoration.lineThrough : null,
             decorationColor: theme.colorScheme.secondary,
@@ -447,14 +450,14 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
           tarea.descripcion ?? '',
           style: TextStyle(
             color: isDark
-                ? theme.textTheme.bodyMedium?.color?.withOpacity(0.8) // Mayor opacidad en modo oscuro
-                : theme.textTheme.bodyMedium?.color?.withOpacity(0.7),
+                ? theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.8) // Mayor opacidad en modo oscuro
+                : theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
           ),
         ),        trailing: IconButton(
           icon: Icon(
             Icons.edit,
             color: isDark
-                ? theme.colorScheme.primary.withOpacity(0.9) // Usa el color primario con alta opacidad
+                ? theme.colorScheme.primary.withValues(alpha: 0.9) // Usa el color primario con alta opacidad
                 : theme.colorScheme.secondary,
             size: 22, // Tamaño ligeramente más grande para mejor visibilidad
           ),

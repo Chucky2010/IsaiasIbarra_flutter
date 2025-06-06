@@ -28,7 +28,7 @@ class ContadorState extends Equatable {
     if (valor > 0) {
       return Colors.green;
     } else if (valor == 0) {
-      return Colors.black;
+      return Colors.grey;
     } else {
       return Colors.red;
     }

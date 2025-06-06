@@ -4,6 +4,7 @@ import 'package:mi_proyecto/bloc/theme/theme_bloc.dart';
 import 'package:mi_proyecto/bloc/theme/theme_event.dart';
 import 'package:mi_proyecto/bloc/theme/theme_state.dart';
 import 'package:mi_proyecto/helpers/dialog_helper.dart';
+import 'package:mi_proyecto/views/acerca_de_screen.dart';
 import 'package:mi_proyecto/views/contador_screen.dart';
 import 'package:mi_proyecto/views/mi_app_screen.dart';
 import 'package:mi_proyecto/views/noticia_screen.dart';
@@ -121,6 +122,19 @@ class SideMenu extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const StartScreen(),
+                ),
+              );
+            },
+          ),
+          _buildMenuItem(
+            context: context,
+            icon: Icons.info,
+            title: 'Acerca de SODEP',
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AcercaDeScreen(),
                 ),
               );
             },

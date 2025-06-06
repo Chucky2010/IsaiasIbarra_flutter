@@ -61,7 +61,9 @@ class PreferenciaScreen extends StatelessWidget {
             });
           }
         },
-        builder: (context, prefState) {
+        builder: (context, prefState) {          // Obtener el tema actual para adaptar colores y estilos
+          final theme = Theme.of(context);
+          
           return Scaffold(
             appBar: AppBar(
               title: const Text('Preferencias'),
@@ -75,7 +77,8 @@ class PreferenciaScreen extends StatelessWidget {
                 ),
               ],
             ),
-            backgroundColor: Colors.white,
+            // Usar el color de fondo del tema en lugar de blanco fijo
+            backgroundColor: theme.scaffoldBackgroundColor,
             body: _construirCuerpoPreferencias(context, prefState),
             bottomNavigationBar: _construirBarraInferior(context, prefState),
           );
@@ -83,17 +86,24 @@ class PreferenciaScreen extends StatelessWidget {
       ),
     );
   }
-
   Widget _construirCuerpoPreferencias(
     BuildContext context,
     PreferenciaState prefState,
   ) {
+    // Obtener el tema actual
+    final theme = Theme.of(context);
+    
     return BlocBuilder<CategoriaBloc, CategoriaState>(
       builder: (context, catState) {
         if (catState is CategoriaLoading ||
             prefState is PreferenciaLoading ||
             prefState is PreferenciasSaved) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
+              backgroundColor: theme.colorScheme.surface,
+            ),
+          );
         } else if (catState is CategoriaError) {
           return _construirWidgetError(
             context,
@@ -110,31 +120,67 @@ class PreferenciaScreen extends StatelessWidget {
           final categorias = catState.categorias;
           return _construirListaCategorias(context, prefState, categorias);
         }
-        return const Center(child: Text('Estado desconocido'));
+        return Center(
+          child: Text(
+            'Estado desconocido',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+            ),
+          ),
+        );
       },
     );
   }
-
   Widget _construirListaCategorias(
     BuildContext context,
     PreferenciaState state,
     List<Categoria> categorias,
   ) {
+    // Obtener el tema actual
+    final theme = Theme.of(context);
+    
     if (categorias.isEmpty) {
-      return const Center(child: Text('No hay categorías disponibles'));
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.category_outlined,
+              size: 48,
+              color: theme.colorScheme.secondary.withValues(alpha:0.7),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No hay categorías disponibles',
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+              ),
+            ),
+          ],
+        ),
+      );
     }
 
     return ListView.separated(
       padding: const EdgeInsets.all(16),
       itemCount: categorias.length,
-      separatorBuilder: (context, index) => const Divider(height: 1),
+      // Usar el color del divisor del tema
+      separatorBuilder: (context, index) => Divider(
+        height: 1,
+        color: theme.dividerColor,
+      ),
       itemBuilder: (context, index) {
         final categoria = categorias[index];
         // Verificar que el ID no sea nulo
         if (categoria.id == null || categoria.id!.isEmpty) {
-          return const ListTile(
-            title: Text('Categoría sin identificador válido'),
-            leading: Icon(Icons.error_outline, color: Colors.red),
+          return ListTile(
+            title: Text(
+              'Categoría sin identificador válido',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.error,
+              ),
+            ),
+            leading: Icon(Icons.error_outline, color: theme.colorScheme.error),
           );
         }
 
@@ -158,34 +204,65 @@ class PreferenciaScreen extends StatelessWidget {
           builder: (context, state) {
             final isSelected =
                 state is PreferenciasLoaded &&
-                state.categoriasSeleccionadas.contains(categoria.id);
-
-            return CheckboxListTile(
-              title: Text(
-                categoria.nombre,
-                style: Theme.of(context).textTheme.bodyLarge,
+                state.categoriasSeleccionadas.contains(categoria.id);            final theme = Theme.of(context);
+            final isDark = theme.brightness == Brightness.dark;
+            
+            return Card(
+              // Usar un color más suave para las tarjetas según el modo
+              color: isSelected 
+                ? (isDark 
+                  ? theme.colorScheme.primaryContainer.withValues(alpha: 0.2)
+                  : theme.colorScheme.primaryContainer.withValues(alpha: 0.1))
+                : theme.cardColor,
+              elevation: isSelected ? 1.0 : 0.5,
+              margin: const EdgeInsets.symmetric(vertical: 4),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: isSelected ? BorderSide(
+                  color: theme.colorScheme.primary.withValues(alpha: 0.5),
+                  width: 1.5,
+                ) : BorderSide.none,
               ),
-              subtitle: Text(
-                categoria.descripcion,
-                style: Theme.of(context).textTheme.bodySmall,
+              child: CheckboxListTile(
+                title: Text(
+                  categoria.nombre,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  ),
+                ),
+                subtitle: Text(
+                  categoria.descripcion,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurface.withValues(alpha:0.7),
+                  ),
+                ),
+                value: isSelected,
+                onChanged:
+                    (_) => _toggleCategoria(context, categoria.id!, isSelected),
+                controlAffinity: ListTileControlAffinity.leading,
+                activeColor: theme.colorScheme.primary,
+                checkColor: theme.colorScheme.onPrimary,
+                secondary: isSelected
+                    ? Icon(
+                        Icons.check_circle,
+                        color: theme.colorScheme.secondary,
+                      )
+                    : null,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
-              value: isSelected,
-              onChanged:
-                  (_) => _toggleCategoria(context, categoria.id!, isSelected),
-              controlAffinity: ListTileControlAffinity.leading,
-              activeColor: Theme.of(context).colorScheme.primary,
-              secondary:
-                  isSelected
-                      ? const Icon(Icons.check_circle, color: Colors.green)
-                      : null,
             );
           },
         );
       },
     );
   }
-
   Widget _construirBarraInferior(BuildContext context, PreferenciaState state) {
+    // Obtener el tema actual para usar sus colores y estilos
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
     // Determinar si el botón debe estar habilitado
     final bool isEnabled =
         state is! PreferenciaError && state is! PreferenciaLoading;
@@ -196,29 +273,66 @@ class PreferenciaScreen extends StatelessWidget {
 
     return SafeArea(
       child: BottomAppBar(
+        // Usar colores del tema para la barra inferior
+        color: isDark 
+            ? theme.bottomAppBarTheme.color ?? theme.colorScheme.surface
+            : theme.colorScheme.surface,
+        elevation: 8.0,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                state is PreferenciaError
-                    ? 'Error al cargar preferencias'
-                    : 'Seleccionadas: $numCategorias',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: state is PreferenciaError ? Colors.red : null,
-                ),
-                overflow: TextOverflow.ellipsis,
+              Row(
+                children: [
+                  Icon(
+                    Icons.filter_list,
+                    color: state is PreferenciaError 
+                        ? theme.colorScheme.error 
+                        : theme.colorScheme.secondary,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    state is PreferenciaError
+                        ? 'Error al cargar preferencias'
+                        : 'Seleccionadas: $numCategorias',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: state is PreferenciaError 
+                          ? theme.colorScheme.error 
+                          : theme.colorScheme.onSurface,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
               const SizedBox(width: 8),
               ElevatedButton(
                 onPressed:
                     isEnabled ? () => _aplicarFiltros(context, state) : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).primaryColor,
-                  foregroundColor: Colors.white,
+                  backgroundColor: theme.colorScheme.primary,
+                  foregroundColor: theme.colorScheme.onPrimary,
+                  elevation: 2,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+                  // Añadir forma redondeada
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                 ),
-                child: const Text('Aplicar filtros'),
+                child: const 
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Icon(Icons.check, size: 18),
+                    SizedBox(width: 4),
+                    Text(
+                      'Aplicar filtros',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -226,28 +340,52 @@ class PreferenciaScreen extends StatelessWidget {
       ),
     );
   }
-
   Widget _construirWidgetError(
     BuildContext context,
     String message,
     VoidCallback onRetry,
   ) {
+    // Obtener el tema actual para usar sus colores y estilos
+    final theme = Theme.of(context);
+    
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.error_outline, size: 48, color: Colors.red),
+          Icon(
+            Icons.error_outline, 
+            size: 48, 
+            color: theme.colorScheme.error,
+          ),
           const SizedBox(height: 16),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 16),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Text(
+              message,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontSize: 16,
+                color: theme.colorScheme.onSurface,
+              ),
+            ),
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
             onPressed: onRetry,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: theme.colorScheme.secondary,
+              foregroundColor: theme.colorScheme.onSecondary,
+              elevation: 2,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
             icon: const Icon(Icons.refresh),
-            label: const Text('Reintentar'),
+            label: const Text(
+              'Reintentar',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),

@@ -52,7 +52,8 @@ class _ContadorView extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Text(
-                  'You have pushed the button this many times:',
+                  'Presiona los botones para modificar el contador',
+                  textAlign: TextAlign.center,
                   style: theme.textTheme.bodyLarge?.copyWith(
                     fontSize: 16,
                   ),
@@ -63,7 +64,8 @@ class _ContadorView extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 16),                Text(
+                const SizedBox(height: 16),               
+                 Text(
                   state.mensaje,
                   style: TextStyle(
                     fontSize: 18, 
