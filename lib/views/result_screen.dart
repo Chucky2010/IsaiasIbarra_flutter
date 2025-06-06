@@ -10,7 +10,7 @@ class ResultScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
+    final theme = Theme.of(context);
     const double spacingHeight = 16;
 
     // Variable para mostrar el puntaje final
@@ -21,56 +21,43 @@ class ResultScreen extends StatelessWidget {
         ? '¡Buen trabajo!'
         : '¡Sigue practicando!';
 
-    // Estilo del texto del puntaje
-    const TextStyle scoreTextStyle = TextStyle(
-      fontSize: 24,
-      fontWeight: FontWeight.bold,
-      color: Colors.black,
-    );
-
-    // Estilo del mensaje de retroalimentación
-    const TextStyle feedbackTextStyle = TextStyle(
-      fontSize: 18,
-      color: Colors.grey,
-    );
-
-    // Determina el color del botón
+    // Determina el color del botón basado en el puntaje y al mismo tiempo respetando el tema
     final Color buttonColor = finalScoreGame > (totalQuestions / 2)
-        ? Colors.blue // Azul si el puntaje es mayor a la mitad
-        : Colors.green; // Verde en caso contrario
+        ? theme.colorScheme.primary // Color primario del tema si el puntaje es mayor a la mitad
+        : Colors.green; // Verde en caso contrario (siempre es un buen color para "intentarlo de nuevo")
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Resultados'),
         centerTitle: true,
-        backgroundColor: Colors.blue,
       ),
-      backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
+              Text(
                 '¡Juego Terminado!',
-                style: TextStyle(
-                  fontSize: 24,
+                style: theme.textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 10),
               Text(
                 scoreText,
-                style: scoreTextStyle,
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: spacingHeight),
               Text(
                 feedbackMessage,
-                style: feedbackTextStyle,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: theme.colorScheme.secondary,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 30),
@@ -83,8 +70,8 @@ class ResultScreen extends StatelessWidget {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: buttonColor,// Usa la variable buttonColor
-                  foregroundColor: Colors.white,
+                  backgroundColor: buttonColor, 
+                  foregroundColor: theme.colorScheme.onPrimary,
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 ),
                 child: const Text(

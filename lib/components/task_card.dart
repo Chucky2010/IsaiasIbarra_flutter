@@ -17,11 +17,11 @@ class TaskCard extends StatelessWidget {
     required this.onBackPressed,
   });
 
-  @override
-  Widget build(BuildContext context) {
+  @override  Widget build(BuildContext context) {
     return Card(
       elevation: 8, 
-      color: Colors.white, 
+      // Usar el color de la tarjeta del tema actual
+      color: Theme.of(context).cardTheme.color, 
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       shape: CommonWidgetsHelper.buildRoundedBorder(),
       child: Padding(
@@ -49,14 +49,13 @@ class TaskCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween, // Alinea el botón a la derecha
                   children: [
-                    CommonWidgetsHelper.buildBoldFooter('${TareasConstantes.fechaLimite} $fechaLimiteDato'),
-                    ElevatedButton.icon(
+                    CommonWidgetsHelper.buildBoldFooter('${TareasConstantes.fechaLimite} $fechaLimiteDato'),                    ElevatedButton.icon(
                       onPressed: onBackPressed,
                       icon: const Icon(Icons.arrow_back, size: 16),
                       label: const Text('Volver'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueAccent,
-                        foregroundColor: Colors.white,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Theme.of(context).colorScheme.onPrimary,
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),

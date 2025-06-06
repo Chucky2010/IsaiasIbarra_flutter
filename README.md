@@ -1,86 +1,38 @@
-# abaez-flutter001
-Este proyecto es parte del bootcamp de Flutter donde se implementa un CRUD (Crear, Leer, Actualizar, Eliminar) completo utilizando Dio para la conexión HTTP y Bloc para la gestión de estado.
+# IsaiasIbarra_flutter
+Aplicación desarrollada como parte del Bootcamp de Flutter de Sodep (2025). Implementa un sistema completo de tipo CRUD (Crear, Leer, Actualizar, Eliminar), utilizando Dio para la comunicación HTTP y Bloc como patrón de gestión de estado.
+##  Entorno de desarrollo
+Estas son las versiones utilizadas en el desarrollo para asegurar compatibilidad:
 
-## Tecnologías Utilizadas
-- Flutter
-- BLoC para gestión de estado
-- Dio para comunicación con API
-- Variables de entorno con flutter_dotenv
+- **Flutter**: 3.29.3  
+- **Dart**: 3.7.2  
+- **Android SDK**: 35.0.1  
+
+> Puedes verificar tu entorno local ejecutando:  
+> `flutter --version`
 
 ## Configuración de Variables de Entorno
-Este proyecto utiliza un archivo `.env` para gestionar las variables de entorno. Sigue estos pasos para configurarlo:
+Para ejecutar la aplicación correctamente, es necesario definir variables de entorno en un archivo `.env`. Sigue estos pasos para configurarlo:
 
-1. Busca el archivo `.env.example` en la raíz del proyecto
-2. Crea una copia de este archivo y renómbralo a `.env`
-3. Actualiza los valores de las variables según tu entorno:
-4. Guarda el archivo para que la aplicación pueda leer estas variables al iniciar
-
-## Instrucciones de Configuración
-1. Clona el repositorio
+1. Duplicar el archivo .env.example
 ```bash
-git clone https://https://github.com/arincassia/abaez-flutter001.git
+cp .env.example .env
 ```
-3. Instala las dependencias
+2. Editar las variables según tu entorno en .env
+3. Guarda el archivo para que la aplicación pueda leer estas variables al iniciar.
+
+## Ejecución del Proyecto
+Sigue estos pasos para configurar y ejecutar el proyecto localmente:
 ```bash
+# 1. Clonar repositorio
+git clone https://github.com/Chucky2010/IsaiasIbarra_flutter.git
+cd IsaiasIbarra_flutter
+
+# 2. Limpiar el proyecto 
 flutter clean
+
+# 3. Instalar dependencias
 flutter pub get
-```
-4. Inicia la aplicación usando
-```bash
+
+# 4. Ejecutar (usar tu dispositivo conectado o emulador)
 flutter run
 ```
-## Configuración para pruebas con CrudCrud
-Si deseas probar el proyecto utilizando [CrudCrud](https://crudcrud.com/), sigue estos pasos:
-
-1. Visita [CrudCrud](https://crudcrud.com/) para obtener un endpoint temporal gratuito
-2. Actualiza la variable `NEWS_URL` en tu archivo `.env` con el endpoint proporcionado
-3. Utiliza las siguientes estructuras JSON para tus operaciones CRUD:
-
-### Estructura JSON para Noticias:
-```json
-{
-  "titulo": "Título de la noticia",
-  "descripcion": "Descripción detallada de la noticia",
-  "categoria": "deportes",
-  "fecha": "2025-05-05T12:00:00Z",
-  "autor": "Nombre del Autor",
-  "urlImagen": "https://picsum.photos/200/300"
-}
-```
-
-### Estructura JSON para Categorias:
-```json
-{
-  "nombre": "Nombre de la categoria",
-  "descripcion": "Descripción de la categoria",
-  "imagenUrl": "https://picsum.photos/seed/600/400"
-}
-```
-
-### Endpoints de noticias:
-- `GET /noticias`: Obtiene todas las noticias
-- `POST /noticias`: Crea una nueva noticia
-- `PUT /noticias/id`: Actualiza una noticia existente
-- `DELETE /noticias/id`: Elimina una noticia
-
-### Endpoints de categorias:
-- `GET /categorias`: Obtiene todas las noticias
-- `POST /categorias`: Crea una nueva noticia
-- `PUT /categorias/id`: Actualiza una noticia existente
-- `DELETE /categorias/id`: Elimina una noticia
-
-
-## Estructura del Proyecto
-- service: Implementación de servicios de API
-- bloc: Archivos de implementación del patrón BLoC
-- domain: Modelos de datos como `Noticia`
-- views: Pantallas y componentes de UI
-- data: Capa de datos y repositorios para acceso a API
-- constants.dart: Constantes y configuración de la aplicación
-
-## Demostración y Pruebas
-- [Smoke Test](https://docs.google.com/spreadsheets/d/1RPSO2G2eOtt2C2kwVC7xKcPqA8LmgTWUci95anH5X94/edit?usp=sharing) - Enlace al smoke test
-- [Video Demostrativo](https://drive.google.com/file/d/1o8uOo4_xQsUOSrs90BlFEil2iWGEIltw/view?usp=sharing) - Video mostrando la funcionalidad de la aplicación
-
-## Colaboradores
-- Este proyecto fue desarrollado como parte de un bootcamp de Flutter

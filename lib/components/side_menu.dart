@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mi_proyecto/bloc/theme/theme_bloc.dart';
+import 'package:mi_proyecto/bloc/theme/theme_event.dart';
+import 'package:mi_proyecto/bloc/theme/theme_state.dart';
 import 'package:mi_proyecto/helpers/dialog_helper.dart';
 import 'package:mi_proyecto/views/contador_screen.dart';
 import 'package:mi_proyecto/views/mi_app_screen.dart';
@@ -118,6 +122,21 @@ class SideMenu extends StatelessWidget {
                 MaterialPageRoute(
                   builder: (context) => const StartScreen(),
                 ),
+              );
+            },
+          ),
+          const Divider(),
+          // Botón para cambiar tema
+          BlocBuilder<ThemeBloc, ThemeState>(
+            builder: (context, state) {
+              final isDarkMode = state.isDarkMode;
+              return _buildMenuItem(
+                context: context,
+                icon: isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                title: isDarkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro',
+                onTap: () {
+                  context.read<ThemeBloc>().add(ToggleThemeEvent());
+                },
               );
             },
           ),

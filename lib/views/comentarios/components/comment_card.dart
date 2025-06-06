@@ -31,20 +31,26 @@ class CommentCard extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
+              children: [                Text(
                   comentario.autor,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
+                    color: Theme.of(context).textTheme.titleLarge?.color,
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text(comentario.texto),
+                Text(
+                  comentario.texto,
+                  style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color),
+                ),
                 const SizedBox(height: 8),
                 Text(
                   fecha,
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).textTheme.bodySmall?.color,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Row(

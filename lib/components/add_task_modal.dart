@@ -101,13 +101,31 @@ class AddTaskModalState extends State<AddTaskModal> {
                 labelText: 'Fecha',
                 border: OutlineInputBorder(),
                 hintText: 'Seleccionar Fecha',
-              ),
-              onTap: () async {
+              ),              onTap: () async {
+                final isDark = Theme.of(context).brightness == Brightness.dark;
                 DateTime? nuevaFecha = await showDatePicker(
                   context: context,
                   initialDate: fechaSeleccionada ?? DateTime.now(),
                   firstDate: DateTime(2000),
                   lastDate: DateTime(2100),
+                  builder: (context, child) {
+                    return Theme(
+                      data: Theme.of(context).copyWith(
+                        colorScheme: isDark 
+                            ? ColorScheme.dark(
+                                primary: Theme.of(context).colorScheme.primary,
+                                onPrimary: Theme.of(context).colorScheme.onPrimary,
+                                onSurface: Theme.of(context).colorScheme.onSurface,
+                              )
+                            : ColorScheme.light(
+                                primary: Theme.of(context).primaryColor,
+                                onPrimary: Colors.white,
+                                onSurface: Colors.black,
+                              ),
+                      ),
+                      child: child!,
+                    );
+                  },
                 );
                 if (nuevaFecha != null) {
                   setState(() {
@@ -126,13 +144,31 @@ class AddTaskModalState extends State<AddTaskModal> {
                 labelText: 'Fecha Límite',
                 border: OutlineInputBorder(),
                 hintText: 'Seleccionar Fecha Límite',
-              ),
-              onTap: () async {
+              ),              onTap: () async {
+                final isDark = Theme.of(context).brightness == Brightness.dark;
                 DateTime? nuevaFechaLimite = await showDatePicker(
                   context: context,
                   initialDate: fechaLimiteSeleccionada ?? DateTime.now(),
                   firstDate: DateTime(2000),
                   lastDate: DateTime(2100),
+                  builder: (context, child) {
+                    return Theme(
+                      data: Theme.of(context).copyWith(
+                        colorScheme: isDark 
+                            ? ColorScheme.dark(
+                                primary: Theme.of(context).colorScheme.primary,
+                                onPrimary: Theme.of(context).colorScheme.onPrimary,
+                                onSurface: Theme.of(context).colorScheme.onSurface,
+                              )
+                            : ColorScheme.light(
+                                primary: Theme.of(context).primaryColor,
+                                onPrimary: Colors.white,
+                                onSurface: Colors.black,
+                              ),
+                      ),
+                      child: child!,
+                    );
+                  },
                 );
                 if (nuevaFechaLimite != null) {
                   setState(() {

@@ -27,70 +27,115 @@ class _ContadorView extends StatelessWidget {
   final int _selectedIndex = 0;
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(title),
+  Widget build(BuildContext context) {    return Scaffold(      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+        title: Text(
+          title,
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: Theme.of(context).colorScheme.onPrimary,
+          ),
+        ),
+        elevation: 4.0, // Añade elevación para mejor contraste visual
+        iconTheme: IconThemeData(
+          color: Theme.of(context).colorScheme.onPrimary,
+        ),
       ),
-      drawer: const SideMenu(),
-      body: BlocBuilder<ContadorBloc, ContadorState>(
+      drawer: const SideMenu(),      body: BlocBuilder<ContadorBloc, ContadorState>(
         builder: (context, state) {
+          final theme = Theme.of(context);
+          final colorScheme = theme.colorScheme;
+          
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                const Text('You have pushed the button this many times:'),
+                Text(
+                  'You have pushed the button this many times:',
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    fontSize: 16,
+                  ),
+                ),
                 Text(
                   '${state.valor}',
-                  style: Theme.of(context).textTheme.headlineMedium,
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                const SizedBox(height: 16),
-                Text(
+                const SizedBox(height: 16),                Text(
                   state.mensaje,
-                  style: TextStyle(fontSize: 18, color: state.colorMensaje),
+                  style: TextStyle(
+                    fontSize: 18, 
+                    color: state.colorMensaje,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 16),              
                 if (state.status == ContadorStatus.loading)
-                  const CircularProgressIndicator(),
+                  CircularProgressIndicator(
+                    color: colorScheme.primary,
+                    strokeWidth: 3.0,
+                  ),
                 if (state.status == ContadorStatus.error)
-                  Text(
-                    state.errorMessage ?? 'Ha ocurrido un error',
-                    style: const TextStyle(color: Colors.red),
+                  Card(
+                    color: colorScheme.errorContainer,
+                    margin: const EdgeInsets.symmetric(horizontal: 32.0),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Text(
+                        state.errorMessage ?? 'Ha ocurrido un error',
+                        style: TextStyle(
+                          color: colorScheme.onErrorContainer,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
                   ),
               ],
             ),
           );
         },
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            FloatingActionButton(
-              heroTag: 'decrement',
-              onPressed: () => context.read<ContadorBloc>().add(ContadorDecrementEvent()),
-              tooltip: 'Decrement',
-              child: const Icon(Icons.remove),
+      ),      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Builder(
+        builder: (context) {
+          final colorScheme = Theme.of(context).colorScheme;
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                FloatingActionButton(
+                  heroTag: 'decrement',
+                  onPressed: () => context.read<ContadorBloc>().add(ContadorDecrementEvent()),
+                  tooltip: 'Decrement',
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
+                  child: const Icon(Icons.remove),
+                ),
+                const SizedBox(width: 16),
+                FloatingActionButton(
+                  heroTag: 'increment',
+                  onPressed: () => context.read<ContadorBloc>().add(ContadorIncrementEvent()),
+                  tooltip: 'Increment',
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
+                  child: const Icon(Icons.add),
+                ),
+                const SizedBox(width: 16),
+                FloatingActionButton(
+                  heroTag: 'reset',
+                  onPressed: () => context.read<ContadorBloc>().add(ContadorResetEvent()),
+                  tooltip: 'Reset',
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
+                  elevation: 4.0,
+                  child: const Icon(Icons.refresh),
+                ),              ],
             ),
-            const SizedBox(width: 16),
-            FloatingActionButton(
-              heroTag: 'increment',
-              onPressed: () => context.read<ContadorBloc>().add(ContadorIncrementEvent()),
-              tooltip: 'Increment',
-              child: const Icon(Icons.add),
-            ),
-            const SizedBox(width: 16),
-            FloatingActionButton(
-              heroTag: 'reset',
-              onPressed: () => context.read<ContadorBloc>().add(ContadorResetEvent()),
-              tooltip: 'Reset',
-              child: const Icon(Icons.refresh),
-            ),
-          ],
-        ),
+          );
+        },
       ),
       bottomNavigationBar: CustomBottomNavigationBar(selectedIndex: _selectedIndex),
     );

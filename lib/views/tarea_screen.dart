@@ -141,9 +141,7 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
                 },
               ),
             ],
-          ),
-          drawer: const SideMenu(),
-          backgroundColor: Colors.grey[200],
+          ),          drawer: const SideMenu(),
           body: Column(
             children: [
               LastUpdatedHeader(lastUpdated: lastUpdated),
@@ -176,15 +174,25 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
   }
 
   // Nuevo método para el contenido
-  Widget _construirContenidoTareas(BuildContext context, TareaState state) {
-    if (state is TareaInitial || state is TareaLoading) {
-      return const Center(
+  Widget _construirContenidoTareas(BuildContext context, TareaState state) {    if (state is TareaInitial || state is TareaLoading) {
+      final theme = Theme.of(context);
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Cargando tareas...'),
+            CircularProgressIndicator(
+              color: theme.colorScheme.primary,
+              strokeWidth: 3,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Cargando tareas...',
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: theme.brightness == Brightness.dark
+                    ? theme.colorScheme.onSurface.withOpacity(0.9)
+                    : theme.colorScheme.onSurface,
+              ),
+            ),
           ],
         ),
       );
@@ -196,17 +204,20 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
         children: [
           Center(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
+              mainAxisAlignment: MainAxisAlignment.center,              children: [
                 Text(
                   state.error.message,
-                  style: const TextStyle(color: Colors.red),
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed:
                       () => context.read<TareaBloc>().add(LoadTareasEvent()),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                  ),
                   child: const Text('Reintentar'),
                 ),
               ],
@@ -216,14 +227,40 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
       );
     }
 
-    if (state is TareaLoaded) {
-      return state.tareas.isEmpty
+    if (state is TareaLoaded) {      final theme = Theme.of(context);
+      final isDark = theme.brightness == Brightness.dark;
+      
+      return state.tareas.isEmpty          
           ? ListView(
             physics: const AlwaysScrollableScrollPhysics(),
             children: [
               SizedBox(
                 height: MediaQuery.of(context).size.height * 0.6,
-                child: const Center(child: Text(TareasConstantes.listaVacia)),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.assignment_outlined,
+                        size: 48,
+                        color: isDark
+                            ? theme.colorScheme.primary.withOpacity(0.7)
+                            : theme.colorScheme.primary.withOpacity(0.5),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        TareasConstantes.listaVacia,
+                        style: TextStyle(
+                          color: isDark
+                              ? theme.colorScheme.onSurface.withOpacity(0.8)
+                              : theme.textTheme.bodyLarge?.color?.withOpacity(0.7),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
           )
@@ -231,24 +268,33 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
             controller: _scrollController,
             physics: const AlwaysScrollableScrollPhysics(),
             itemCount: state.tareas.length + (state.hayMasTareas ? 1 : 0),
-            itemBuilder: (context, index) {
-              if (index == state.tareas.length) {
-                return const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: CircularProgressIndicator(),
+            itemBuilder: (context, index) {              if (index == state.tareas.length) {
+                final theme = Theme.of(context);
+                return Container(
+                  padding: const EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                    color: theme.brightness == Brightness.dark
+                        ? theme.colorScheme.surface.withOpacity(0.3)
+                        : theme.scaffoldBackgroundColor,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  margin: const EdgeInsets.symmetric(vertical: 16.0),
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      color: theme.colorScheme.primary,
+                      strokeWidth: 3,
+                    ),
                   ),
                 );
               }
 
-              final tarea = state.tareas[index];
-              return Dismissible(
+              final tarea = state.tareas[index];              return Dismissible(
                 key: Key(tarea.id.toString()),
                 background: Container(
-                  color: Colors.red,
+                  color: Theme.of(context).colorScheme.error,
                   alignment: Alignment.centerRight,
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: const Icon(Icons.delete, color: Colors.white),
+                  child: Icon(Icons.delete, color: Theme.of(context).colorScheme.onError),
                 ),
                 direction: DismissDirection.startToEnd,
                 confirmDismiss: (direction) async {
@@ -315,18 +361,40 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
   }
 
   void _mostrarModalAgregarTarea(BuildContext context) {
+    // Obtener el estado actual del BLoC
+    final state = context.read<TareaBloc>().state;
+    
+    // Verificar si ya hay 3 tareas
+    if (state is TareaLoaded && state.tareas.length >= 3) {
+      // Mostrar mensaje de error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('No puedes crear más de 3 tareas.'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.all(16),
+          duration: Duration(seconds: 3),
+          action: SnackBarAction(
+            label: 'Entendido',
+            textColor: Theme.of(context).colorScheme.onError,
+            onPressed: () {},
+          ),
+        ),
+      );
+      return; // Salir del método sin mostrar el modal
+    }
+    
+    // Si no se ha alcanzado el límite, mostrar el diálogo normalmente
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder:
-          (dialogContext) => AddTaskModal(
-            onTaskAdded: (Tarea nuevaTarea) {
-              context.read<TareaBloc>().add(CreateTareaEvent(nuevaTarea));
-            },
-          ),
+      builder: (dialogContext) => AddTaskModal(
+        onTaskAdded: (Tarea nuevaTarea) {
+          context.read<TareaBloc>().add(CreateTareaEvent(nuevaTarea));
+        },
+      ),
     );
   }
-
   // Actualizar el método construirTarjetaDeportiva
   Widget construirTarjetaDeportiva(
     Tarea tarea,
@@ -334,10 +402,28 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
     void Function() param2,
     Null Function(dynamic completado) param3,
   ) {
-    return Card(
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+      return Card(
+      elevation: isDark ? 0 : 2, // Sin elevación en modo oscuro para evitar sombras confusas
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(
+          color: isDark 
+              ? theme.colorScheme.outline.withOpacity(0.4) // Mayor opacidad para mejor contraste
+              : theme.colorScheme.outline.withOpacity(0.1),
+          width: isDark ? 1.0 : 0.5, // Borde más grueso en modo oscuro
+        ),
+      ),
+      color: isDark 
+          ? theme.cardTheme.color?.withOpacity(0.9) // Ajuste para mejor visualización
+          : theme.cardTheme.color,
       child: ListTile(
         leading: Checkbox(
           value: tarea.completado,
+          activeColor: theme.colorScheme.primary,
+          checkColor: theme.colorScheme.onPrimary,
           onChanged: (bool? value) {
             if (value != null) {
               context.read<TareaBloc>().add(
@@ -345,16 +431,33 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
               );
             }
           },
-        ),
-        title: Text(
+        ),        title: Text(
           tarea.titulo,
           style: TextStyle(
+            color: tarea.completado && isDark
+                ? theme.textTheme.titleMedium?.color?.withOpacity(0.7)
+                : theme.textTheme.titleMedium?.color,
             decoration: tarea.completado ? TextDecoration.lineThrough : null,
+            decorationColor: theme.colorScheme.secondary,
+            decorationThickness: 2.0,
+            fontWeight: tarea.completado ? FontWeight.normal : FontWeight.bold,
           ),
         ),
-        subtitle: Text(tarea.descripcion ?? ''),
-        trailing: IconButton(
-          icon: const Icon(Icons.edit),
+        subtitle: Text(
+          tarea.descripcion ?? '',
+          style: TextStyle(
+            color: isDark
+                ? theme.textTheme.bodyMedium?.color?.withOpacity(0.8) // Mayor opacidad en modo oscuro
+                : theme.textTheme.bodyMedium?.color?.withOpacity(0.7),
+          ),
+        ),        trailing: IconButton(
+          icon: Icon(
+            Icons.edit,
+            color: isDark
+                ? theme.colorScheme.primary.withOpacity(0.9) // Usa el color primario con alta opacidad
+                : theme.colorScheme.secondary,
+            size: 22, // Tamaño ligeramente más grande para mejor visibilidad
+          ),
           onPressed: () => _mostrarModalEditarTarea(context, tarea),
         ),
       ),

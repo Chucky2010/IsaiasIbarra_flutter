@@ -55,15 +55,21 @@ class WelcomeScreenState extends State<WelcomeScreen> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
+          children: [            Text(
               'Bienvenido, $_userEmail',
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).textTheme.headlineLarge?.color,
+              ),
             ),
             const SizedBox(height: 20),
-            const Text(
+            Text(
               'Has iniciado sesión correctamente.',
-              style: TextStyle(fontSize: 16),
+              style: TextStyle(
+                fontSize: 16,
+                color: Theme.of(context).textTheme.bodyLarge?.color,
+              ),
             ),
           ],
         ),

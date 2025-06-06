@@ -65,10 +65,13 @@ class LoginScreen extends StatelessWidget {
                 key: _formKey,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-              const Text(
+                  children: [              Text(
                   'Inicio de Sesión',
-                  style: TextStyle(color: Colors.black, fontSize: 22),
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.headlineMedium?.color,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               TextFormField(
                 controller: usernameController,
